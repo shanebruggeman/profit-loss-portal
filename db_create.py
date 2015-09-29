@@ -1,12 +1,16 @@
-from app import db
-from models import BlogPost
+from flask import Flask
+from flask.ext.sqlalchemy import SQLAlchemy
 
-#create the database and the tables
-db.create_all()
+application = Flask(__name__)
 
-#insert
-db.session.add(BlogPost("Good", "I\'m good."))
-db.session.add(BlogPost("Good", "I\'m well."))
+class Creator:
+	def makeDB(self):
+		application.secret_key = "secret key"
+		application.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tradetable.db'
 
-# commit the changes
-db.session.commit()
+		# create the sqlalchemy object
+		db = SQLAlchemy(application)
+		return db
+
+self = Creator()
+db = self.makeDB()
