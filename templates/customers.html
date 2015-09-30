@@ -12,8 +12,13 @@
 </head>
 
 <body>
-<nav id="nav01"></nav>
-
+<nav id="nav01">
+    <ul id='menu'>
+      <li><a href="index">Home</a></li>
+      <li><a href="{{ url_for('customers') }}">Data</a></li>
+      <li><a href="{{ url_for('about') }}">About</a></li>
+    </ul>
+  </nav>
 <div id="main">
 <h1>Customers</h1>
 

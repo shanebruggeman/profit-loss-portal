@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<head>
+	<title>Login</title>
+	</head>
+<div id="main">
+<h1>Please login</h1>
+<br>
+<form action="" method="post">
+  <input type="text" placeholder="Username" name="username" value="{{request.form.username }}">
+  <input type="password" placeholder="Password" name="password" value="{{request.form.password }}">
+  <input class="btn btn-default" type="submit" value="Login">
+</form>
+{% if error %}
+	<div>{{ error }}</div>
+{% endif %}
+<div>
+<h3>OR
+	</h3>
+	</div>
+	<div>
+	<a href="{{ url_for('register') }}">Register</a>
+	</div>
+	</div>
+{% endblock %}

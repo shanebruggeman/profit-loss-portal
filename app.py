@@ -36,6 +36,7 @@ def about():
 	return render_template("about.html")
 
 @application.route('/customers')
+@login_required
 def customers():
 	return render_template("customers.html")
 
@@ -43,20 +44,19 @@ def customers():
 def login():
 	error = None
 	if request.method == 'POST':
-		if request.form['username'] != 'admin' or request.form['password'] != 'admin':
-			error = 'Invalid Credentials. Please try again.'
-		else:
+		if db.session.query(User).filter(User.username == request.form['username'], User.password == request.form['password']).first():
 			session['logged_in'] = True
 			flash('You were just logged in!')
 			return redirect(url_for('home'))
-
+		else:
+			error = 'Invalid Credentials. Please try again.'
 	return render_template("login.html", error=error)
 
 @application.route('/logout')
 def logout():
 	session.pop('logged_in', None)
 	flash('You were just logged out!')
-	return redirect(url_for('welcome'))
+	return redirect(url_for('home'))
 
 @application.route('/register', methods=['GET','POST'])
 def register():
@@ -71,7 +71,7 @@ def register():
 			db.session.add(new_user)
 			db.session.commit()
 
-			redirect(url_for('home'))
+			return redirect(url_for('home'))
 		else:
 			session['logged_in'] = True
 			flash('You were just logged in!')

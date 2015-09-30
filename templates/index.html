@@ -10,9 +10,18 @@
 </head>
 
 <body>
-
-  <nav id="nav01"></nav>
-
+{% if session.logged_in %}
+<a href="{{ url_for('logout') }}">Logout</a>
+{% else %}
+<a href="{{ url_for('login') }}">Login</a>
+{% endif %}
+  <nav id="nav01">
+    <ul id='menu'>
+      <li><a href="index">Home</a></li>
+      <li><a href="{{ url_for('customers') }}">Data</a></li>
+      <li><a href="{{ url_for('about') }}">About</a></li>
+    </ul>
+  </nav>
   <div id="main">
    <h1>Profit Loss Portal</h1>
    <h2>Simple Webpage</h2>
