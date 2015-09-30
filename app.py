@@ -38,7 +38,9 @@ def about():
 @application.route('/customers')
 @login_required
 def customers():
-	return render_template("customers.html")
+	transactionList = db.session.query(Transaction).all()
+
+	return render_template("customers.html", list=transactionList)
 
 @application.route('/login', methods=['GET','POST'])
 def login():
