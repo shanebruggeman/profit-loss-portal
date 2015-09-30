@@ -26,45 +26,40 @@
 <!--Just waiting on DB finalization for real data-->
 
 <table id="datatable" class="tablesorter">
+
 <thead>
 <tr>
-  <th>Option Sym</th>
-  <th>Exchange</th>
-  <th>StrikePrice</th>
-  <th>SortMe1</th>
-  <th>SortMe2</th>
-  <th>SortMe3</th>
-  <th>Exp. Date</th>
+  <th>TicketID</th>
+  <th>Accnt</th>
+  <th>Trade</th>
+  <th>Entry</th>
+  <th>Settle</th>
+  <th>B/S</th>
+  <th>Units</th>
+  <th>Sec Symbol</th>
+  <th>Exch</th>
+  <th>Price</th>
+  <!-- <th>Comm</th> -->
 </tr>
 </thead>
 <tbody>
-<tr>
-  <th>BSSK</th>
-  <th>BATS</th>
-  <th>150</th>
-  <th>23</th>
-  <th>43</th>
-  <th>54</th>
-  <th>Jan 18, 2015</th>
--</tr>
-<tr>
-  <th>GOOG</th>
-  <th>CBOE</th>
-  <th>120</th>
-  <th>34</th>
-  <th>54</th>
-  <th>76</th>
-  <th>Jan 10, 2015</th>
--</tr>
-<tr>
-  <th>NFLX</th>
-  <th>BATS</th>
-  <th>200</th>
-  <th>67</th>
-  <th>87</th>
-  <th>12</th>
-  <th>Jun 18, 2014</th>
--</tr>
+  {% for item in list %}
+  <tr>
+    <th> {{ item.ticket_number }}</th>
+    <th> {{ item.account_id }}</th>
+    <th> {{ item.trade }}</th>
+    <th> {{ item.entry }}</th>
+    <th> {{ item.settle }}</th>
+    <th> {{ item.buy_sell }}</th>
+    <th> {{ item.units }}</th>
+    <th> {{ item.sec_sym }}</th>
+    <th> {{ item.exchange_id }}</th>
+    <th> {{ item.price }}</th>
+    <!-- <th> {{ item.commission }}</th> -->
+  </tr>
+
+  {% endfor %}
+
 </tbody>
 </table>
 
