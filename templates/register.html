@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div id="main">
+<h1>Please Register</h1>
+<br>
+<form action="" method="post">
+  <input type="text" placeholder="Name" name="name" value="{{request.form.name }}">
+  <input type="password" placeholder="Password" name="password" value="{{request.form.password }}"><br/>
+  <input type="email" placeholder="Email Address" name="username" value="{{request.form.username }}">
+  <input type="password" placeholder="Confirm Password" name="confirm_password" value="{{request.form.confirm_password }}"><br/>
+  <input class="btn btn-default" type="submit" value="Register">
+</form>
+	</div>
+{% endblock %}
