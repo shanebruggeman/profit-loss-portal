@@ -18,8 +18,12 @@ db.session.add(example_exchange)
 db.session.commit()
 
 date=datetime.datetime(2014,10,14)
-example_transaction=Transaction(example_account.account_id, example_exchange.exchange_id, 1.00, 4, "sec", date, date, date, "tic_num", "buy_me")
+example_transaction=Transaction(example_account.account_id, example_exchange.exchange_id, 1.00, 4, "ASHR PUT 16OCT15 25 (C)", date, date, date, "P91-009KQGF", "B")
 db.session.add(example_transaction)
+example_transaction2=Transaction(example_account.account_id, example_exchange.exchange_id, 3.00, 6, "CBI CALL 15SEP15 25 (C)", date, date, date, "P91-455FJSK", "S")
+db.session.add(example_transaction2)
+example_transaction3=Transaction(example_account.account_id, example_exchange.exchange_id, 2.00, 2, "DANG PUT 18SEP15 6 (C)", date, date, date, "P91-098FKSJ", "B")
+db.session.add(example_transaction3)
 db.session.commit()
 
 #create the database and the tables
