@@ -13,59 +13,64 @@
 </head>
 
 <body>
-<nav id="nav01">
+  {% if session.logged_in %}
+  <a class="login-out pull-right" href="{{ url_for('logout') }}">Logout</a>
+  {% else %}
+  <a class="login-out pull-right" href="{{ url_for('login') }}">Login</a>
+  {% endif %}
+  <nav id="nav01">
     <ul id='menu'>
       <li><a href="index">Home</a></li>
       <li><a href="{{ url_for('customers') }}">Data</a></li>
       <li><a href="{{ url_for('about') }}">About</a></li>
     </ul>
   </nav>
-<div id="main">
-<h1>Customers</h1>
+  <div class="main">
+    <h1>Customers</h1>
 
 
-<!--Just waiting on DB finalization for real data-->
+    <!--Just waiting on DB finalization for real data-->
 
-<table id="datatable" class="tablesorter">
+    <table id="datatable" class="tablesorter">
 
-<thead>
-<tr>
-  <th>TicketID</th>
-  <th>Accnt</th>
-  <th>Trade</th>
-  <th>Entry</th>
-  <th>Settle</th>
-  <th>B/S</th>
-  <th>Units</th>
-  <th>Sec Symbol</th>
-  <th>Exch</th>
-  <th>Price</th>
-  <!-- <th>Comm</th> -->
-</tr>
-</thead>
-<tbody>
-  {% for item in items %}
-  <tr>
-    <th> {{ item.ticket_number }}</th>
-    <th> {{ item.account_id }}</th>
-    <th> {{ item.trade }}</th>
-    <th> {{ item.entry }}</th>
-    <th> {{ item.settle }}</th>
-    <th> {{ item.buy_sell }}</th>
-    <th> {{ item.units }}</th>
-    <th> {{ item.sec_sym }}</th>
-    <th> {{ item.exchange_id }}</th>
-    <th> {{ item.price }}</th>
-    <!-- <th> {{ item.commission }}</th> -->
-  </tr>
+      <thead>
+        <tr>
+          <th>TicketID</th>
+          <th>Accnt</th>
+          <th>Trade</th>
+          <th>Entry</th>
+          <th>Settle</th>
+          <th>B/S</th>
+          <th>Units</th>
+          <th>Sec Symbol</th>
+          <th>Exch</th>
+          <th>Price</th>
+          <!-- <th>Comm</th> -->
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+        <tr>
+          <th> {{ item.ticket_number }}</th>
+          <th> {{ item.account_id }}</th>
+          <th> {{ item.trade }}</th>
+          <th> {{ item.entry }}</th>
+          <th> {{ item.settle }}</th>
+          <th> {{ item.buy_sell }}</th>
+          <th> {{ item.units }}</th>
+          <th> {{ item.sec_sym }}</th>
+          <th> {{ item.exchange_id }}</th>
+          <th> {{ item.price }}</th>
+          <!-- <th> {{ item.commission }}</th> -->
+        </tr>
 
-  {% endfor %}
+        {% endfor %}
 
-</tbody>
-</table>
+      </tbody>
+    </table>
 
-<footer id="foot01"></footer>
-</div>
+    <footer id="foot01"></footer>
+  </div>
 
   <script src="{{ url_for('static', filename='scripts/script.js') }}"></script>
 

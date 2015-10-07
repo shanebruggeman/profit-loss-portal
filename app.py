@@ -16,6 +16,7 @@ def login_required(f):
 	return wrap
 
 @application.route('/')
+@login_required
 def home():
 	# posts = db.session.query(User).all()
 	# return render_template("index.html")
@@ -25,7 +26,10 @@ def home():
 	# 	 totalstring += str(item)
 
 	# print totalstring
-	return render_template("index.html")
+	if 'logged_in' in session:
+		return render_template("newIndex.html")
+	else:
+		return redirect(url_for('login'))
 
 @application.route('/index')
 def main_page():

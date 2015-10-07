@@ -10,4 +10,22 @@ $(document).ready(function() {
 	// "</ul>";
 
 	$('#datatable').tablesorter();
+	$('#fromdate').datepicker();
+	$('#todate').datepicker();
+
+
+	$('#date_selectors').hide();
+
+	$('.date_radio').on('click', function(e) {
+		if ($('#selected_date:checked').val()) {
+			$('#date_selectors').show();
+		}
+		else {
+			$('#date_selectors').hide();
+		}
+	});
+
+	$('#report_btn').on('click', function(e) {
+		window.location.replace("localhost:5000/customers");
+	});
 });

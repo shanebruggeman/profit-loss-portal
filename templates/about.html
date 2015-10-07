@@ -3,14 +3,18 @@
 
 <head>
   <title>About</title>
-  <link href="{{ url_for('static', filename='styles/site.css') }}" rel="stylesheet">
-  <link href="{{ url_for('static', filename='styles/style.css') }}" rel="stylesheet">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-  <script src="{{ url_for('static', filename='scripts/jquery.tablesorter.min.js') }}"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>  
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link href="{{ url_for('static', filename='styles/site.css') }}" rel="stylesheet">
 </head>
 
 <body>
-
+  {% if session.logged_in %}
+  <a class="login-out pull-right" href="{{ url_for('logout') }}">Logout</a>
+  {% else %}
+  <a class="login-out pull-right" href="{{ url_for('login') }}">Login</a>
+  {% endif %}
   <nav id="nav01">
     <ul id='menu'>
       <li><a href="index">Home</a></li>
@@ -19,15 +23,15 @@
     </ul>
   </nav>
   
-  <div id="main">
-  <h1>About Profit Loss Portal</h1>
-  <p>Profit Loss Portal is a simple to use stockmarket simplifier.
-		By searching for your stock we can give you detailed information about that stock across
-		various different stock exchanges.</p>
-  <footer id="foot01"></footer>
-  </div>
-  
-  <script src="{{ url_for('static', filename='scripts/script.js') }}"></script>
-  
-</body>
-</html>
+  <div class="main">
+    <h1>About Profit Loss Portal</h1>
+    <p>Profit Loss Portal is a simple to use stockmarket simplifier.
+      By searching for your stock we can give you detailed information about that stock across
+      various different stock exchanges.</p>
+      <footer id="foot01"></footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='scripts/script.js') }}"></script>
+
+  </body>
+  </html>
