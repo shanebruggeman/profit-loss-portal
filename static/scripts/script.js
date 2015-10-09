@@ -1,13 +1,28 @@
 $(document).ready(function() {
 	$("#foot01").innerHTML =
 	"<p>&copy; " + new Date().getFullYear() + " ProfitLossPortal</p>";
- 
- // 	$("#nav01").innerHTML =
-	// "<ul id='menu'>" +
-	// "<li><a href='index'>Home</a></li>" +
-	// "<li><a href='customers'>Data</a></li>" +
-	// "<li><a href='about'>About</a></li>" +
-	// "</ul>";
 
-	$('#datatable').tablesorter();
+	// Setup - add a text input to each header cell
+	$('#datatable thead th').each(function() {
+		var title = $('#datatable thead th').eq($(this).index()).text();
+		$(this).html('<input type=\'text\' placeholder=\'Search ' + title + '\'/>');
+	});
+
+	// DataTable
+	var datatable = $('#datatable').DataTable();
+	$('#datatable_filter').css('display: none');
+
+	// Apply the search
+	datatable.columns().eq(0).each(function(colIdx) {
+		$('input', datatable.column(colIdx).header()).on('keyup change', function() {
+			datatable
+			.column(colIdx)
+			.search(this.value)
+			.draw();
+		});
+
+		$('input', datatable.column(colIdx).header()).on('click', function(e) {
+			e.stopPropagation();
+		});
+	});
 });

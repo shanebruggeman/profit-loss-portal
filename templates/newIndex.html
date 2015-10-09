@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Profit and Loss Portal</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<script src="{{ url_for('static', filename='scripts/jquery.tablesorter.min.js') }}"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>  
+	<script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>  
+	<script src="//cdnjs.cloudflare.com/ajax/libs/list.js/1.1.1/list.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/r/dt/dt-1.10.9/datatables.min.css"/>
+	<script type="text/javascript" src="https://cdn.datatables.net/r/dt/dt-1.10.9/datatables.min.js"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css">
+	<link href="{{ url_for('static', filename='styles/site.css') }}" rel="stylesheet">
+	<link href="{{ url_for('static', filename='styles/style.css') }}" rel="stylesheet">
+</head>
+<body>
+	<div class="main container-fluid">
+		<a class="login-out pull-right" href="{{ url_for('logout') }}">Logout</a>
+		<h1>Clearance Reports</h1>
+		<form action="" method="post">
+			<div class="col-sm-4">
+				<input type="radio" name="report_type" value="{{ request.form.report_type }}">Trader Confirmation Report<br>
+				<input type="radio" name="report_type" value="{{ request.form.report_type }}">Profit and Loss Report<br><br>
+				<select class="borderless-select" name="account" size=10>
+					<optgroup label="Select an Account">
+						<option value="{{ request.form.account }}">LLFF</option>
+						<option value="{{ request.form.account }}">WVT</option>
+						<option value="{{ request.form.account }}">WCV</option>
+						<option value="{{ request.form.account }}">LLC</option>
+					</optgroup>
+				</select>
+			</div>
+			<div class="col-sm-4">
+				<input class="date_radio" type="radio" name="date_type" value="{{ request.form.date }}">Today<br>
+				<input class="date_radio" type="radio" name="date_type" value="{{ request.form.date }}">Yesterday<br>
+				<input class="date_radio" type="radio" name="date_type" value="{{ request.form.date }}">Month-to-Date<br>
+				<input class="date_radio" type="radio" name="date_type" value="{{ request.form.date }}">Previous Month<br>
+				<input class="date_radio" type="radio" name="date_type" value="{{ request.form.date }}">Year-to-Date<br>
+				<input class="date_radio" type="radio" name="date_type" value="{{ request.form.date }}">Last Year<br>
+				<input class="date_radio" id="selected_date" type="radio" name="date_type" value="{{ request.form.date }}">Selected Dates<br>
+			</div>
+			<div class="col-sm-4">
+				<div id="date_selectors" style="display:none">
+					<label>From: <br><input type="text" id="fromdate" value="{{ request.form.fromdate }}"></label>
+					<label >To: <br><input type="text" id="todate" value="{{ request.form.todate }}"></label>
+				</div>
+			</div>
+			<input id="report_btn" class="btn btn-default" type="" value="Generate Report">
+		</form>
+		
+	</div>
+
+
+	<script src="{{ url_for('static', filename='scripts/script.js') }}"></script>
+</body>
+</html>
