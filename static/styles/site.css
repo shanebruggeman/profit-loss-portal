@@ -1,31 +1,31 @@
 body {
-    font-family: "Trebuchet MS", Verdana, sans-serif;
-    font-size: 16px;
-    background-color: dimgrey; 
-    color: #696969;
-    padding: 3px;
+  font-family: "Trebuchet MS", Verdana, sans-serif;
+  font-size: 16px;
+  background-color: dimgrey; 
+  color: #696969;
+  padding: 3px;
 }
 
 .main {
-    padding: 5px;
-    padding-left:  15px;
-    padding-right: 15px;
-    background-color: #ffffff;
-    border-radius: 0 0 5px 5px;
+  padding: 5px;
+  padding-left:  15px;
+  padding-right: 15px;
+  background-color: #ffffff;
+  border-radius: 0 0 5px 5px;
 }
 
 .login-out {
-    padding: 5px;
-    padding-left:  15px;
-    padding-right: 15px;
-    background-color: #ffffff;
+  padding: 5px;
+  padding-left:  15px;
+  padding-right: 15px;
+  background-color: #ffffff;
 }
 
 .main h1 {
-    font-family: Georgia, serif;
-    border-bottom: 3px solid #cc9900;
-    color: #996600;
-    font-size: 30px;
+  font-family: Georgia, serif;
+  border-bottom: 3px solid #cc9900;
+  color: #996600;
+  font-size: 30px;
 }
 
 table, th , td {
@@ -40,30 +40,51 @@ table tr:nth-child(even) {
 }
 
 #menu {
-    padding: 0;
-    margin-bottom: 11px;
+  padding: 0;
+  margin-bottom: 11px;
 }
 
 #menu li {
-    display: inline;
-    /*margin-right: 3px;*/
+  display: inline;
+  /*margin-right: 3px;*/
 }
 
 #menu li a {
-    background-color: #ffffff;
-    padding: 10px 20px;
-    text-decoration: none;
-    color: #696969;
-    /*border-radius: 4px 4px 0 0;*/
+  background-color: #ffffff;
+  padding: 10px 20px;
+  text-decoration: none;
+  color: #696969;
+  /*border-radius: 4px 4px 0 0;*/
 }
 
 #menu li a:hover {
-    color: white;
-    background-color: black;
+  color: white;
+  background-color: black;
 }
 
-.borderless-select {
-    margin-right: 20px;
-    overflow-y: auto;
-    text-align: left;
+td {
+  padding:10px; 
+  border:solid 1px #eee;
+}
+
+/*input {
+  border:solid 1px #ccc;
+  border-radius: 5px;
+  padding:7px 14px;
+  margin-bottom:10px
+}
+input:focus {
+  outline:none;
+  border-color:#aaa;
+}*/
+
+thead input {
+  width: 100%;
+  /*padding: 3px;*/
+  margin-left: 0px;
+  /*box-sizing: border-box;*/
+}
+
+thead tr th {
+  border: solid 1px #E6E6E6;
 }

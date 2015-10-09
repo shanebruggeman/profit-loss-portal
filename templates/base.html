@@ -1,19 +1,23 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Flask Intro</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="{{ url_for('static', filename='styles/bootstrap.min.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='styles/site.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='styles/style.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='styles/jquery.tablesorter.min.js') }}" rel="script">
-  </head>
-  <body>
+<head>
+  <title>Flask Intro</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>  
+  <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/r/dt/dt-1.10.9/datatables.min.css"/>
+  <script type="text/javascript" src="https://cdn.datatables.net/r/dt/dt-1.10.9/datatables.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css">
+  <link href="{{ url_for('static', filename='styles/site.css') }}" rel="stylesheet">
+</head>
+<body>
 
-    <div class="container">
-      <!-- child template -->
-      {% block content %}
-      {% endblock %}
-    </div>
-  </body>
+  <div class="container">
+    <!-- child template -->
+    {% block content %}
+    {% endblock %}
+  </div>
+</body>
 </html>
