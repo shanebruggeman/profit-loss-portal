@@ -28,13 +28,15 @@ class Account(db.Model):
 	account_id = db.Column(db.Integer, primary_key=True)
 	user_id = db.Column(db.Integer, db.ForeignKey("users.user_id", ondelete='CASCADE')) # may need re-evaluated
 	name = db.Column(db.String, nullable=False)
+	initials = db.Column(db.String, nullable=False)
 
-	def __init__(self, user_id, name):
+	def __init__(self, user_id, name, initials):
 		self.user_id = user_id
 		self.name = name
+		self.initials = initials
 
 	def __repr__(self):
-		return 'Account <{}>'.format(self.name)
+		return 'Account name: <{}> initials: <{}>'.format(self.name, self.initials)
 
 	def __str__(self):
 		return repr(self)

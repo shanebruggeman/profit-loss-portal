@@ -15,21 +15,20 @@ def login_required(f):
 			return redirect(url_for('login'))
 	return wrap
 
-@application.route('/')
+@application.route('/', methods=['GET','POST'])
 @login_required
 def home():
-	# posts = db.session.query(User).all()
-	# return render_template("index.html")
+	if request.method == 'POST':
+		t = request.form['report_type']
+		print t
+		return render_template('about.html', test=t)
+	else:	
+		if 'logged_in' in session:
+			accountsList = db.session.query(Account).filter(Account.user_id == session['user_id']).all()
 
-	# totalstring = ""
-	# for item in posts:
-	# 	 totalstring += str(item)
-
-	# print totalstring
-	if 'logged_in' in session:
-		return render_template("newIndex.html")
-	else:
-		return redirect(url_for('login'))
+			return render_template("newIndex.html", accounts=accountsList)
+		else:
+			return redirect(url_for('login'))
 
 @application.route('/index')
 def main_page():
@@ -51,9 +50,10 @@ def customers():
 def login():
 	error = None
 	if request.method == 'POST':
-		if db.session.query(User).filter(User.username == request.form['username'], User.password == request.form['password']).first():
+		user = db.session.query(User).filter(User.username == request.form['username'], User.password == request.form['password']).first()
+		if user:
 			session['logged_in'] = True
-			flash('You were just logged in!')
+			session['user_id'] = user.user_id;
 			return redirect(url_for('home'))
 		else:
 			error = 'Invalid Credentials. Please try again.'

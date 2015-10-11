@@ -1,33 +1,20 @@
 {% extends "base.html" %}
 {% block content %}
-<head>
-	<title>Login</title>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>  
-	<script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
-	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/r/dt/dt-1.10.9/datatables.min.css"/>
-	<script type="text/javascript" src="https://cdn.datatables.net/r/dt/dt-1.10.9/datatables.min.js"></script>
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-	<link rel="stylesheet" href="https://code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css">
-	<link href="{{ url_for('static', filename='styles/site.css') }}" rel="stylesheet">
-</head>
-<div class="main">
-	<h1>Please login</h1>
-	<br>
-	<form action="" method="post">
-		<input type="text" placeholder="Username" name="username" value="{{request.form.username }}">
-		<input type="password" placeholder="Password" name="password" value="{{request.form.password }}">
-		<input class="btn btn-default" type="submit" value="Login">
-	</form>
-	{% if error %}
-	<div>{{ error }}</div>
-	{% endif %}
-	<div>
-		<h3>OR
-		</h3>
-	</div>
-	<div>
-		<a href="{{ url_for('register') }}">Register</a>
-	</div>
+<h1>Please login</h1>
+<br>
+<form action="" method="post">
+	<input type="text" placeholder="Username" name="username" value="{{request.form.username }}">
+	<input type="password" placeholder="Password" name="password" value="{{request.form.password }}">
+	<input class="btn btn-default" type="submit" value="Login">
+</form>
+{% if error %}
+<div>{{ error }}</div>
+{% endif %}
+<div>
+	<h3>OR
+	</h3>
+</div>
+<div>
+	<a href="{{ url_for('register') }}">Register</a>
 </div>
 {% endblock %}
