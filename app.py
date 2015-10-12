@@ -19,14 +19,18 @@ def login_required(f):
 @login_required
 def home():
 	if request.method == 'POST':
-		t = request.form['report_type']
-		print t
-		return render_template('about.html', test=t)
+		report_type = request.form['report_type']
+		acct = request.form['account']
+		dt = request.form['date_type']
+		if (report_type == 'trader_conf'):
+			return redirect(url_for('trconfreport', account=acct, date=dt))
+		else:
+			return redirect(url_for('plreport', account=acct, date=dt))
 	else:	
 		if 'logged_in' in session:
 			accountsList = db.session.query(Account).filter(Account.user_id == session['user_id']).all()
 
-			return render_template("newIndex.html", accounts=accountsList)
+			return render_template("index.html", accounts=accountsList)
 		else:
 			return redirect(url_for('login'))
 
@@ -38,13 +42,18 @@ def main_page():
 def about():
 	return render_template("about.html")
 
-@application.route('/customers')
+@application.route('/plreport/<account>/<date>')
 @login_required
-def customers():
+def plreport(account, date):
+	return render_template('plreport.html')
 
-	transactionList = db.session.query(Transaction).all()
+@application.route('/trconfreport/<account>/<date>')
+@login_required
+def trconfreport(account, date):
 
-	return render_template("customers.html", list=transactionList)
+	transactionList = db.session.query(Transaction).filter(Transaction.account_id == account).all()
+
+	return render_template("traderconfreport.html", list=transactionList)
 
 @application.route('/login', methods=['GET','POST'])
 def login():

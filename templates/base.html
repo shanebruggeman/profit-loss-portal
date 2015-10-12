@@ -13,34 +13,42 @@
   <link href="{{ url_for('static', filename='styles/site.css') }}" rel="stylesheet">
 </head>
 <body>
-  <div style="overflow: auto; margin-top: -1px; margin-bottom: -2px">
-    <nav id="nav01" class='pull-left'>
-      <ul id='menu'>
-        <li><a href="{{ url_for('home') }}">Home</a></li><!-- whitespace hack
+  <div class="row">
+    <div class="col-sm-12" style="overflow: auto; margin: -1px 0px -2px -3px">
+      <nav id="nav01" class='pull-left'>
+        <ul id='menu'>
+          <li><a href="{{ url_for('home') }}">Home</a></li><!-- whitespace hack
       --><li><a href="{{ url_for('about') }}">About</a></li>
-    </ul>
-  </nav>
-  <nav id="nav02" class='pull-right'>
-    <ul id='menu'>
-      <li>
-        {% if session.logged_in %}
-        <a href="{{ url_for('logout') }}">Logout</a>
-        {% else %}
-        <a href="{{ url_for('login') }}">Login</a>
-        {% endif %}
-      </li>
-    </ul>
-  </nav>
-</div>
+        </ul>
+      </nav>
+      <!-- {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+        <div class="flash">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+      {% endwith %} -->
+      <nav id="nav02" class='pull-right'>
+        <ul id='menu'>
+          <li>
+            {% if session.logged_in %}
+            <a href="{{ url_for('logout') }}">Logout</a>
+            {% else %}
+            <a href="{{ url_for('login') }}">Login</a>
+            {% endif %}
+          </li>
+        </ul>
+      </nav>
+    </div>
 
 
+    <div class="container-fluid col-sm-12">
+      <!-- child template -->
+      {% block content %}
+      {% endblock %}
+    </div>
 
-<div class="container-fluid">
-  <!-- child template -->
-  {% block content %}
-  {% endblock %}
-</div>
-
-<footer id="foot01"></footer>
+  </div>
+  <footer id="foot01"></footer>
 </body>
 </html>

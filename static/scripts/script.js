@@ -5,7 +5,7 @@ $(document).ready(function() {
 	// Setup - add a text input to each header cell
 	$('#datatable thead th').each(function() {
 		var title = $('#datatable thead th').eq($(this).index()).text();
-		$(this).html('<input type=\'text\' placeholder=\'Search ' + title + '\'/>');
+		$(this).append('<input type=\'text\' placeholder=\'Search ' + title + '\'/>');
 	});
 
 	// DataTable

@@ -21,13 +21,10 @@ body {
   font-size: 30px;
 }
 
-/*.login-out {
-  padding: 5px;
-  padding-left:  15px;
-  padding-right: 15px;
+.flash {
   background-color: #ffffff;
-  margin-top: -1px;
-}*/
+  color: #696969;
+}
 
 table, th , td {
 	border: 1px solid grey;
