@@ -15,21 +15,24 @@ def login_required(f):
 			return redirect(url_for('login'))
 	return wrap
 
-@application.route('/')
+@application.route('/', methods=['GET','POST'])
 @login_required
 def home():
-	# posts = db.session.query(User).all()
-	# return render_template("index.html")
+	if request.method == 'POST':
+		report_type = request.form['report_type']
+		acct = request.form['account']
+		dt = request.form['date_type']
+		if (report_type == 'trader_conf'):
+			return redirect(url_for('trconfreport', account=acct, date=dt))
+		else:
+			return redirect(url_for('plreport', account=acct, date=dt))
+	else:	
+		if 'logged_in' in session:
+			accountsList = db.session.query(Account).filter(Account.user_id == session['user_id']).all()
 
-	# totalstring = ""
-	# for item in posts:
-	# 	 totalstring += str(item)
-
-	# print totalstring
-	if 'logged_in' in session:
-		return render_template("newIndex.html")
-	else:
-		return redirect(url_for('login'))
+			return render_template("index.html", accounts=accountsList)
+		else:
+			return redirect(url_for('login'))
 
 @application.route('/index')
 def main_page():
@@ -39,21 +42,27 @@ def main_page():
 def about():
 	return render_template("about.html")
 
-@application.route('/customers')
+@application.route('/plreport/<account>/<date>')
 @login_required
-def customers():
+def plreport(account, date):
+	return render_template('plreport.html')
 
-	transactionList = db.session.query(Transaction).all()
+@application.route('/trconfreport/<account>/<date>')
+@login_required
+def trconfreport(account, date):
 
-	return render_template("customers.html", list=transactionList)
+	transactionList = db.session.query(Transaction).filter(Transaction.account_id == account).all()
+
+	return render_template("traderconfreport.html", list=transactionList)
 
 @application.route('/login', methods=['GET','POST'])
 def login():
 	error = None
 	if request.method == 'POST':
-		if db.session.query(User).filter(User.username == request.form['username'], User.password == request.form['password']).first():
+		user = db.session.query(User).filter(User.username == request.form['username'], User.password == request.form['password']).first()
+		if user:
 			session['logged_in'] = True
-			flash('You were just logged in!')
+			session['user_id'] = user.user_id;
 			return redirect(url_for('home'))
 		else:
 			error = 'Invalid Credentials. Please try again.'
