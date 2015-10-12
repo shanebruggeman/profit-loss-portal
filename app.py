@@ -59,7 +59,7 @@ def trconfreport(account, date):
 def login():
 	error = None
 	if request.method == 'POST':
-		user = db.session.query(User).filter(User.username == request.form['username'], User.password == request.form['password']).first()
+		user = db.session.query(User).filter(User.email == request.form['email'], User.password == request.form['password']).first()
 		if user:
 			session['logged_in'] = True
 			session['user_id'] = user.user_id;
@@ -77,13 +77,13 @@ def logout():
 @application.route('/register', methods=['GET','POST'])
 def register():
 	if request.method == 'POST':
-		if  request.form['name'] != None and request.form['username'] != None and request.form['password'] != None and request.form['password'] == request.form['confirm_password']:
+		if  request.form['name'] != None and request.form['email'] != None and request.form['password'] != None and request.form['password'] == request.form['confirm_password']:
 
 			req_name = request.form['name']
-			req_username = request.form['username'] 
+			req_email = request.form['email'] 
 			req_password = request.form['password']
 
-			new_user = User(req_username, req_password, req_name)
+			new_user = User(req_email, req_password, req_name)
 			db.session.add(new_user)
 			db.session.commit()
 
