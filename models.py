@@ -57,6 +57,7 @@ class Transaction(db.Model):
 	trade = db.Column(db.DateTime, nullable=False) # check time zone
 	ticket_number = db.Column(db.String, nullable=False)
 	buy_sell = db.Column(db.String, nullable=False)
+	commission = db.Column(db.Float, nullable=False)
 
 	def __repr__(self):
 		return 'Transaction <{}>'.format(self.sec_sym)
@@ -64,7 +65,7 @@ class Transaction(db.Model):
 	def __str__(self):
 		return repr(self)
 
-	def __init__(self, account_id, exchange_id, price, units, sec_sym, settle, entry, trade, ticket_number, buy_sell):
+	def __init__(self, account_id, exchange_id, price, units, sec_sym, settle, entry, trade, ticket_number, buy_sell, commission):
 		self.account_id=account_id
 		self.exchange_id=exchange_id
 		self.price=price
@@ -74,7 +75,8 @@ class Transaction(db.Model):
 		self.entry=entry
 		self.trade=trade
 		self.ticket_number=ticket_number
-		self.buy_sell=buy_sell	
+		self.buy_sell=buy_sell
+		self.commission=commission
 
 class Exchange(db.Model):
 

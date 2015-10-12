@@ -10,7 +10,6 @@
   <thead>
     <tr>
       <th>TicketID</th>
-      <th>Accnt</th>
       <th>Trade</th>
       <th>Entry</th>
       <th>Settle</th>
@@ -19,14 +18,13 @@
       <th>Sec Symbol</th>
       <th>Exch</th>
       <th>Price</th>
-      <!-- <th>Comm</th> -->
+      <th>Comm</th>
     </tr>
   </thead>
   <tbody>
     {% for item in list %}
     <tr>
       <td> {{ item.ticket_number }}</td>
-      <td> {{ item.account_id }}</td>
       <td> {{ item.trade }}</td>
       <td> {{ item.entry }}</td>
       <td> {{ item.settle }}</td>
@@ -35,7 +33,7 @@
       <td> {{ item.sec_sym }}</td>
       <td> {{ item.exchange_id }}</td>
       <td> {{ item.price }}</td>
-      <!-- <th> {{ item.commission }}</th> -->
+      <td> {{ item.commission }}</td>
     </tr>
 
     {% endfor %}
