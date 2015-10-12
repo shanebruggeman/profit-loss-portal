@@ -22,12 +22,13 @@
 		<input class="date_radio" type="radio" name="date_type" value="this_year">Year-to-Date<br>
 		<input class="date_radio" type="radio" name="date_type" value="last_year">Last Year<br>
 		<input class="date_radio" id="selected_date" type="radio" name="date_type" value="selected">Selected Dates<br>
+		<div id="date_selectors" style="display:none">
+			<label>From: <br><input type="text" id="fromdate"></label>
+			<label >To: <br><input type="text" id="todate"></label>
+		</div>
 	</div>
 	<div class="col-sm-4">
-		<div id="date_selectors" style="display:none">
-			<label>From: <br><input type="text" id="fromdate" value="from_date"></label>
-			<label >To: <br><input type="text" id="todate" value="to_date"></label>
-		</div>
+		
 	</div>
 	<input id="report_btn" class="btn btn-default" type="submit" value="Generate Report">
 </form>
