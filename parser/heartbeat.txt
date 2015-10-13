@@ -1,0 +1,3 @@
+       21:52:50.095582 8136 c:\samsara\libraries\common\mwFixClient.h:19 Outgoing FIX len 107: 8=FIX.4.29=08435=A52=20151006-02:52:50.76549=_SenderCompID56=_TargetCompID34=625598=0108=3010=142 
+   
+       21:52:57.031892 8136 FixParser.cpp:42 `Incoming Fix len 78: 8=FIX.4.29=05535=052=20151006-02:52:57.70249=XXXX56=YYYY34=5500610=148 

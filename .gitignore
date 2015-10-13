@@ -1,3 +1,5 @@
 venv
 *.pyc
 *.db
+.sublime-*
+.DS_Store
