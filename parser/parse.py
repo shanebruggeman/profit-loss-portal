@@ -1,5 +1,7 @@
 # regular expressions
 import re
+from fixfields import fix_fields_table
+from fixmsgtypes import fix_msg_types_table
 
 class Transaction(object):
 
@@ -27,67 +29,46 @@ class Transaction(object):
 		for entry in pairs:
 			if entry == ' ':
 				continue
-
 			split_pair = entry.split('=')
 			key = split_pair[0]
 			value = split_pair[1]
 			pair_dict[key] = value
 
-		self.properties['Price'] = self.ternary_dict_select(pair_dict, '44')
-		self.properties['Side'] = self.ternary_dict_select(pair_dict, '54')
-		self.properties['Symbol'] = self.ternary_dict_select(pair_dict, '55')
-		self.properties['OrderQty'] = self.ternary_dict_select(pair_dict, '38')
-		self.properties['TransactTime'] = self.ternary_dict_select(pair_dict, '60')
+		for key in pair_dict:
+			key_label = fix_fields_table[key]
+			value = pair_dict[key]
+			self.properties[key_label] = value
+
+		# look up the message type and set it on the transaction
+		msg_type_val = self.properties['MsgType']
+		self.transaction_type = fix_msg_types_table[msg_type_val]
 
 	def ternary_dict_select(self, pair_dict, item_number):
 		return pair_dict[item_number] if item_number in pair_dict else None
 
-transaction_fields = {}
-
-fixtable = {
-	8   : "BeginString",
-	9   : "BodyLength",
-	10  : "CheckSum",
-	11  : "ClOrdID",
-	34  : "MsgSeqNum",
-	35  : "MsgType",
-	38  : "OrderQty",
-	44  : "Price",
-	49  : "SenderCompID",
-	52  : "SendingTime",
-	54  : "Side", # 1 = buy, 2 = sell, 5 = sell short
-	56  : "TargetCompID",
-	59  : "TimeInForce",
-	60  : "TransactTime",
-	77  : "OpenClose",
-	98  : "EncryptMethod",
-	108 : "HeartBtInt",
-	115 : "OnBehalfOfCompID",
-	167 : "SecurityType",
-	200 : "MaturityMonthYear",
-	201 : "PutOrCall",
-	202 : "StrikePrice",
-	205 : "MaturityDay",
-	311 : "UnderlyingSymbol"
-}
-
-
+# check out what the setstatus is doing
 def parse_file():
 	data = open('testdata1.txt', 'r').read()
 	data_lines = data.split('\n')
 
 	results = []
 	for line in data_lines:
-		if '#' in line or not line.strip():
+		if '#' in line or not line.strip() or ('SetStatus' in line):
 			continue
 
-		print line
 		my_transaction = Transaction(line)
 		results.append(my_transaction)
 
 	return results
 
-print parse_file()
+parsed_result = parse_file()
+for result in parsed_result:
+	# print len(result.properties)
+	if len(result.properties) == 1:
+		# print result.properties
+		# print result.base_string
+		continue
+	print result
 
 if __name__ == '__main__':
 	pass
