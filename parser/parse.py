@@ -3,6 +3,33 @@ import re
 from fixfields import fix_fields_table
 from fixmsgtypes import fix_msg_types_table
 
+class MakeTake(object):
+
+	def __init__(self, file):
+		self.base_string = file.read()
+		self.parse_maketext()
+
+	def __str__(self):
+		return self.base_string
+
+	def __str__(self):
+		return self.base_string
+
+	def parse_maketext(self):
+		tab_level = 0
+		lines = self.base_string.split('\n')
+		next = {}
+		properties = {}
+		count = 0
+
+		for line in lines:
+			if '#' in line or not line.strip():
+				continue
+
+			
+
+		self.properties = properties
+
 class Transaction(object):
 
 	def __init__(self, base_string):
@@ -61,14 +88,22 @@ def parse_file():
 
 	return results
 
-parsed_result = parse_file()
-for result in parsed_result:
-	# print len(result.properties)
-	if len(result.properties) == 1:
-		# print result.properties
-		# print result.base_string
-		continue
-	print result
+# parsed_result = parse_file()
+# for result in parsed_result:
+# 	# print len(result.properties)
+# 	if len(result.properties) == 1:
+# 		# print result.properties
+# 		# print result.base_string
+# 		continue
+# 	print result
+
+def parse_make():
+	data = open('maketake_rules.txt','r')
+	maketake_object = MakeTake(data)
+	return maketake_object
+
+makeresult = parse_make()
+# print makeresult
 
 if __name__ == '__main__':
 	pass
