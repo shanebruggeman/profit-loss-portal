@@ -1,5 +1,6 @@
 # regular expressions
 import re
+import sys
 from fixfields import fix_fields_table
 from fixmsgtypes import fix_msg_types_table
 
@@ -47,8 +48,8 @@ class Transaction(object):
 		return pair_dict[item_number] if item_number in pair_dict else None
 
 # check out what the setstatus is doing
-def parse_file():
-	data = open('testdata1.txt', 'r').read()
+def parse_file(data_file):
+	data = open(data_file, 'r').read()
 	data_lines = data.split('\n')
 
 	results = []
@@ -61,14 +62,16 @@ def parse_file():
 
 	return results
 
-parsed_result = parse_file()
-for result in parsed_result:
-	# print len(result.properties)
-	if len(result.properties) == 1:
-		# print result.properties
-		# print result.base_string
-		continue
-	print result
+def main(fName):
+	parsed_result = parse_file(fName)
+	return parsed_result
+	for result in parsed_result:
+		# print len(result.properties)
+		if len(result.properties) == 1:
+			# print result.properties
+			# print result.base_string
+			continue
+		print result
 
 if __name__ == '__main__':
-	pass
+	main(sys.argv[1])
