@@ -26,7 +26,29 @@ class MakeTake(object):
 			if '#' in line or not line.strip():
 				continue
 
-			
+			print line
+
+			words = []
+			build_word = ''
+
+			index = 0
+			while index < len(line):
+				char = line[index]
+
+				if (len(build_word) > 1) and build_word[0] == ' ':
+					if char != ' ':
+						words.append(build_word)
+						build_word = ''
+				
+				elif (len(build_word) > 1) and build_word[0] != ' ':
+					if char == ' ':
+						words.append(build_word)
+						build_word = ''
+
+				build_word = build_word + char
+				index = index + 1
+
+			print words
 
 		self.properties = properties
 
