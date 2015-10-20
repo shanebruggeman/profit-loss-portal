@@ -62,7 +62,8 @@ def login():
 		user = db.session.query(User).filter(User.email == request.form['email'], User.password == request.form['password']).first()
 		if user:
 			session['logged_in'] = True
-			session['user_id'] = user.user_id;
+			session['user_id'] = user.user_id
+			session['admin'] = user.admin
 			return redirect(url_for('home'))
 		else:
 			error = 'Invalid Credentials. Please try again.'
@@ -94,6 +95,11 @@ def register():
 			return redirect(url_for('home'))
 
 	return render_template("register.html")
+
+@application.route('/adminpage', methods=['GET', 'POST'])
+def adminpage():
+	accountsList = db.session.query(Account).all()
+	return render_template("adminpage.html")
 
 if __name__ == '__main__':
 	application.run(debug=True)

@@ -19,6 +19,9 @@
         <ul id='menu'>
           <li><a href="{{ url_for('home') }}">Home</a></li><!-- whitespace hack
       --><li><a href="{{ url_for('about') }}">About</a></li>
+        {% if {{ session.admin }} %}
+        <li><a href="{{ url_for('adminpage') }}">Admin</a></li>
+        {% endif %}
         </ul>
       </nav>
       <!-- {% with messages = get_flashed_messages() %}

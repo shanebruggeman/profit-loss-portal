@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div id="main">
+	<h1>Admin</h1>
+	<br>
+	<div class="row">
+		<div class="col-6-lg col-12-sm">
+			<h2>Make Admins</h2>
+			<form action="" method="post">
+				{% for user in usersList %}
+				<input type="checkbox" name="new_admins" value="{{ user.user_id }}">{{ user.name }}<br>
+				{% endfor %}
+				<input class="btn btn-default" type="submit" value="Set as Admins">
+			</form>
+		</div>
+		<div class="col-6-lg col-12-sm">
+			<h2>Assign Accounts</h2>
+			<form action="" method="post">
+				<div class="row">
+					<div class="col-sm-6">
+						{% for user in usersList %}
+						<input type="radio" name="user_adding_to" value="{{ user.user_id }}">{{ user.name }}<br>
+						{% endfor %}
+					</div>
+					<div class="col-sm-6">
+						{% for account in accountsList %}
+						<input type="checkbox" name="accounts_adding" value="{{ account.account_id }}">{{ account.initials }}<br>
+						{% endfor %}
+					</div>
+					<input class="btn btn-default" type="submit" value="Set as Admins">
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+{% endblock %}

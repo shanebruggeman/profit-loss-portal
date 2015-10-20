@@ -6,7 +6,7 @@ db.drop_all()
 db.create_all()
 db.session.commit()
 
-example_user = User("user@gmail.com","password","user")
+example_user = User("user@gmail.com","password","user", True)
 db.session.add(example_user)
 db.session.commit()
 

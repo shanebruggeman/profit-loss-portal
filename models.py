@@ -8,14 +8,16 @@ class User(db.Model):
 	name = db.Column(db.String, nullable=False)
 	email = db.Column(db.String, nullable=False)
 	password = db.Column(db.String, nullable=False)
+	admin = db.Column(db.Boolean, nullable=False)
 
-	def __init__(self, email, password, name):
+	def __init__(self, email, password, name, admin):
 		self.email = email
 		self.password = password
 		self.name = name
+		self.admin = admin
 
 	def __repr__(self):
-		return 'User <{}> with id {}'.format(self.name, self.user_id)
+		return 'User <{}> with id {}. Is admin? {}'.format(self.name, self.user_id, self.admin)
 
 	def __str__(self):
 		return repr(self)
