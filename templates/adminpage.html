@@ -4,31 +4,56 @@
 <div id="main">
 	<h1>Admin</h1>
 	<br>
-	<div class="row">
-		<div class="col-6-lg col-12-sm">
+	<div class="container-fluid">
+		<div class="col-sm-12 col-lg-4">
 			<h2>Make Admins</h2>
 			<form action="" method="post">
-				{% for user in usersList %}
+				{% for user in users %}
 				<input type="checkbox" name="new_admins" value="{{ user.user_id }}">{{ user.name }}<br>
 				{% endfor %}
-				<input class="btn btn-default" type="submit" value="Set as Admins">
+				<input name="button" class="btn btn-default" type="submit" value="Set as Admins">
 			</form>
 		</div>
-		<div class="col-6-lg col-12-sm">
+		<div class="col-sm-12 col-lg-4">
 			<h2>Assign Accounts</h2>
 			<form action="" method="post">
 				<div class="row">
 					<div class="col-sm-6">
-						{% for user in usersList %}
-						<input type="radio" name="user_adding_to" value="{{ user.user_id }}">{{ user.name }}<br>
-						{% endfor %}
+						<label for="#user_assigning_box">User Assigning to:</label>
+						<div id="user_assigning_box" class="scrollable">
+							{% for user in users %}
+							<input type="radio" name="user_adding_to" value="{{ user.user_id }}">{{ user.name }}<br>
+							{% endfor %}
+						</div>
 					</div>
+					
 					<div class="col-sm-6">
-						{% for account in accountsList %}
-						<input type="checkbox" name="accounts_adding" value="{{ account.account_id }}">{{ account.initials }}<br>
-						{% endfor %}
+						<label for="#accounts_adding_box">Accounts Assigning:</label>
+						<div  id="accounts_adding_box" class="scrollable">
+							{% for account in accounts %}
+							<input type="checkbox" name="accounts_adding" value="{{ account.account_id }}">{{ account.initials }}<br>
+							{% endfor %}
+						</div>
+						<br>
+						<input name="button" class="pull-right btn btn-default" type="submit" value="Associate Accounts">
 					</div>
-					<input class="btn btn-default" type="submit" value="Set as Admins">
+					
+				</div>
+			</form>
+		</div>
+		<div class="col-sm-12 col-lg-4">
+			<h2>Create Accounts</h2>
+			<form action="" method="post">
+				<div class="col-sm-6">
+					<label>Account Name: <br><input type="text" name="new_account_name"></label>
+					<label>Account Initials: <br><input type="text" name="new_account_initials"></label>
+				</div>
+				<div class="col-sm-6">
+					{% for user in users %}
+					<input type="checkbox" name="new_account_watchers" value="{{ user.user_id }}">{{ user.name }}<br>
+					{% endfor %}
+					<br>
+					<input name="button" class="btn btn-default" type="submit" value="Create Account">
 				</div>
 			</form>
 		</div>

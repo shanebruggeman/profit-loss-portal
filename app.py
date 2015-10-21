@@ -28,7 +28,7 @@ def home():
 			return redirect(url_for('plreport', account=acct, date=dt))
 	else:	
 		if 'logged_in' in session:
-			accountsList = db.session.query(Account).filter(Account.user_id == session['user_id']).all()
+			accountsList = db.session.query(User).filter(User.user_id == session['user_id']).first().accounts
 
 			return render_template("index.html", accounts=accountsList)
 		else:
@@ -109,6 +109,8 @@ def login():
 @application.route('/logout')
 def logout():
 	session.pop('logged_in', None)
+	session.pop('user_id', None)
+	session.pop('admin', None)
 	flash('You were just logged out!')
 	return redirect(url_for('home'))
 
@@ -121,7 +123,7 @@ def register():
 			req_email = request.form['email'] 
 			req_password = request.form['password']
 
-			new_user = User(req_email, req_password, req_name)
+			new_user = User(req_email, req_password, req_name, False)
 			db.session.add(new_user)
 			db.session.commit()
 
@@ -134,9 +136,21 @@ def register():
 	return render_template("register.html")
 
 @application.route('/adminpage', methods=['GET', 'POST'])
+@login_required
 def adminpage():
-	accountsList = db.session.query(Account).all()
-	return render_template("adminpage.html")
+	if request.method == 'GET':
+		accountsList = db.session.query(Account).all()
+		usersList = db.session.query(User).filter(User.admin == False).all()
+		return render_template("adminpage.html", accounts=accountsList, users=usersList)
+	else:
+		if request.form['button'] == "Set as Admins":
+			new_admins = request.form.getlist('new_admins')
+			print new_admins
+			for new_id in new_admins:
+				db.session.query(User).filter(User.user_id == new_id).update({User.admin: True})
+				db.session.commit()
+		return url_for('adminpage')
+		
 
 if __name__ == '__main__':
 	application.run(debug=True)

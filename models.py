@@ -1,5 +1,10 @@
 from db_create import db
 
+watches = db.Table('watches',
+	db.Column('user_id', db.Integer, db.ForeignKey('users.user_id')),
+	db.Column('account_id', db.Integer, db.ForeignKey('accounts.account_id'))
+)
+
 class User(db.Model):
 
 	__tablename__ = "users"
@@ -9,6 +14,8 @@ class User(db.Model):
 	email = db.Column(db.String, nullable=False)
 	password = db.Column(db.String, nullable=False)
 	admin = db.Column(db.Boolean, nullable=False)
+	accounts = db.relationship('Account', secondary=watches,
+	 backref=db.backref('users', lazy='dynamic'))
 
 	def __init__(self, email, password, name, admin):
 		self.email = email
@@ -23,17 +30,16 @@ class User(db.Model):
 		return repr(self)
 
 
+
 class Account(db.Model):
 	
 	__tablename__ = "accounts"
 
 	account_id = db.Column(db.Integer, primary_key=True)
-	user_id = db.Column(db.Integer, db.ForeignKey("users.user_id", ondelete='CASCADE')) # may need re-evaluated
 	name = db.Column(db.String, nullable=False)
 	initials = db.Column(db.String, nullable=False)
 
-	def __init__(self, user_id, name, initials):
-		self.user_id = user_id
+	def __init__(self, name, initials):
 		self.name = name
 		self.initials = initials
 
