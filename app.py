@@ -65,23 +65,25 @@ def plreport(account, date):
 	if date == "prev_month":
 		day_of_the_month = datetime.today().day
 		last_month_end = current_time - timedelta(days=day_of_the_month)
-		last_month_begin = last_month_end - timedelta(months=1)
-		transactionList = db.session.query(transaction).filter(transaction.account_id == account, Transaction.trade > last_month_begin, transaction.trade < last_month_end).all() 
+		last_month_begin = last_month_end - timedelta(days=30)
+		transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.entry > last_month_begin, Transaction.trade < last_month_end).all() 
 	
 	if date == "this_year":
 		day_of_the_month = datetime.today().day
 		month_of_the_year = datetime.today().month
 		sub_days = current_time - timedelta(days=day_of_the_month)
-		sub_months = sub_days - timedelta(months=month_of_the_year)
-		transactionList = db.session.query(transaction).filter(transaction.account_id == account, Transaction.trade > sub_months).all()
+		sub_months = sub_days - timedelta(days=30*month_of_the_year)
+		transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.settle > sub_months).all()
 	
 	if date == "last_year":
 		day_of_the_month = datetime.today().day
 		month_of_the_year = datetime.today().month
 		sub_days = current_time - timedelta(days=day_of_the_month)
-		last_year_end = sub_days - timedelta(months=month_of_the_year)
-		last_year_begin = last_year_end - timedelta(years=1)
+		last_year_end = sub_days - timedelta(days= 30*month_of_the_year)
+		last_year_begin = last_year_end - timedelta(weeks=52)
 		transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade > last_year_begin, Transaction.trade < last_year_end).all()
+	print transactionList
+	print db.session.query(Transaction).filter(Transaction.account_id == account).all()
 	return render_template('plreport.html', list=transactionList)
 
 @application.route('/trconfreport/<account>/<date>')
