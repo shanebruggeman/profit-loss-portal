@@ -28,7 +28,8 @@ def home():
 			return redirect(url_for('plreport', account=acct, date=dt))
 	else:	
 		if 'logged_in' in session:
-			accountsList = db.session.query(User).filter(User.user_id == session['user_id']).first().accounts
+			logged_user = db.session.query(User).filter(User.user_id == session['user_id']).first()
+			accountsList = logged_user.accounts
 
 			return render_template("index.html", accounts=accountsList)
 		else:
@@ -89,7 +90,8 @@ def plreport(account, date):
 @application.route('/trconfreport/<account>/<date>')
 @login_required
 def trconfreport(account, date):
-
+	print account
+	print date
 	transactionList = db.session.query(Transaction).filter(Transaction.account_id == account).all()
 
 	return render_template("traderconfreport.html", list=transactionList)
@@ -142,8 +144,10 @@ def register():
 def adminpage():
 	if request.method == 'GET':
 		accountsList = db.session.query(Account).all()
-		usersList = db.session.query(User).filter(User.admin == False).all()
-		return render_template("adminpage.html", accounts=accountsList, users=usersList)
+		allUsers = db.session.query(User).all()
+		nonAdmins = db.session.query(User).filter(User.admin == False).all()
+		return render_template("adminpage.html", accounts=accountsList, 
+			allUsers=allUsers, nonAdmins=nonAdmins)
 	else:
 		if request.form['button'] == "Set as Admins":
 			new_admins = request.form.getlist('new_admins')
@@ -151,8 +155,24 @@ def adminpage():
 			for new_id in new_admins:
 				db.session.query(User).filter(User.user_id == new_id).update({User.admin: True})
 				db.session.commit()
-		return url_for('adminpage')
-		
+			return redirect(url_for('home'))
+		elif request.form['button'] == "Associate Accounts":
+			user_assoc = request.form['user_adding_to']
+			accounts_adding = request.form.getlist('accounts_adding')
+			for acct_id in accounts_adding:
+				acct_obj = db.session.query(Account).filter(Account.account_id == acct_id).first()
+				selected_user = db.session.query(User).filter(User.user_id == user_assoc).first()
+				if acct_obj not in selected_user.accounts:
+					selected_user.accounts.append(acct_obj)
+					db.session.commit()
+			return redirect(url_for('home'))
+		elif request.form['button'] == "Create Account":
+			acct_name = request.form['new_account_name']
+			acct_initials = request.form['new_account_initials']
+			new_acct = Account(acct_name, acct_initials)
+			db.session.add(new_acct)
+			db.session.commit()
+			return redirect(url_for('home'))
 
 if __name__ == '__main__':
 	application.run(debug=True)

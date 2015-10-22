@@ -5,6 +5,24 @@ watches = db.Table('watches',
 	db.Column('account_id', db.Integer, db.ForeignKey('accounts.account_id'))
 )
 
+class Account(db.Model):
+	
+	__tablename__ = "accounts"
+
+	account_id = db.Column(db.Integer, primary_key=True)
+	name = db.Column(db.String, nullable=False)
+	initials = db.Column(db.String, nullable=False)
+
+	def __init__(self, name, initials):
+		self.name = name
+		self.initials = initials
+
+	def __repr__(self):
+		return 'Account name: <{}> initials: <{}>'.format(self.name, self.initials)
+
+	def __str__(self):
+		return repr(self)
+
 class User(db.Model):
 
 	__tablename__ = "users"
@@ -25,26 +43,6 @@ class User(db.Model):
 
 	def __repr__(self):
 		return 'User <{}> with id {}. Is admin? {}'.format(self.name, self.user_id, self.admin)
-
-	def __str__(self):
-		return repr(self)
-
-
-
-class Account(db.Model):
-	
-	__tablename__ = "accounts"
-
-	account_id = db.Column(db.Integer, primary_key=True)
-	name = db.Column(db.String, nullable=False)
-	initials = db.Column(db.String, nullable=False)
-
-	def __init__(self, name, initials):
-		self.name = name
-		self.initials = initials
-
-	def __repr__(self):
-		return 'Account name: <{}> initials: <{}>'.format(self.name, self.initials)
 
 	def __str__(self):
 		return repr(self)
