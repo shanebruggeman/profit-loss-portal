@@ -53,28 +53,28 @@ def plreport(account, date):
 		begin_today = current_time - timedelta(minutes=minutes_to_sub)
 		begin_today = begin_today - timedelta(hours=hours_to_sub)
 
-		transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade > begin_today).all()
+		transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade < begin_today).all()
 	if date == "yesterday":
 		one_day_ago = current_time - timedelta(days=1)
-		transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade > one_day_ago ).all()
+		transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade < one_day_ago).all()
 
 	if date == "this_month":
 		day_of_the_month = datetime.today().day
 		x_days_ago = current_time - timedelta(days=day_of_the_month)
-		transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade > x_days_ago).all()
+		transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade < x_days_ago).all()
 
 	if date == "prev_month":
 		day_of_the_month = datetime.today().day
 		last_month_end = current_time - timedelta(days=day_of_the_month)
 		last_month_begin = last_month_end - timedelta(days=30)
-		transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.entry > last_month_begin, Transaction.trade < last_month_end).all() 
+		transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade < last_month_begin, Transaction.trade > last_month_end).all() 
 	
 	if date == "this_year":
 		day_of_the_month = datetime.today().day
 		month_of_the_year = datetime.today().month
 		sub_days = current_time - timedelta(days=day_of_the_month)
 		sub_months = sub_days - timedelta(days=30*month_of_the_year)
-		transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.settle > sub_months).all()
+		transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade < sub_months).all()
 	
 	if date == "last_year":
 		day_of_the_month = datetime.today().day
@@ -82,9 +82,8 @@ def plreport(account, date):
 		sub_days = current_time - timedelta(days=day_of_the_month)
 		last_year_end = sub_days - timedelta(days= 30*month_of_the_year)
 		last_year_begin = last_year_end - timedelta(weeks=52)
-		transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade > last_year_begin, Transaction.trade < last_year_end).all()
+		transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade < last_year_begin, Transaction.trade > last_year_end).all()
 	print transactionList
-	print db.session.query(Transaction).filter(Transaction.account_id == account).all()
 	return render_template('plreport.html', list=transactionList)
 
 @application.route('/trconfreport/<account>/<date>')
