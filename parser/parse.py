@@ -1,7 +1,115 @@
 # regular expressions
 import re
+import sys
 from fixfields import fix_fields_table
 from fixmsgtypes import fix_msg_types_table
+
+class TabHolder(object):
+	def __init__(self):
+		self.all_tabs = []
+		top_props = ['top', '  ', 'top', '   ', '-1', '  ', '-2', '', 'top']
+		top_tab = StockTab(top_props)
+		self.all_tabs.append(top_tab)
+
+	def size(self):
+		return len(self.all_tabs)
+
+	def get_first(self):
+		return self.all_tabs[0]
+
+	def add(self, stocktab):
+		last_added_tab = self.all_tabs[len(self.all_tabs) - 1]
+		last_added_tabval = last_added_tab.get_tabval()
+
+		next_added_tabval = stocktab.get_tabval()
+		parent_tab = {}
+
+		# if the last added tab was nested deeper than the incoming one
+		indent_in = next_added_tabval > last_added_tabval
+
+		# if the last added tab was nested less deeply than the incoming one
+		indent_back = next_added_tabval < last_added_tabval
+		
+		# if the last added tab was nested equally as deep as the incoming one
+		indent_same = next_added_tabval == last_added_tabval
+
+		# a deeper nesting indicates the last added tab was the parent
+		if indent_in:
+			parent_tab = last_added_tab
+
+		# less deep or equal nesting implies an earlier parent than the last added
+		if indent_back or indent_same:
+
+			# start at the back and move towards the front until the list's tab item is less deeply nested
+			i = len(self.all_tabs) - 1
+			parent_tab = self.all_tabs[i]
+			parent_tab_val = parent_tab.get_tabval()
+
+			# continue until we hit a less tabbed entry.
+			# (the zero'eth entry is guaranteed to be less than)
+			while i >= 0 and parent_tab_val >= next_added_tabval:
+				parent_tab = self.all_tabs[i]
+				parent_tab_val = parent_tab.get_tabval()
+				i = i - 1
+
+		# retrieve the added tab's name and add them to the parent
+		stock_name = stocktab.properties["name"]
+
+		# adding the entry to the parent
+		parent_tab.children[stock_name] = stocktab
+
+		# always add the added tab to the list of tabs
+		self.all_tabs.append(stocktab)
+
+		# always return the overall built object
+		return self.all_tabs[0]
+
+class StockTab(object):
+	def __init__(self, line_parts):
+		self.line_parts = line_parts
+		self.parent = None
+		self.properties = {}
+		self.parse(line_parts)
+		self.children = {}
+
+	def get_tabval(self):
+		return self.properties["tabval"]
+
+	def parse(self, line_parts):
+		make_take = 0
+		option_name = 2
+		add_liquidity_fee = 4
+		take_liquidity_fee = 6
+		tabbed_space = 7
+		attributes_pos = 8
+
+		tabbing = line_parts[tabbed_space]
+		tabval = len(tabbing) / 4
+
+		maketake = line_parts[make_take]
+		op_name = line_parts[option_name]
+		add_fee = line_parts[add_liquidity_fee]
+		take_fee = line_parts[take_liquidity_fee]
+
+		properties = {
+			"name": op_name,
+			"maketake": maketake,
+			"add_fee": add_fee,
+			"take_fee": take_fee,
+			"tabval": tabval
+		}
+
+		self.properties = properties
+
+	def set_parent(self, parent):
+		self.parent = parent
+
+	def __str__(self):
+		return str(self.children)
+
+	def __repr__(self):
+		return str(self)
+
 
 class MakeTake(object):
 
@@ -16,41 +124,54 @@ class MakeTake(object):
 		return self.base_string
 
 	def parse_maketext(self):
-		tab_level = 0
 		lines = self.base_string.split('\n')
-		next = {}
+
 		properties = {}
 		count = 0
+
+		word_map = []
 
 		for line in lines:
 			if '#' in line or not line.strip():
 				continue
 
-			print line
-
 			words = []
 			build_word = ''
-
 			index = 0
-			while index < len(line):
-				char = line[index]
 
-				if (len(build_word) > 1) and build_word[0] == ' ':
-					if char != ' ':
-						words.append(build_word)
-						build_word = ''
-				
-				elif (len(build_word) > 1) and build_word[0] != ' ':
-					if char == ' ':
-						words.append(build_word)
-						build_word = ''
+			for char in line:
+				if len(build_word):
+					if index == len(line) - 1:
+						words.append(build_word + char)
 
-				build_word = build_word + char
+					if build_word[0] == ' ' and char != ' ':
+						words.append(build_word)
+						build_word = char
+						index = index + 1
+						continue
+
+					if build_word[0] != ' ' and char == ' ':
+						words.append(build_word)
+						build_word = char
+						index = index + 1
+						continue
+					
 				index = index + 1
+				build_word = build_word + char
 
-			print words
+			word_map.append(words)
 
-		self.properties = properties
+
+		holder = TabHolder()
+
+		for line in word_map:
+			tab = StockTab(line)
+			holder.add(tab)
+
+		self.tabs = holder
+
+	def get_tabs(self):
+		return self.tabs
 
 class Transaction(object):
 
@@ -96,8 +217,8 @@ class Transaction(object):
 		return pair_dict[item_number] if item_number in pair_dict else None
 
 # check out what the setstatus is doing
-def parse_file():
-	data = open('testdata1.txt', 'r').read()
+def parse_file(data_file):
+	data = open(data_file, 'r').read()
 	data_lines = data.split('\n')
 
 	results = []
@@ -110,22 +231,22 @@ def parse_file():
 
 	return results
 
-# parsed_result = parse_file()
-# for result in parsed_result:
-# 	# print len(result.properties)
-# 	if len(result.properties) == 1:
-# 		# print result.properties
-# 		# print result.base_string
-# 		continue
-# 	print result
+def main(fName):
+	passfile = open(sys.argv[1], 'r')
+	maketake_obj = MakeTake(passfile)
 
-def parse_make():
-	data = open('maketake_rules.txt','r')
-	maketake_object = MakeTake(data)
-	return maketake_object
+	children = maketake_obj.get_tabs()
+	print children.get_first().children["NonStock"].children["IsePro"]
 
-makeresult = parse_make()
-# print makeresult
+	# parsed_result = parse_file(fName)
+	# return parsed_result
+	# for result in parsed_result:
+	# 	# print len(result.properties)
+	# 	if len(result.properties) == 1:
+	# 		# print result.properties
+	# 		# print result.base_string
+	# 		continue
+	# 	print result
 
 if __name__ == '__main__':
-	pass
+	main(sys.argv[1])
