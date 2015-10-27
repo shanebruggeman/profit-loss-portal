@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div id="main">
+	<h1>Admin</h1>
+	<br>
+	<div class="container-fluid">
+		<div class="col-sm-12 col-lg-4">
+			<h2>Make Admins</h2>
+			<form action="" method="post">
+				{% for user in nonAdmins %}
+				<input type="checkbox" name="new_admins" value="{{ user.user_id }}">{{ user.name }}<br>
+				{% endfor %}
+				<input name="button" class="btn btn-default" type="submit" value="Set as Admins">
+			</form>
+		</div>
+		<div class="col-sm-12 col-lg-4">
+			<h2>Assign Accounts</h2>
+			<form action="" method="post">
+				<div class="row">
+					<div class="col-sm-6">
+						<label for="#user_assigning_box">User Assigning to:</label>
+						<div id="user_assigning_box" class="scrollable">
+							{% for user in allUsers %}
+							<input type="radio" name="user_adding_to" value="{{ user.user_id }}">{{ user.name }}<br>
+							{% endfor %}
+						</div>
+					</div>
+					
+					<div class="col-sm-6">
+						<label for="#accounts_adding_box">Accounts Assigning:</label>
+						<div  id="accounts_adding_box" class="scrollable">
+							{% for account in accounts %}
+							<input type="checkbox" name="accounts_adding" value="{{ account.account_id }}">{{ account.initials }}<br>
+							{% endfor %}
+						</div>
+						<br>
+						<input name="button" class="pull-right btn btn-default" type="submit" value="Associate Accounts">
+					</div>
+					
+				</div>
+			</form>
+		</div>
+		<div class="col-sm-12 col-lg-4">
+			<h2>Create Accounts</h2>
+			<form action="" method="post">
+				<label>Account Name: <br><input type="text" name="new_account_name"></label>
+				<label>Account Initials: <br><input type="text" name="new_account_initials"></label>
+				<input name="button" class="btn btn-default" type="submit" value="Create Account">
+			</form>
+		</div>
+	</div>
+</div>
+{% endblock %}

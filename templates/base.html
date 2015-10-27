@@ -14,11 +14,14 @@
 </head>
 <body>
   <div class="row">
-    <div class="col-sm-12" style="overflow: auto; margin: -1px 0px -2px -3px">
+    <div class="col-sm-12" style="overflow: auto; margin: -1px 0px -2px -3px; padding-right: 0px">
       <nav id="nav01" class='pull-left'>
         <ul id='menu'>
           <li><a href="{{ url_for('home') }}">Home</a></li><!-- whitespace hack
-      --><li><a href="{{ url_for('about') }}">About</a></li>
+      --><li><a href="{{ url_for('about') }}">About</a></li><!-- whitespace hack
+      -->{% if session.admin %}<!-- whitespace hack
+      --><li><a href="{{ url_for('adminpage') }}">Admin</a></li>
+        {% endif %}
         </ul>
       </nav>
       <!-- {% with messages = get_flashed_messages() %}
