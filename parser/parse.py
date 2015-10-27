@@ -216,6 +216,8 @@ class Transaction(object):
 	def ternary_dict_select(self, pair_dict, item_number):
 		return pair_dict[item_number] if item_number in pair_dict else None
 
+	def get(self, key):
+		return str(self.properties[key])
 # check out what the setstatus is doing
 def parse_file(data_file):
 	data = open(data_file, 'r').read()
