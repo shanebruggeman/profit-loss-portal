@@ -208,5 +208,9 @@ def adminpage():
 			db.session.commit()
 			return redirect(url_for('home'))
 
+@app.route('/_get_transactions')
+def get_transactions(account, stock_sym):
+	transactionList = db.session.query(Transaction).filter(Transaction.account_id == account).all()
+
 if __name__ == '__main__':
 	application.run(debug=True)
