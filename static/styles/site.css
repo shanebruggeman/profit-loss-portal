@@ -85,3 +85,10 @@ thead input {
 thead tr th {
   border: solid 1px #E6E6E6;
 }
+
+.scrollable {
+  overflow: auto;
+  padding: 10px;
+  height: 400px;
+  background: #E6E6E6;
+}
