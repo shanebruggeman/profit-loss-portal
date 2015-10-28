@@ -52,30 +52,36 @@ def plreport(account, date):
 		hours_to_sub = datetime.today().hour
 		begin_today = current_time - timedelta(minutes=minutes_to_sub)
 		begin_today = begin_today - timedelta(hours=hours_to_sub)
+		time_period = "Period between " + begin_today + " and "+current_time
 
 		transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade < begin_today).all()
+
 	if date == "yesterday":
 		one_day_ago = current_time - timedelta(days=1)
 		transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade < one_day_ago).all()
+		time_period = "Period between " + one_day_ago + " and " + current_time ##needs to be corrected
 
 	if date == "this_month":
 		day_of_the_month = datetime.today().day
 		x_days_ago = current_time - timedelta(days=day_of_the_month)
 		transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade < x_days_ago).all()
+		time_period = "Period between " + str(x_days_ago) + " and " + str(current_time)
 
 	if date == "prev_month":
 		day_of_the_month = datetime.today().day
 		last_month_end = current_time - timedelta(days=day_of_the_month)
 		last_month_begin = last_month_end - timedelta(days=30)
 		transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade < last_month_begin, Transaction.trade > last_month_end).all() 
-	
+		time_period = "Period between " + last_month_begin + " and " + last_month_end
+
 	if date == "this_year":
 		day_of_the_month = datetime.today().day
 		month_of_the_year = datetime.today().month
 		sub_days = current_time - timedelta(days=day_of_the_month)
 		sub_months = sub_days - timedelta(days=30*month_of_the_year)
 		transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade < sub_months).all()
-	
+		time_period = "Period between " + sub_months + " and " + current_time
+
 	if date == "last_year":
 		day_of_the_month = datetime.today().day
 		month_of_the_year = datetime.today().month
@@ -83,8 +89,37 @@ def plreport(account, date):
 		last_year_end = sub_days - timedelta(days= 30*month_of_the_year)
 		last_year_begin = last_year_end - timedelta(weeks=52)
 		transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade < last_year_begin, Transaction.trade > last_year_end).all()
-	print transactionList
-	return render_template('plreport.html', list=transactionList)
+		time_period = "Period between " + last_year_begin + " and " + last_year_end
+
+	stock_dict = {}
+	stock_names = []
+	num_trades = len(transactionList)
+	grand_total = 0
+
+	for item in transactionList:
+		initSymb = item.sec_sym.partition(' ')[0]
+		if initSymb in stock_dict:
+			pass
+		else:
+			stock_names.append(initSymb)
+			itemTotal = 0;
+			for itemz in transactionList:
+				symb = itemz.sec_sym.partition(' ')[0]
+				if symb == initSymb:
+					commish = itemz.commission
+					units = itemz.units
+					broker_fee = commish*units
+					SEC_fee = 0
+					if itemz.buy_sell == "s":
+						SEC_fee = units*itemz.price
+					# print symb +" and "+ initSymb
+					itemTotal += SEC_fee + broker_fee; ##Need to add exchange fee
+					grand_total +=itemTotal
+			stock_dict[initSymb] = itemTotal
+
+	# print(stock_dict)
+
+	return render_template('plreport.html', totalProfit=grand_total, numTrades= num_trades, list=stock_names, dict=stock_dict, period = time_period)
 
 @application.route('/trconfreport/<account>/<date>')
 @login_required
