@@ -1,8 +1,7 @@
 $(document).ready(function() {
+
 	$("#foot01").innerHTML =
 	"<p>&copy; " + new Date().getFullYear() + " ProfitLossPortal</p>";
-
-	// $('#date_selectors').hide();
 
 	$('.date_radio').on('click', function(e) {
 		if ($('#selected_date:checked').val()) {

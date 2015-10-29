@@ -6,7 +6,7 @@ body {
   padding: 3px;
 }
 
-.container-fluid {
+.body-container {
   padding: 5px;
   padding-left:  15px;
   padding-right: 15px;
@@ -14,7 +14,7 @@ body {
   border-radius: 0 0 5px 5px;
 }
 
-.container-fluid h1 {
+.body-container h1 {
   font-family: Georgia, serif;
   border-bottom: 3px solid #cc9900;
   color: #996600;
@@ -84,4 +84,11 @@ thead input {
 
 thead tr th {
   border: solid 1px #E6E6E6;
+}
+
+.scrollable {
+  overflow: auto;
+  padding: 10px;
+  height: 400px;
+  background: #E6E6E6;
 }
