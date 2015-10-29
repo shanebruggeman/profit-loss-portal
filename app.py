@@ -56,7 +56,7 @@ def about():
 @application.route('/plreport/<account>/<date>')
 @login_required
 def plreport(account, date):
-	current_time = datetime.utcnow()
+	current_time = datetime.utcnow() - timedelta(hours=4)
 	if date == "today":
 		minutes_to_sub = datetime.today().minute
 		hours_to_sub = datetime.today().hour
@@ -124,7 +124,7 @@ def plreport(account, date):
 						SEC_fee = units*itemz.price
 					# print symb +" and "+ initSymb
 					itemTotal += SEC_fee + broker_fee; ##Need to add exchange fee
-					grand_total +=itemTotal
+			grand_total +=itemTotal		
 			stock_dict[initSymb] = itemTotal
 
 	# print(stock_dict)
