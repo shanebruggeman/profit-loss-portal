@@ -17,10 +17,11 @@
   <script type=text/javascript>
     $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
   </script>
-  <div class="row">
-    <div class="col-sm-12" style="overflow: auto; margin: -1px 0px -2px -3px; padding-right: 0px">
-      <nav id="nav01" class='pull-left'>
-        <ul id='menu'>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm-12" style="overflow: auto; margin-bottom: -2px; padding: 0px">
+        <nav id="nav01" class='pull-left'>
+          <ul id='menu'>
           <li><a href="{{ url_for('home') }}">Home</a></li><!-- whitespace hack
       --><li><a href="{{ url_for('about') }}">About</a></li><!-- whitespace hack
       -->{% if session.admin %}<!-- whitespace hack
@@ -49,13 +50,14 @@
     </div>
 
 
-    <div class="container-fluid col-sm-12">
+    <div class="body-container col-sm-12">
       <!-- child template -->
       {% block content %}
       {% endblock %}
     </div>
 
   </div>
+</div>
 </body>
 <footer id="foot01"></footer>
 

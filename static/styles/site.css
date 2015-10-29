@@ -6,7 +6,7 @@ body {
   padding: 3px;
 }
 
-.container-fluid {
+.body-container {
   padding: 5px;
   padding-left:  15px;
   padding-right: 15px;
@@ -14,7 +14,7 @@ body {
   border-radius: 0 0 5px 5px;
 }
 
-.container-fluid h1 {
+.body-container h1 {
   font-family: Georgia, serif;
   border-bottom: 3px solid #cc9900;
   color: #996600;
