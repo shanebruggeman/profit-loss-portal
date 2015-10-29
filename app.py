@@ -15,6 +15,16 @@ def login_required(f):
 			return redirect(url_for('login'))
 	return wrap
 
+def admin_required(f):
+	@wraps(f)
+	def wrap(*args, **kwargs):
+		if 'admin' in session:
+			return f(*args, **kwargs)
+		else:
+			flash('You need to login first.')
+			return redirect(url_for('home'))
+	return wrap
+
 @application.route('/', methods=['GET','POST'])
 @login_required
 def home():
@@ -138,7 +148,8 @@ def login():
 		if user:
 			session['logged_in'] = True
 			session['user_id'] = user.user_id
-			session['admin'] = user.admin
+			if user.admin:
+				session['admin'] = user.admin
 			return redirect(url_for('home'))
 		else:
 			error = 'Invalid Credentials. Please try again.'
@@ -165,7 +176,7 @@ def register():
 			db.session.add(new_user)
 			db.session.commit()
 
-			return redirect(url_for('home'))
+			return redirect(url_for('login'))
 		else:
 			session['logged_in'] = True
 			flash('You were just logged in!')
@@ -174,6 +185,7 @@ def register():
 	return render_template("register.html")
 
 @application.route('/adminpage', methods=['GET', 'POST'])
+@admin_required
 @login_required
 def adminpage():
 	if request.method == 'GET':
@@ -213,7 +225,7 @@ def get_transactions():
 	account = request.args.get('account', 0, type=int)
 	stock_sym = request.args.get('stock_sym', 0).lower()
 
-	transactionList = db.session.query(Transaction).filter(Transaction.account_id == account).all()
+	transactionList = db.session.query(Transaction).filter(Transaction.account_id == account).order_by(Transaction.settle).all()
 
 	valueList = []
 	labelList = []
