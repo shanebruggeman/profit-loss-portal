@@ -3,8 +3,12 @@
 
 <h1>Trader Confirmation Report</h1>
 
-
-<!--Just waiting on DB finalization for real data-->
+<input type="text" name="account_id" value="{{ account_id }}" style="display:none">
+<label>Stock Sym: <br><input type="text" name="stock_sym"></label>
+<div id="getChartButton" class="btn btn-default">Get Chart</div>
+<div id="hideChartButton" class="btn btn-default" style="display:none">Hide Chart</div>
+<br>
+<div id="chart_container" class="row"></div><br>
 
 <table id="datatable" class="display">
   <thead>

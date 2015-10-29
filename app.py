@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, session, flash, g
+from flask import Flask, render_template, jsonify, redirect, url_for, request, session, flash, g
 from flask.ext.sqlalchemy import SQLAlchemy
 from datetime import datetime, date, timedelta
 from functools import wraps
@@ -128,7 +128,7 @@ def trconfreport(account, date):
 	print date
 	transactionList = db.session.query(Transaction).filter(Transaction.account_id == account).all()
 
-	return render_template("traderconfreport.html", list=transactionList)
+	return render_template("traderconfreport.html", list=transactionList, account_id=account)
 
 @application.route('/login', methods=['GET','POST'])
 def login():
@@ -207,6 +207,24 @@ def adminpage():
 			db.session.add(new_acct)
 			db.session.commit()
 			return redirect(url_for('home'))
+
+@application.route('/_get_transactions')
+def get_transactions():
+	account = request.args.get('account', 0, type=int)
+	stock_sym = request.args.get('stock_sym', 0).lower()
+
+	transactionList = db.session.query(Transaction).filter(Transaction.account_id == account).all()
+
+	valueList = []
+	labelList = []
+
+	for item in transactionList:
+		initSymb = item.sec_sym.partition(' ')[0].lower()
+		if (initSymb == stock_sym):
+			price_x_unit = item.price * item.units
+			valueList.append(price_x_unit)
+			labelList.append(item.settle.strftime('%d %b %Y'))
+	return jsonify(values=valueList, labels=labelList)
 
 if __name__ == '__main__':
 	application.run(debug=True)

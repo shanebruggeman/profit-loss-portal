@@ -8,6 +8,9 @@ watches = db.Table('watches',
 class Account(db.Model):
 	
 	__tablename__ = "accounts"
+#############################
+	#ADD COMMISSION FIELD
+#############################
 
 	account_id = db.Column(db.Integer, primary_key=True)
 	name = db.Column(db.String, nullable=False)
