@@ -20,7 +20,8 @@ for trans in res:
 			year=date[:4]
 			month=date[4:6]
 			day=date[6:8]
-			ttime=re.split("-", date)
+			ttime=re.split("-", date)[1]
+			date_str=year+'/'+month+'/'+day+' '+ttime
 			date_obj = datetime.strptime(date_str, "%Y/%m/%d %H:%M:%S.%f" )
 			bs=trans.get('PutOrCall')
 			if bs == 1:
