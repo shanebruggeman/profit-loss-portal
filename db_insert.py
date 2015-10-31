@@ -10,7 +10,7 @@ import re
 res = parse.main('./parser/testdata1.txt')
 
 
-#Add to this list for creating transactions
+#Add to this list for creating transactions, (CURRENTLY ONLY SEND ORDERS)
 allowedMessages = 'D'
 for trans in res:
 	if trans.get('MsgType') in allowedMessages:
@@ -28,7 +28,7 @@ for trans in res:
 				buy_sell='Buy'
 			else:
 				buy_sell='Sell'
-			new_trans=Transaction(0,0,float(trans.get('Price')), int(trans.get('OrderQty')),trans.get('UnderlyingSymbol'), date_obj, date_obj, date_obj, trans.get('Symbol'), buy_sell, float(trans.get('Commission')))
+			new_trans=Transaction(1,1,float(trans.get('Price')), int(trans.get('OrderQty')),trans.get('Symbol'), date_obj, date_obj, date_obj, 'UNKNOWN TICKET NUMBER', buy_sell, float(trans.get('Commission')))
 			db.session.add(new_trans)
 		except Exception as e:
 			print e
