@@ -11,6 +11,12 @@ class TabHolder(object):
 		top_tab = StockTab(top_props)
 		self.all_tabs.append(top_tab)
 
+	def __str__(self):
+		return str(self.all_tabs)
+
+	def __repr__(self):
+		return str(self)
+
 	def size(self):
 		return len(self.all_tabs)
 
@@ -111,20 +117,20 @@ class StockTab(object):
 		return str(self)
 
 
-class MakeTake(object):
+class MakeTakeParser(object):
 
-	def __init__(self, file):
-		self.base_string = file.read()
-		self.parse_maketext()
-
-	def __str__(self):
-		return self.base_string
+	def __init__(self):
+		pass
 
 	def __str__(self):
-		return self.base_string
+		return str(self.properties)
 
-	def parse_maketext(self):
-		lines = self.base_string.split('\n')
+	def __repr__(self):
+		return str(self)
+
+	def parse_maketake(self, file):
+		base_string = file.read()
+		lines = base_string.split('\n')
 
 		properties = {}
 		count = 0
@@ -161,17 +167,13 @@ class MakeTake(object):
 
 			word_map.append(words)
 
-
 		holder = TabHolder()
 
 		for line in word_map:
 			tab = StockTab(line)
 			holder.add(tab)
 
-		self.tabs = holder
-
-	def get_tabs(self):
-		return self.tabs
+		return holder
 
 class Transaction(object):
 
@@ -207,19 +209,27 @@ class Transaction(object):
 		for key in pair_dict:
 			key_label = fix_fields_table[key]
 			value = pair_dict[key]
+
 			self.properties[key_label] = value
 
 		# look up the message type and set it on the transaction
 		msg_type_val = self.properties['MsgType']
 		self.transaction_type = fix_msg_types_table[msg_type_val]
+		self.properties['MsgType'] = fix_msg_types_table[msg_type_val]
 
 	def ternary_dict_select(self, pair_dict, item_number):
 		return pair_dict[item_number] if item_number in pair_dict else None
 
 	def get(self, key):
 		return str(self.properties[key])
-# check out what the setstatus is doing
-def parse_file(data_file):
+
+
+def parse_maketake(data_file):
+	data = open(data_file, 'r')
+	parser = MakeTakeParser()
+	return parser.parse_maketake(data)
+
+def parse_transactions(data_file):
 	data = open(data_file, 'r').read()
 	data_lines = data.split('\n')
 
@@ -234,21 +244,13 @@ def parse_file(data_file):
 	return results
 
 def main(fName):
-	passfile = open(sys.argv[1], 'r')
-	maketake_obj = MakeTake(passfile)
+	arg_filename = sys.argv[1]
+	
+	for line in parse_transactions(arg_filename):
+		print line
+		print '\n'
 
-	children = maketake_obj.get_tabs()
-	print children.get_first().children["NonStock"].children["IsePro"]
-
-	# parsed_result = parse_file(fName)
-	# return parsed_result
-	# for result in parsed_result:
-	# 	# print len(result.properties)
-	# 	if len(result.properties) == 1:
-	# 		# print result.properties
-	# 		# print result.base_string
-	# 		continue
-	# 	print result
+	# parse_transactions(arg_filename)
 
 if __name__ == '__main__':
 	main(sys.argv[1])
