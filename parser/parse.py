@@ -197,8 +197,11 @@ class Transaction(object):
 		pairs_string = parsed_string[pairs_start:]
 		pairs = pairs_string.split('')
 
+		counter = 1
+
 		pair_dict = {}
 		for entry in pairs:
+			counter = counter + 1
 			if entry == ' ':
 				continue
 			split_pair = entry.split('=')
@@ -229,28 +232,30 @@ def parse_maketake(data_file):
 	parser = MakeTakeParser()
 	return parser.parse_maketake(data)
 
-def parse_transactions(data_file):
-	data = open(data_file, 'r').read()
-	data_lines = data.split('\n')
+def parse_transactions(transaction_file, maketake_file):
+	transaction_data = open(transaction_file, 'r').read()
+	transaction_lines = transaction_data.split('\n')
 
 	results = []
-	for line in data_lines:
+	for line in transaction_lines:
 		if '#' in line or not line.strip() or ('SetStatus' in line):
 			continue
 
-		my_transaction = Transaction(line)
-		results.append(my_transaction)
+		next_transaction = Transaction(line)
+		results.append(next_transaction)
+
+	# maketake_data = open(maketake_file, 'r').read()
 
 	return results
 
 def main(fName):
 	arg_filename = sys.argv[1]
 	
-	for line in parse_transactions(arg_filename):
+	for line in parse_transactions(arg_filename, 'maketake_rules.txt'):
 		print line
 		print '\n'
 
-	# parse_transactions(arg_filename)
+	# print parse_maketake(arg_filename)
 
 if __name__ == '__main__':
 	main(sys.argv[1])
