@@ -15,6 +15,16 @@ def login_required(f):
 			return redirect(url_for('login'))
 	return wrap
 
+def admin_required(f):
+	@wraps(f)
+	def wrap(*args, **kwargs):
+		if 'admin' in session:
+			return f(*args, **kwargs)
+		else:
+			flash('You need to login first.')
+			return redirect(url_for('home'))
+	return wrap
+
 @application.route('/', methods=['GET','POST'])
 @login_required
 def home():
@@ -52,14 +62,14 @@ def plreport(account, date):
 		hours_to_sub = datetime.today().hour
 		begin_today = current_time - timedelta(minutes=minutes_to_sub)
 		begin_today = begin_today - timedelta(hours=hours_to_sub)
-		time_period = "Period between " + begin_today + " and "+current_time
+		time_period = "Period between " + str(begin_today) + " and " + str(current_time)
 
 		transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade < begin_today).all()
 
 	if date == "yesterday":
 		one_day_ago = current_time - timedelta(days=1)
 		transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade < one_day_ago).all()
-		time_period = "Period between " + one_day_ago + " and " + current_time ##needs to be corrected
+		time_period = "Period between " + str(one_day_ago) + " and " + str(current_time) ##needs to be corrected
 
 	if date == "this_month":
 		day_of_the_month = datetime.today().day
@@ -72,7 +82,7 @@ def plreport(account, date):
 		last_month_end = current_time - timedelta(days=day_of_the_month)
 		last_month_begin = last_month_end - timedelta(days=30)
 		transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade < last_month_begin, Transaction.trade > last_month_end).all() 
-		time_period = "Period between " + last_month_begin + " and " + last_month_end
+		time_period = "Period between " + str(last_month_begin) + " and " + str(last_month_end)
 
 	if date == "this_year":
 		day_of_the_month = datetime.today().day
@@ -80,7 +90,7 @@ def plreport(account, date):
 		sub_days = current_time - timedelta(days=day_of_the_month)
 		sub_months = sub_days - timedelta(days=30*month_of_the_year)
 		transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade < sub_months).all()
-		time_period = "Period between " + sub_months + " and " + current_time
+		time_period = "Period between " + str(sub_months) + " and " + str(current_time)
 
 	if date == "last_year":
 		day_of_the_month = datetime.today().day
@@ -89,7 +99,7 @@ def plreport(account, date):
 		last_year_end = sub_days - timedelta(days= 30*month_of_the_year)
 		last_year_begin = last_year_end - timedelta(weeks=52)
 		transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade < last_year_begin, Transaction.trade > last_year_end).all()
-		time_period = "Period between " + last_year_begin + " and " + last_year_end
+		time_period = "Period between " + str(last_year_begin) + " and " + str(last_year_end)
 
 	stock_dict = {}
 	stock_names = []
@@ -138,7 +148,8 @@ def login():
 		if user:
 			session['logged_in'] = True
 			session['user_id'] = user.user_id
-			session['admin'] = user.admin
+			if user.admin:
+				session['admin'] = user.admin
 			return redirect(url_for('home'))
 		else:
 			error = 'Invalid Credentials. Please try again.'
@@ -165,7 +176,7 @@ def register():
 			db.session.add(new_user)
 			db.session.commit()
 
-			return redirect(url_for('home'))
+			return redirect(url_for('login'))
 		else:
 			session['logged_in'] = True
 			flash('You were just logged in!')
@@ -174,6 +185,7 @@ def register():
 	return render_template("register.html")
 
 @application.route('/adminpage', methods=['GET', 'POST'])
+@admin_required
 @login_required
 def adminpage():
 	if request.method == 'GET':
@@ -213,7 +225,7 @@ def get_transactions():
 	account = request.args.get('account', 0, type=int)
 	stock_sym = request.args.get('stock_sym', 0).lower()
 
-	transactionList = db.session.query(Transaction).filter(Transaction.account_id == account).all()
+	transactionList = db.session.query(Transaction).filter(Transaction.account_id == account).order_by(Transaction.settle).all()
 
 	valueList = []
 	labelList = []

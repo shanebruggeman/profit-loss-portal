@@ -21,7 +21,7 @@ class Account(db.Model):
 		self.initials = initials
 
 	def __repr__(self):
-		return 'Account name: <{}> initials: <{}>'.format(self.name, self.initials)
+		return 'Account name: <{}> initials: <{}> id: <{}>'.format(self.name, self.initials, self.account_id)
 
 	def __str__(self):
 		return repr(self)
@@ -95,7 +95,7 @@ class Exchange(db.Model):
 	symbol = db.Column(db.String, nullable=False)
 
 	def __repr__(self):
-		return 'Exchange <{}>'.format(self.symbol)
+		return 'Exchange: <{}> id: <{}>'.format(self.symbol, self.exchange_id)
 
 	def __str__(self):
 		return repr(self)
