@@ -1,14 +1,13 @@
 # regular expressions
 import re
 import sys
-from fixfields import fix_fields_table
-from fixmsgtypes import fix_msg_types_table
+from reference.fix_tables import fix_fields_table, fix_msg_types_table, sidevalues_table
 
-class TabHolder(object):
+class OptionRowHolder(object):
 	def __init__(self):
 		self.all_tabs = []
-		top_props = ['top', '  ', 'top', '   ', '-1', '  ', '-2', '', 'top']
-		top_tab = StockTab(top_props)
+		top_props = ['top', '  ', 'top', '   ', '(top add fee)', '  ', '(top take fee)', '', 'top']
+		top_tab = StockRow(top_props)
 		self.all_tabs.append(top_tab)
 
 	def __str__(self):
@@ -23,11 +22,20 @@ class TabHolder(object):
 	def get_first(self):
 		return self.all_tabs[0]
 
-	def add(self, stocktab):
+	def lookup(self, exchange, isAddingLiquidity):
+		for tab in self.all_tabs:
+			if tab.properties["name"] == exchange:
+				fee = "add_fee" if isAddingLiquidity else "take_fee"
+				
+				return tab.properties[fee]
+
+		return False
+
+	def add(self, stock_row):
 		last_added_tab = self.all_tabs[len(self.all_tabs) - 1]
 		last_added_tabval = last_added_tab.get_tabval()
 
-		next_added_tabval = stocktab.get_tabval()
+		next_added_tabval = stock_row.get_tabval()
 		parent_tab = {}
 
 		# if the last added tab was nested deeper than the incoming one
@@ -59,24 +67,24 @@ class TabHolder(object):
 				i = i - 1
 
 		# retrieve the added tab's name and add them to the parent
-		stock_name = stocktab.properties["name"]
+		stock_name = stock_row.properties["name"]
 
 		# adding the entry to the parent
-		parent_tab.children[stock_name] = stocktab
+		parent_tab.children[stock_name] = stock_row
 
 		# always add the added tab to the list of tabs
-		self.all_tabs.append(stocktab)
+		self.all_tabs.append(stock_row)
 
 		# always return the overall built object
 		return self.all_tabs[0]
 
-class StockTab(object):
+class StockRow(object):
 	def __init__(self, line_parts):
 		self.line_parts = line_parts
 		self.parent = None
 		self.properties = {}
-		self.parse(line_parts)
 		self.children = {}
+		self.parse(line_parts)
 
 	def get_tabval(self):
 		return self.properties["tabval"]
@@ -111,7 +119,7 @@ class StockTab(object):
 		self.parent = parent
 
 	def __str__(self):
-		return str(self.children)
+		return str(self.properties)
 
 	def __repr__(self):
 		return str(self)
@@ -167,10 +175,10 @@ class MakeTakeParser(object):
 
 			word_map.append(words)
 
-		holder = TabHolder()
+		holder = OptionRowHolder()
 
 		for line in word_map:
-			tab = StockTab(line)
+			tab = StockRow(line)
 			holder.add(tab)
 
 		return holder
@@ -195,30 +203,38 @@ class Transaction(object):
 		
 		pairs_start = parsed_string.find('8=FIX')
 		pairs_string = parsed_string[pairs_start:]
-		pairs = pairs_string.split('')
 
-		counter = 1
+		pairs = pairs_string.split('')
 
 		pair_dict = {}
 		for entry in pairs:
-			counter = counter + 1
-			if entry == ' ':
+			if entry == ' ' or entry == '':
 				continue
+
 			split_pair = entry.split('=')
-			key = split_pair[0]
-			value = split_pair[1]
-			pair_dict[key] = value
+			
+			if len(split_pair) != 2:
+				continue
+
+			try:
+				key = split_pair[0]
+				value = split_pair[1]
+				pair_dict[key] = value
+			except Exception as e:
+				print 'could not add key value pair to transaction data'
+				print e
 
 		for key in pair_dict:
-			key_label = fix_fields_table[key]
-			value = pair_dict[key]
 
-			self.properties[key_label] = value
+			if key in fix_fields_table:
+				key_label = fix_fields_table[key]
+				value = pair_dict[key]
+				self.properties[key_label] = value
 
 		# look up the message type and set it on the transaction
 		msg_type_val = self.properties['MsgType']
 		self.transaction_type = fix_msg_types_table[msg_type_val]
-		self.properties['MsgType'] = fix_msg_types_table[msg_type_val]
+		# self.properties['MsgType'] = fix_msg_types_table[msg_type_val]
 
 	def ternary_dict_select(self, pair_dict, item_number):
 		return pair_dict[item_number] if item_number in pair_dict else None
@@ -232,9 +248,10 @@ def parse_maketake(data_file):
 	parser = MakeTakeParser()
 	return parser.parse_maketake(data)
 
-def parse_transactions(transaction_file, maketake_file):
+def parse_transactions(transaction_file, maketake_file, exchange):
 	transaction_data = open(transaction_file, 'r').read()
 	transaction_lines = transaction_data.split('\n')
+	maketake = parse_maketake(maketake_file)
 
 	results = []
 	for line in transaction_lines:
@@ -246,16 +263,28 @@ def parse_transactions(transaction_file, maketake_file):
 
 	# maketake_data = open(maketake_file, 'r').read()
 
-	return results
+	allowed_transactions = ['D']
+	transactions_found = [item for item in results if item.properties['MsgType'] in allowed_transactions]
+
+	for t in transactions_found:
+		tside = t.properties['Side']
+		isAddingLiquidity = tside == 2
+		t.properties['maketake_fee'] = maketake.lookup(exchange, isAddingLiquidity)
+
+	return transactions_found
 
 def main(fName):
 	arg_filename = sys.argv[1]
+
+	all_transactions = parse_transactions(arg_filename, 'maketake_rules.txt', "Box")
 	
-	for line in parse_transactions(arg_filename, 'maketake_rules.txt'):
+	for line in all_transactions:
+		# pass
 		print line
 		print '\n'
 
-	# print parse_maketake(arg_filename)
+	# tab_holder = parse_maketake('maketake_rules.txt')
+	# print tab_holder.lookup('IseProEtfSpecials', True)
 
 if __name__ == '__main__':
 	main(sys.argv[1])
