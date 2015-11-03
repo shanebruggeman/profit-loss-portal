@@ -16,9 +16,9 @@ db.session.add(example_user)
 db.session.commit()
 
 
-example_account = Account("Windy City Ventures", "WVC")
-example_account2 = Account("Donnie Waters LLC", "DWLLC")
-example_account3 = Account("Chicago Options Trading", "COT")
+example_account = Account("Windy City Ventures", "WVC", 2.5)
+example_account2 = Account("Donnie Waters LLC", "DWLLC", 1.0)
+example_account3 = Account("Chicago Options Trading", "COT", 3.75)
 
 
 db.session.add(example_account)
