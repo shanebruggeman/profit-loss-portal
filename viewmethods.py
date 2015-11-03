@@ -1,4 +1,4 @@
-from flask import Flask, session, g
+from flask import Flask, jsonify, session, g
 from flask.ext.sqlalchemy import SQLAlchemy
 from datetime import datetime, date, timedelta
 from db_create import db, application
@@ -55,3 +55,30 @@ def get_transactions_for_date(account, date):
 		transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade < last_year_begin, Transaction.trade > last_year_end).all()
 		
 	return transactionList
+
+def make_admin(new_admins):
+	for new_id in new_admins:
+		db.session.query(User).filter(User.user_id == new_id).update({User.admin: True})
+		db.session.commit()
+
+def associate_accounts_to_user(user_assoc, accounts_adding):
+	for acct_id in accounts_adding:
+		acct_obj = db.session.query(Account).filter(Account.account_id == acct_id).first()
+		selected_user = db.session.query(User).filter(User.user_id == user_assoc).first()
+		if acct_obj not in selected_user.accounts:
+			selected_user.accounts.append(acct_obj)
+			db.session.commit()
+
+def get_transactions_for_chart(account, stock_sym):
+	transactionList = db.session.query(Transaction).filter(Transaction.account_id == account).order_by(Transaction.settle).all()
+
+	valueList = []
+	labelList = []
+
+	for item in transactionList:
+		initSymb = item.sec_sym.partition(' ')[0].lower()
+		if (initSymb == stock_sym):
+			price_x_unit = item.price * item.units
+			valueList.append(price_x_unit)
+			labelList.append(item.settle.strftime('%d %b %Y'))
+	return jsonify(values=valueList, labels=labelList)

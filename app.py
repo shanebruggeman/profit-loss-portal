@@ -4,6 +4,7 @@ from datetime import datetime, date, timedelta
 from functools import wraps
 from db_create import db, application
 from models import *
+from viewmethods import *
 
 def login_required(f):
 	@wraps(f)
@@ -152,21 +153,12 @@ def adminpage():
 			allUsers=allUsers, nonAdmins=nonAdmins)
 	else:
 		if request.form['button'] == "Set as Admins":
-			new_admins = request.form.getlist('new_admins')
-			print new_admins
-			for new_id in new_admins:
-				db.session.query(User).filter(User.user_id == new_id).update({User.admin: True})
-				db.session.commit()
+			make_admins(request.form.getlist('new_admins'))
 			return redirect(url_for('home'))
 		elif request.form['button'] == "Associate Accounts":
 			user_assoc = request.form['user_adding_to']
 			accounts_adding = request.form.getlist('accounts_adding')
-			for acct_id in accounts_adding:
-				acct_obj = db.session.query(Account).filter(Account.account_id == acct_id).first()
-				selected_user = db.session.query(User).filter(User.user_id == user_assoc).first()
-				if acct_obj not in selected_user.accounts:
-					selected_user.accounts.append(acct_obj)
-					db.session.commit()
+			associate_accounts_to_user(user_assoc, accounts_adding)
 			return redirect(url_for('home'))
 		elif request.form['button'] == "Create Account":
 			acct_name = request.form['new_account_name']
@@ -181,18 +173,7 @@ def get_transactions():
 	account = request.args.get('account', 0, type=int)
 	stock_sym = request.args.get('stock_sym', 0).lower()
 
-	transactionList = db.session.query(Transaction).filter(Transaction.account_id == account).order_by(Transaction.settle).all()
-
-	valueList = []
-	labelList = []
-
-	for item in transactionList:
-		initSymb = item.sec_sym.partition(' ')[0].lower()
-		if (initSymb == stock_sym):
-			price_x_unit = item.price * item.units
-			valueList.append(price_x_unit)
-			labelList.append(item.settle.strftime('%d %b %Y'))
-	return jsonify(values=valueList, labels=labelList)
+	return get_transactions_for_chart(account, stock_sym)
 
 if __name__ == '__main__':
 	application.run(debug=True)
