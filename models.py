@@ -15,10 +15,12 @@ class Account(db.Model):
 	account_id = db.Column(db.Integer, primary_key=True)
 	name = db.Column(db.String, nullable=False)
 	initials = db.Column(db.String, nullable=False)
+	commission = db.Column(db.Float, nullable=False)
 
-	def __init__(self, name, initials):
+	def __init__(self, name, initials, commission):
 		self.name = name
 		self.initials = initials
+		self.commission = commission
 
 	def __repr__(self):
 		return 'Account name: <{}> initials: <{}> id: <{}>'.format(self.name, self.initials, self.account_id)
