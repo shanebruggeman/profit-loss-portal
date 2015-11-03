@@ -15,15 +15,23 @@ example_user = User("user@gmail.com","password","user", True)
 db.session.add(example_user)
 db.session.commit()
 
+user_for_testing = User("test@test.com", "password", "test", False)
+db.session.add(user_for_testing)
+db.session.commit()
 
-example_account = Account("Windy City Ventures", "WVC")
-example_account2 = Account("Donnie Waters LLC", "DWLLC")
-example_account3 = Account("Chicago Options Trading", "COT")
+example_account = Account("Windy City Ventures", "WVC", 2.5)
+example_account2 = Account("Donnie Waters LLC", "DWLLC", 1.0)
+example_account3 = Account("Chicago Options Trading", "COT", 3.75)
 
 
 db.session.add(example_account)
 db.session.add(example_account2)
 db.session.add(example_account3)
+db.session.commit()
+
+user_for_testing.accounts.append(example_account)
+user_for_testing.accounts.append(example_account2)
+user_for_testing.accounts.append(example_account3)
 db.session.commit()
 
 example_user.accounts.append(example_account)
