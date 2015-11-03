@@ -150,8 +150,8 @@ def register():
 def adminpage():
 	if request.method == 'GET':
 		accountsList = db.session.query(Account).all()
-		allUsers = db.session.query(User).all()
-		nonAdmins = db.session.query(User).filter(User.admin == False).all()
+		allUsers = db.session.query(User).filter(User.name != 'test').all()
+		nonAdmins = db.session.query(User).filter(User.admin == False, User.name != 'test').all()
 		return render_template("adminpage.html", accounts=accountsList, 
 			allUsers=allUsers, nonAdmins=nonAdmins)
 	else:
