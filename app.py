@@ -56,7 +56,10 @@ def about():
 @login_required
 def plreport(account, date):
 	
-	transactionList = get_transactions_for_date(account, date)
+	trans_and_time_period = get_transactions_for_date(account, date)
+
+	transactionList = trans_and_time_period['trans']
+	time_period = trans_and_time_period['period']
 
 	stock_dict = {}
 	stock_names = []

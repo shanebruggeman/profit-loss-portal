@@ -11,6 +11,7 @@ def get_accounts_for_user(user_id):
 def get_transactions_for_date(account, date):
 	current_time = datetime.utcnow() - timedelta(hours=4)
 	transactionList = []
+	return_dict = {}
 	if date == "today":
 		minutes_to_sub = datetime.today().minute
 		hours_to_sub = datetime.today().hour
@@ -54,7 +55,10 @@ def get_transactions_for_date(account, date):
 		time_period = "Period between " + str(last_year_begin) + " and " + str(last_year_end)
 		transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade < last_year_begin, Transaction.trade > last_year_end).all()
 		
-	return transactionList
+	return_dict['trans'] = transactionList
+	return_dict['period'] = time_period
+
+	return return_dict
 
 def make_admin(new_admins):
 	for new_id in new_admins:
