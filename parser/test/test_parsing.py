@@ -3,25 +3,43 @@ import parse
 
 testdata_file = "test/example_parse_data.txt"
 test_maketake_file = "test/example_maketake.txt"
+test_exchange = "Box"
+box_add_liquidity = '-0.25'
+box_take_liquidity = '0.30'
 
+# check to see that all the db-insert fields are available
 transaction_required_values = [
 	'TransactTime',
 	'PutOrCall',
-	'settle',
-	'entry',
-	'trade',
-	'ticket_number',
-	'buy_sell',
-	'commission'
+	'MsgType',
+	'UnderlyingSymbol',
+	'StrikePrice',
+	'Price',
+	'OrderQty',
+	'Commission',
+	'maketake_fee'
 ]
 
 class TestParser(unittest.TestCase):
 
 	def test_parsed_data_contains_all_necessary_attributes(self):
-		parsed_result = parse.parse_transactions(testdata_file, test_maketake_file, "Bat")
+		parsed_result = parse.parse_transactions(testdata_file, test_maketake_file, test_exchange)
 
-	def test_make_take_levels_are_appropriately_nested(self):
-		pass
+		for trans in parsed_result:
+			for field in transaction_required_values:
+				assert(field in trans.properties)
+
+	def test_parsed_data_has_correct_maketake_fee(self):
+		parsed_result = parse.parse_transactions(testdata_file, test_maketake_file, test_exchange)
+
+		for trans in parsed_result:
+			isBuying = trans.properties['PutOrCall'] == 1
+			
+			if isBuying:
+				self.assertEqual(box_add_liquidity, trans.properties['maketake_fee'])
+			else:
+				self.assertEqual(box_take_liquidity, trans.properties['maketake_fee'])
+
 
 if __name__ == '__main__':
     unittest.main()
