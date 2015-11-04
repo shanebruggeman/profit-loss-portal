@@ -78,6 +78,7 @@ def get_transactions_for_chart(account, stock_sym):
 
 	valueList = []
 	labelList = []
+	return_dict = {}
 
 	for item in transactionList:
 		initSymb = item.sec_sym.partition(' ')[0].lower()
@@ -85,4 +86,8 @@ def get_transactions_for_chart(account, stock_sym):
 			price_x_unit = item.price * item.units
 			valueList.append(price_x_unit)
 			labelList.append(item.settle.strftime('%d %b %Y'))
-	return jsonify(values=valueList, labels=labelList)
+
+	return_dict['values'] = valueList
+	return_dict['labels'] = labelList
+
+	return return_dict

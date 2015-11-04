@@ -1,4 +1,4 @@
-from flask import Flask, session, g
+from flask import Flask, jsonify, session, g
 from flask.ext.sqlalchemy import SQLAlchemy
 # from datetime import datetime, date, timedelta
 from db_create import db, application
@@ -37,8 +37,7 @@ class TestViewMethods(unittest.TestCase):
 
 	def test_associate_accounts(self):
 		test_user = db.session.query(User).filter(User.user_id == TEST_USER_ID).first()
-		# self.assertEqual(len(test_user.accounts), 0)
-		print test_user.accounts
+		self.assertEqual(len(test_user.accounts), 0)
 
 		accountList = [1,2]
 		associate_accounts_to_user(TEST_USER_ID, accountList)
@@ -49,9 +48,11 @@ class TestViewMethods(unittest.TestCase):
 		db.session.commit()
 
 	def test_get_transaction_for_chart(self):
-		values_and_labels = get_transactions_for_chart(1, "ashr")
 
-		self.assertEqual(len(values_and_labels.values), len(values_and_labels.labels))
+		values_and_labels = get_transactions_for_chart(1, 'ashr')
+		self.assertTrue(len(values_and_labels['values']) > 0)
+		self.assertEqual(len(values_and_labels['values']), len(values_and_labels['labels']))
+
 
 if __name__ == '__main__':
 	unittest.main()

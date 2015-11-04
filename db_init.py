@@ -29,6 +29,10 @@ db.session.add(example_account2)
 db.session.add(example_account3)
 db.session.commit()
 
+user_for_testing.accounts.append(example_account)
+user_for_testing.accounts.append(example_account2)
+user_for_testing.accounts.append(example_account3)
+db.session.commit()
 
 example_user.accounts.append(example_account)
 db.session.commit()
