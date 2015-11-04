@@ -40,6 +40,8 @@ class TestParser(unittest.TestCase):
 			else:
 				self.assertEqual(box_take_liquidity, trans.properties['maketake_fee'])
 
+	def deliberately_fail(self):
+		self.assertTrue(False)
 
 if __name__ == '__main__':
     unittest.main()
