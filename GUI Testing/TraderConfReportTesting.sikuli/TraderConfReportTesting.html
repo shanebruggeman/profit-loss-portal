@@ -1,0 +1,124 @@
+
+<html>
+   <head>
+      <style type="text/css">
+         .sikuli-code {
+            font-size: 20px;
+            font-family: "Osaka-mono", Monospace;
+            line-height: 1.5em;
+            display:table-cell;
+            white-space: pre-wrap;       /* css-3 */
+            white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+            white-space: -pre-wrap;      /* Opera 4-6 */
+            white-space: -o-pre-wrap;    /* Opera 7 */
+            word-wrap: break-word;       /* Internet Explorer 5.5+ */
+            width: 99%;   /* remove horizontal scroll-bar when viewing in IE7 */
+         }
+         .sikuli-code img {
+            vertical-align: middle;
+            margin: 2px;
+            border: 1px solid #ccc;
+            padding: 2px;
+            -moz-border-radius: 5px;
+            -webkit-border-radius: 5px;
+            -moz-box-shadow: 1px 1px 1px gray;
+            -webkit-box-shadow: 1px 1px 2px gray;
+         }
+         .kw {
+            color: blue;
+         }
+         .skw {
+            color: rgb(63, 127, 127);
+         }
+
+         .str {
+            color: rgb(128, 0, 0);
+         }
+
+         .dig {
+            color: rgb(128, 64, 0);
+         }
+
+         .cmt {
+            color: rgb(200, 0, 200);
+         }
+
+         h2 {
+            display: inline;
+            font-weight: normal;
+         }
+
+         .info {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+            display: none;
+         }
+
+         a {
+            color: #9D2900;
+         }
+
+         body {
+            font-family: "Trebuchet MS", Arial, Sans-Serif;
+         }
+
+      </style>
+   </head>
+<body>
+<div class="info">
+<h2>TraderConfReportTesting.sikuli\TraderConfReportTesting.sikuli</h2> <a href="TraderConfReportTesting.sikuli\TraderConfReportTesting.zip">(Download this script)</a>
+</div>
+<pre class="sikuli-code">
+<span class="cmt">##Test Login
+</span><span class="skw">find</span>(<img src="1446578677816.png" />)
+<span class="skw">click</span>(<img src="1446578714024.png" />)
+<span class="skw">type</span>(<span class="str">"user@gmail.com"</span>)
+<span class="skw">find</span>(<img src="1446578734600.png" />)
+<span class="skw">click</span>(<img src="1446578746219.png" />)
+<span class="skw">type</span>(<span class="str">"password"</span>)
+<span class="skw">find</span>(<img src="1446578792088.png" />)
+<span class="skw">click</span>(<img src="1446578800553.png" />)
+<span class="kw">if</span>(exists(<img src="1446578850378.png" />)):
+    <span class="kw">print</span>(<span class="str">"Login passed"</span>);
+<span class="kw">else</span>:
+    <span class="kw">print</span>(<span class="str">"Login failed"</span>);
+
+<span class="cmt">##Test Generating Trader Confirmation Report
+</span><span class="skw">find</span>(<img src="1446579139065.png" />)
+<span class="skw">click</span>(<img src="1446579216809.png" />)
+<span class="skw">find</span>(<img src="1446579854463.png" />)
+<span class="skw">click</span>(<img src="1446579871170.png" />)
+<span class="skw">find</span>(<img src="1446579237922.png" />)
+<span class="skw">click</span>(<img src="1446579897330.png" />)
+<span class="skw">find</span>(<img src="1446579906548.png" />)
+<span class="skw">click</span>(<img src="1446579914227.png" />)
+
+<span class="kw">if</span>(exists(<img src="1446579686089.png" />)):
+    <span class="kw">print</span>(<span class="str">"TCR generated successfully"</span>)
+<span class="kw">else</span>:
+    <span class="kw">print</span>(<span class="str">"TCR failed to generate"</span>)
+
+<span class="cmt">##Testing generating a graph from TCR
+</span><span class="skw">find</span>(<img src="1446580303344.png" />)
+<span class="skw">click</span>(<img src="1446580313354.png" />)
+<span class="skw">type</span>(<span class="str">"ASHR"</span>)
+<span class="skw">find</span>(<img src="1446580328096.png" />)
+<span class="skw">click</span>(<img src="1446580351446.png" />)
+<span class="skw">wait</span>(<span class="dig">3</span>)
+<span class="kw">if</span>(exists(<img src="1446580709447.png" />)):<span class="cmt">##Values subject to change</span>
+    <span class="kw">print</span>(<span class="str">"Chart generated successfully"</span>)
+<span class="kw">else</span>:
+    <span class="kw">print</span>(<span class="str">"Chart failed to generate"</span>)
+
+<span class="cmt">##Testing Hide Chart
+</span><span class="skw">find</span>(<img src="1446580467731.png" />)
+<span class="skw">click</span>(<img src="1446580475774.png" />)
+
+<span class="kw">if</span>(exists(<img src="1446580554730.png" />)):
+    <span class="kw">print</span>(<span class="str">"Chart Hidden Successfully"</span>)
+<span class="kw">else</span>:
+    <span class="kw">print</span>(<span class="str">"Chart not hidden"</span>)
+</pre>
+</body>
+</html>

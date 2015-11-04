@@ -176,7 +176,7 @@ def get_transactions():
 	account = request.args.get('account', 0, type=int)
 	stock_sym = request.args.get('stock_sym', 0).lower()
 
-	return get_transactions_for_chart(account, stock_sym)
+	return jsonify(get_transactions_for_chart(account, stock_sym))
 
 if __name__ == '__main__':
 	application.run(debug=True)
