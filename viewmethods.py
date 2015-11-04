@@ -9,7 +9,7 @@ def get_accounts_for_user(user_id):
 	return logged_user.accounts
 
 def get_transactions_for_date(account, date):
-	current_time = datetime.utcnow() - timedelta(hours=4)
+	current_time = datetime.utcnow() - timedelta(hours=5)
 	transactionList = []
 	return_dict = {}
 	if date == "today":
@@ -17,25 +17,25 @@ def get_transactions_for_date(account, date):
 		hours_to_sub = datetime.today().hour
 		begin_today = current_time - timedelta(minutes=minutes_to_sub)
 		begin_today = begin_today - timedelta(hours=hours_to_sub)
-		time_period = "Period between " + str(begin_today) + " and " + str(current_time)
+		time_period = "Period between " + str(begin_today).split(".")[0] + " and " + str(current_time).split(".")[0]
 		transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade < begin_today).all()
 
 	elif date == "yesterday":
 		one_day_ago = current_time - timedelta(days=1)
-		time_period = "Period between " + str(one_day_ago) + " and " + str(current_time) ##needs to be corrected
+		time_period = "Period between " + str(one_day_ago).split(".")[0] + " and " + str(current_time).split(".")[0] ##needs to be corrected
 		transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade < one_day_ago).all()
 		
 	elif date == "this_month":
 		day_of_the_month = datetime.today().day
 		x_days_ago = current_time - timedelta(days=day_of_the_month)
-		time_period = "Period between " + str(x_days_ago) + " and " + str(current_time)
+		time_period = "Period between " + str(x_days_ago).split(".")[0] + " and " + str(current_time).split(".")[0]
 		transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade < x_days_ago).all()
 		
 	elif date == "prev_month":
 		day_of_the_month = datetime.today().day
 		last_month_end = current_time - timedelta(days=day_of_the_month)
 		last_month_begin = last_month_end - timedelta(days=30)
-		time_period = "Period between " + str(last_month_begin) + " and " + str(last_month_end)
+		time_period = "Period between " + str(last_month_begin).split(".")[0] + " and " + str(last_month_end).split(".")[0]
 		transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade < last_month_begin, Transaction.trade > last_month_end).all() 
 		
 	elif date == "this_year":
@@ -43,7 +43,7 @@ def get_transactions_for_date(account, date):
 		month_of_the_year = datetime.today().month
 		sub_days = current_time - timedelta(days=day_of_the_month)
 		sub_months = sub_days - timedelta(days=30*month_of_the_year)
-		time_period = "Period between " + str(sub_months) + " and " + str(current_time)
+		time_period = "Period between " + str(sub_months).split(".")[0] + " and " + str(current_time).split(".")[0]
 		transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade < sub_months).all()
 		
 	if date == "last_year":
@@ -52,7 +52,7 @@ def get_transactions_for_date(account, date):
 		sub_days = current_time - timedelta(days=day_of_the_month)
 		last_year_end = sub_days - timedelta(days= 30*month_of_the_year)
 		last_year_begin = last_year_end - timedelta(weeks=52)
-		time_period = "Period between " + str(last_year_begin) + " and " + str(last_year_end)
+		time_period = "Period between " + str(last_year_begin).split(".")[0] + " and " + str(last_year_end).split(".")[0]
 		transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade < last_year_begin, Transaction.trade > last_year_end).all()
 		
 	return_dict['trans'] = transactionList
