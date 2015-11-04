@@ -13,6 +13,7 @@ class TestViewMethods(unittest.TestCase):
 	
 	def test_getting_accounts(self):
 		test_user = db.session.query(User).filter(User.user_id == TEST_USER_ID).first()
+		self.assertEqual(len(accountList), 0)
 		accounts = db.session.query(Account).limit(2).all()
 		test_user.accounts = accounts
 		db.session.commit()
