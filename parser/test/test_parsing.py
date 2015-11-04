@@ -27,7 +27,7 @@ class TestParser(unittest.TestCase):
 
 		for trans in parsed_result:
 			for field in transaction_required_values:
-				assert(field in trans.properties)
+				self.assertTrue(field in trans.properties)
 
 	def test_parsed_data_has_correct_maketake_fee(self):
 		parsed_result = parse.parse_transactions(testdata_file, test_maketake_file, test_exchange)
@@ -39,9 +39,6 @@ class TestParser(unittest.TestCase):
 				self.assertEqual(box_add_liquidity, trans.properties['maketake_fee'])
 			else:
 				self.assertEqual(box_take_liquidity, trans.properties['maketake_fee'])
-
-	def deliberately_fail(self):
-		self.assertTrue(False)
 
 if __name__ == '__main__':
     unittest.main()
