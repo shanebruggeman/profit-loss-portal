@@ -89,7 +89,7 @@ def plreport(account, date):
 
 	# print(stock_dict)
 
-	return render_template('plreport.html', totalProfit=grand_total, numTrades= num_trades, list=stock_names, dict=stock_dict, period = time_period)
+	return render_template('plreport.html', transList = transactionList, totalProfit=grand_total, numTrades= num_trades, list=stock_names, dict=stock_dict, period = time_period)
 
 @application.route('/trconfreport/<account>/<date>')
 @login_required
