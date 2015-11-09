@@ -27,7 +27,9 @@
 <b> Total Profit /(Loss) for Account: {{ totalProfit }}</b>
 <br>
 <br>
-<B>ABBV</B> <br><br>
+{% for item in transList %}
+<div class='container-fluid'>
+<B class="pull-left">{{ item }}</B> <br><br>
 <div class="col-sm-3">
   <div class="col-sm-12">
     <u>Date</u>
@@ -36,10 +38,10 @@
     <p><br></p>
   </div>
   <div class="col-sm-12">
-    <p>09/18/15</p>
+    <p>{{ item.trade }}</p>
   </div>
   <div class="col-sm-12">
-    <p>09/18/15</p>
+    <p>xx</p>
   </div>
 </div>
 <div class="col-sm-3">
@@ -67,30 +69,47 @@
     <p><br></p>
   </div>
   <div class="col-sm-12">
-    <p class="pull-right">200</p>
+    {% if item.buy_sell == "B" %}
+    <p class="pull-right">{{ item.units }}</p>
+    {% else %}
+    <p class="pull-right"></p>
+    {% endif %}
   </div>
   <div class="col-sm-12">
-    <p class="pull-right">(200)</p>
+    {% if item.buy_sell == "S" %}
+    <p class="pull-right">{{ item.units }}</p>
+    {% else %}
+    <p class="pull-right"></p>
+    {% endif %}
   </div>
 </div>
 <div class="col-sm-3">
   <div class="col-sm-12">
     <u class ="pull-left">Price</u>
-    <u class="pull-right">Commision</u>
+    <u class="pull-right">Commission</u>
   </div>
   <div class="col-sm-12">
     <p class="pull-left">62.4100</p>
+    <p class="pull-right">{{ item.commission }}</p>
   </div>
   <div class="col-sm-12">
-    <p class="pull-left">60.7800</p>
-  </div>
+ {% if item.buy_sell == "B" %}
+    <p class="pull-left">{{ item.price }}</p>
+    {% else %}
+    <p class="pull-left"></p>
+    {% endif %}  </div>
   <div class="col-sm-12">
-    <p class="pull-left">60.3450</p>
+     {% if item.buy_sell == "S" %}
+    <p class="pull-left">{{ item.price }}</p>
+    {% else %}
+    <p class="pull-left"></p>
+    {% endif %}
   </div>
   <div class="col-sm-12">
     <p class="pull-left">56.100</p>
   </div>
 </div>
+</div>
+{% endfor %}
 
-<b>ABBV CALL 20NOV15 67.5</b>
 {% endblock %}

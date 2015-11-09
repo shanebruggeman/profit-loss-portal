@@ -33,7 +33,7 @@ click("1446580313354.png")
 type("ASHR")
 find("1446580328096.png")
 click("1446580351446.png")
-wait(3)
+wait(5)
 if(exists("1446580709447.png")):##Values subject to change
     print("Chart generated successfully")
 else:
@@ -47,6 +47,14 @@ if(exists("1446580554730.png")):
     print("Chart Hidden Successfully")
 else:
     print("Chart not hidden")
+
+##Testing Logout
+find("1446647614497.png")
+click("1446647623594.png")
+if(exists("1446647672309.png")):
+    print("Logout Successful")
+else:
+    print("Logout Failed")
 
     
 

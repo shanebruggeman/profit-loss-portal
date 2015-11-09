@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Upload a File</h1>
+<div id="actions" class="row">
+	<div class="col-lg-7">
+		<!-- The fileinput-button span is used to style the file input field as button -->
+		<span class="btn btn-success fileinput-button">
+			<i class="glyphicon glyphicon-plus"></i>
+			<span>Add files...</span>
+		</span>
+		<button type="submit" class="btn btn-primary start">
+			<i class="glyphicon glyphicon-upload"></i>
+			<span>Start upload</span>
+		</button>
+		<button type="reset" class="btn btn-warning cancel">
+			<i class="glyphicon glyphicon-ban-circle"></i>
+			<span>Cancel upload</span>
+		</button>
+	</div>
+</div>
+<div class="table table-striped" class="files" id="previews">
+	<div id="template" class="file-row">
+		<!-- This is used as the file preview template -->
+		<div>
+			<span class="preview"><img data-dz-thumbnail /></span>
+		</div>
+		<div>
+			<p class="name" data-dz-name></p>
+			<strong class="error text-danger" data-dz-errormessage></strong>
+		</div>
+		<div>
+			<p class="size" data-dz-size></p>
+			<div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+				<div class="progress-bar progress-bar-success" style="width:0%;" data-dz-uploadprogress></div>
+			</div>
+		</div>
+	</div>
+
+</div>
+{% if filename %}
+<h2>
+	{{ filename }} uploaded successfully
+</h2>
+<script src="{{ url_for('static', filename='scripts/dropzone.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/upload.js') }}"></script>
+{% endif %}
+{% endblock %}

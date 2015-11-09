@@ -105,7 +105,7 @@
 <span class="skw">type</span>(<span class="str">"ASHR"</span>)
 <span class="skw">find</span>(<img src="1446580328096.png" />)
 <span class="skw">click</span>(<img src="1446580351446.png" />)
-<span class="skw">wait</span>(<span class="dig">3</span>)
+<span class="skw">wait</span>(<span class="dig">5</span>)
 <span class="kw">if</span>(exists(<img src="1446580709447.png" />)):<span class="cmt">##Values subject to change</span>
     <span class="kw">print</span>(<span class="str">"Chart generated successfully"</span>)
 <span class="kw">else</span>:
@@ -119,6 +119,14 @@
     <span class="kw">print</span>(<span class="str">"Chart Hidden Successfully"</span>)
 <span class="kw">else</span>:
     <span class="kw">print</span>(<span class="str">"Chart not hidden"</span>)
+
+<span class="cmt">##Testing Logout
+</span><span class="skw">find</span>(<img src="1446647614497.png" />)
+<span class="skw">click</span>(<img src="1446647623594.png" />)
+<span class="kw">if</span>(exists(<img src="1446647672309.png" />)):
+    <span class="kw">print</span>(<span class="str">"Logout Successful"</span>)
+<span class="kw">else</span>:
+    <span class="kw">print</span>(<span class="str">"Logout Failed"</span>)
 </pre>
 </body>
 </html>
