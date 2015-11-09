@@ -91,3 +91,7 @@ def get_transactions_for_chart(account, stock_sym):
 	return_dict['labels'] = labelList
 
 	return return_dict
+
+def update_commission(acct_id, commission):
+	db.session.query(Account).filter(Account.account_id == acct_id).update({Account.commission: commission})
+	db.session.commit()

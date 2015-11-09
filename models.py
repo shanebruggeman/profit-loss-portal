@@ -23,7 +23,7 @@ class Account(db.Model):
 		self.commission = commission
 
 	def __repr__(self):
-		return 'Account name: <{}> initials: <{}> id: <{}>'.format(self.name, self.initials, self.account_id)
+		return 'Account name: <{}> initials: <{}> id: <{}> commission: <{}>'.format(self.name, self.initials, self.account_id, self.commission)
 
 	def __str__(self):
 		return repr(self)

@@ -33,6 +33,8 @@ $(document).ready(function () {
 	});
 
 	$('#getChartButton').on('click', function() {
+	// $('#.sec_sym_link').on('click', function() {
+	// 	stock_sym = 
       $.getJSON($SCRIPT_ROOT + '/_get_transactions', {
         account: $('input[name="account_id"]').val(),
         stock_sym: $('input[name="stock_sym"]').val()

@@ -1,10 +1,19 @@
+import os
 from flask import Flask, render_template, jsonify, redirect, url_for, request, session, flash, g
 from flask.ext.sqlalchemy import SQLAlchemy
+from werkzeug import secure_filename
 from datetime import datetime, date, timedelta
 from functools import wraps
 from db_create import db, application
 from models import *
 from viewmethods import *
+
+UPLOAD_FOLDER = 'C:\\Users\\watersdr\\Documents\\GitHub\\profit-loss-portal\\file_uploads'
+ALLOWED_EXTENSIONS = set(['txt'])
+application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 def login_required(f):
 	@wraps(f)
@@ -170,6 +179,12 @@ def adminpage():
 			db.session.add(new_acct)
 			db.session.commit()
 			return redirect(url_for('home'))
+		elif request.form['button'] == "Change Commission":
+			acct_id = request.form['account_commission_id']
+			commission = request.form['account_commission_value']
+			update_commission(acct_id, commission)
+			print "we got here"
+			return redirect(url_for('home'))
 
 @application.route('/_get_transactions')
 def get_transactions():
@@ -177,6 +192,17 @@ def get_transactions():
 	stock_sym = request.args.get('stock_sym', 0).lower()
 
 	return jsonify(get_transactions_for_chart(account, stock_sym))
+
+@application.route('/upload', methods=['GET', 'POST'])
+def upload():
+	if request.method == 'GET':
+		return render_template('upload.html')
+	else:
+		file = request.files['file']
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(application.config['UPLOAD_FOLDER'] + "\\" + filename)
+            return render_template('upload.html', filename=filename)
 
 if __name__ == '__main__':
 	application.run(debug=True)
