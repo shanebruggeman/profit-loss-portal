@@ -27,7 +27,6 @@ class OptionRowHolder(object):
 		for tab in self.all_tabs:
 			if tab.properties["name"] == exchange:
 				fee = "add_fee" if isAddingLiquidity else "take_fee"
-				
 				return tab.properties[fee]
 
 		return False
@@ -244,9 +243,8 @@ class Transaction(object):
 
 
 def parse_maketake(data_file):
-	data = open(data_file, 'r')
 	parser = MakeTakeParser()
-	return parser.parse_maketake(data)
+	return parser.parse_maketake(data_file)
 
 def parse_transactions(data_filetext, maketake_filetext, exchange):
 	unparsed_transactions = data_filetext.split('\n')
@@ -276,7 +274,7 @@ def parse_transactions(data_filetext, maketake_filetext, exchange):
 		side = properties['Side']
 
 		# liquidity is being added if true, else it is taking liquidity
-		liquidity_bool = side == 2
+		liquidity_bool = bool(side == '2')
 		found_maketake_fee = maketake_fee_searcher.lookup(exchange, liquidity_bool)
 
 		# set the transaction's maketake fee
