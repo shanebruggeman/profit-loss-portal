@@ -7,7 +7,8 @@ import parse
 from datetime import datetime
 import re
 
-res = parse.main('./parser/testdata1.txt')
+parse_dir='./parser/' + sys.argv[1]
+res = parse.main(parse_dir)
 
 
 #Add to this list for creating transactions, (CURRENTLY ONLY SEND ORDERS)
