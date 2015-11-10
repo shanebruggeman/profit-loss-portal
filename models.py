@@ -71,7 +71,7 @@ class Transaction(db.Model):
 	commission = db.Column(db.Float, nullable=False)
 
 	def __repr__(self):
-		return 'Transaction <{}>'.format(self.sec_sym)
+		return 'Transaction <{}> with id <{}>'.format(self.sec_sym, self.transaction_id)
 
 	def __str__(self):
 		return repr(self)
