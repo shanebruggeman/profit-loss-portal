@@ -1,4 +1,5 @@
 # regular expressions
+import os
 import re
 import sys
 from reference.fix_tables import fix_fields_table, fix_msg_types_table, sidevalues_table
@@ -136,9 +137,8 @@ class MakeTakeParser(object):
 	def __repr__(self):
 		return str(self)
 
-	def parse_maketake(self, file):
-		base_string = file.read()
-		lines = base_string.split('\n')
+	def parse_maketake(self, maketake_filetext):
+		lines = maketake_filetext.split('\n')
 
 		properties = {}
 		count = 0
@@ -248,43 +248,76 @@ def parse_maketake(data_file):
 	parser = MakeTakeParser()
 	return parser.parse_maketake(data)
 
-def parse_transactions(transaction_file, maketake_file, exchange):
-	transaction_data = open(transaction_file, 'r').read()
-	transaction_lines = transaction_data.split('\n')
-	maketake = parse_maketake(maketake_file)
+def parse_transactions(data_filetext, maketake_filetext, exchange):
+	unparsed_transactions = data_filetext.split('\n')
 
-	results = []
-	for line in transaction_lines:
-		if '#' in line or not line.strip() or ('SetStatus' in line):
+	# parse all transactions for all valid lines in the data file
+	parsed_transactions = []
+	for unparsed in unparsed_transactions:
+		# avoid lines with comments, irrelevant information, or empty lines
+		if '#' in unparsed or not unparsed.strip() or ('SetStatus' in unparsed):
 			continue
 
-		next_transaction = Transaction(line)
-		results.append(next_transaction)
+		# build a transaction object with the line as the input
+		# this is the where the majority of the data parsing is done
+		parsed = Transaction(unparsed)
+		parsed_transactions.append(parsed)
 
-	# maketake_data = open(maketake_file, 'r').read()
-
+	# only allow single order transactions, at least for now
 	allowed_transactions = ['D']
-	transactions_found = [item for item in results if item.properties['MsgType'] in allowed_transactions]
+	valid_parsed_transactions = [item for item in parsed_transactions if item.properties['MsgType'] in allowed_transactions]
 
-	for t in transactions_found:
-		tside = t.properties['Side']
-		isAddingLiquidity = tside == 2
-		t.properties['maketake_fee'] = maketake.lookup(exchange, isAddingLiquidity)
+	# add relevant information from the maketake file to all the valid transactions
+	maketake_parser = MakeTakeParser()
+	maketake_fee_searcher = maketake_parser.parse_maketake(maketake_filetext)
 
-	return transactions_found
+	for valid_transaction in valid_parsed_transactions:
+		properties = valid_transaction.properties
+		side = properties['Side']
 
-def main(fName):
-	arg_filename = sys.argv[1]
+		# liquidity is being added if true, else it is taking liquidity
+		liquidity_bool = side == 2
+		found_maketake_fee = maketake_fee_searcher.lookup(exchange, liquidity_bool)
 
-	all_transactions = parse_transactions(arg_filename, 'maketake_rules.txt', "Box")
-	
-	for line in all_transactions:
-		# pass
-		print line
+		# set the transaction's maketake fee
+		valid_transaction.properties['maketake_fee'] = found_maketake_fee
+
+	return valid_parsed_transactions
+
+
+def main(exec_args):
+	data_filetext = exec_args[1] if len(exec_args) > 1 else None
+	maketake_filetext = exec_args[2] if len(exec_args) > 2 else None
+	exchange = exec_args[3] if len(exec_args) > 3 else None
+
+	# these three things are absolutely necessary to parse the input
+	if not data_filetext:
+		print "No data file received as parameter to transaction parser."
+	if not maketake_filetext:
+		print "No maketake file received as parameter to maketake parser."
+	if not exchange:
+		print "No exchange received as parameter to maketake parser"
+
+	if not data_filetext or not maketake_filetext or not exchange:
+		return
+
+	# allow for both filepaths and input strings to be parsed
+	if os.path.exists(data_filetext):
+		data_filetext = open(data_filetext, 'r').read()
+		print "Converting data file to string"
+
+	if os.path.exists(maketake_filetext):
+		maketake_filetext = open(maketake_filetext, 'r').read()
+		print "Converting data file to string"
+
+	parsed_results = parse_transactions(data_filetext, maketake_filetext, exchange)
+
+	print_results_nicely(parsed_results)
+
+def print_results_nicely(results):
+	for transaction in results:
+		print transaction
 		print '\n'
 
-	# tab_holder = parse_maketake('maketake_rules.txt')
-	# print tab_holder.lookup('IseProEtfSpecials', True)
-
 if __name__ == '__main__':
-	main(sys.argv[1])
+	main(sys.argv)
