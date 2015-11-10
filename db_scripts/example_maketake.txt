@@ -4,7 +4,7 @@
 
 maketake  Stock                0.00  0.00 instType=stock
 maketake  NonStock             9.99  9.99 instType=equityOpt,indexOpt
-maketake  Ase                  1.00  2.00     exchange=ASE
+maketake  Ase                  9.99  9.99     exchange=ASE
 maketake  AseCust              0.00  0.00         accType=cust
 maketake  AsePro               0.20  0.20         accType=pro
 maketake  Bat                 -0.25  0.30     exchange=BAT

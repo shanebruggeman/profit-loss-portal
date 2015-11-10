@@ -10,7 +10,6 @@ import re
 parse_dir='./parser/' + sys.argv[1]
 res = parse.main(parse_dir)
 
-
 #Add to this list for creating transactions, (CURRENTLY ONLY SEND ORDERS)
 allowedMessages = 'D'
 for trans in res:
