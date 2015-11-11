@@ -31,7 +31,7 @@ for trans in res:
 				buy_sell='Sell'
 
 			sym=trans.get('UnderlyingSymbol') + ' ' + ('CALL ' if bs==1 else 'PUT ') + day+ date_obj.strftime("%b").upper()+year[2:] + ' ' + trans.get('StrikePrice') + (' (C)' if bs==1 else ' (P)')
-			new_trans=Transaction(1,1,float(trans.get('Price')), int(trans.get('OrderQty')),sym, date_obj, date_obj, date_obj, 'UNKNOWN TICKET NUMBER', buy_sell, float(trans.get('Commission')))
+			new_trans=Transaction(sys.argv[2],1,float(trans.get('Price')), int(trans.get('OrderQty')),sym, date_obj, date_obj, date_obj, 'UNKNOWN TICKET NUMBER', buy_sell, float(trans.get('Commission')))
 			db.session.add(new_trans)
 		except Exception as e:
 			print e
