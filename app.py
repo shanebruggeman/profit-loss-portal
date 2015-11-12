@@ -204,6 +204,12 @@ def upload():
             filename = secure_filename(file.filename)
             file.save(application.config['UPLOAD_FOLDER'] + "\\" + filename)
             return render_template('upload.html', filename=filename)
+        else:
+        	return render_template('upload.html', )
+
+@application.errorhandler(404)
+def page_not_found(e):
+	return render_template('pagenotfound.html')
 
 if __name__ == '__main__':
 	if len(sys.argv) > 1:
