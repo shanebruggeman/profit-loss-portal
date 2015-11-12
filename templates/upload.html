@@ -1,24 +1,24 @@
 {% extends "base.html" %}
 {% block content %}
 <h1>Upload a File</h1>
+<!-- <form action="/upload" class="dropzone" id="my-dropzone" method="POST"></form> -->
+<!-- <button id='submit-files'>Upload File(s)</button> -->
+<!-- HTML heavily inspired by http://blueimp.github.io/jQuery-File-Upload/ -->
 <div id="actions" class="row">
 	<div class="col-lg-7">
 		<!-- The fileinput-button span is used to style the file input field as button -->
-		<span class="btn btn-success fileinput-button">
+		<span class="btn btn-success fileinput-button" id='submit-files'>
 			<i class="glyphicon glyphicon-plus"></i>
 			<span>Add files...</span>
 		</span>
-		<button type="submit" class="btn btn-primary start">
-			<i class="glyphicon glyphicon-upload"></i>
-			<span>Start upload</span>
-		</button>
-		<button type="reset" class="btn btn-warning cancel">
-			<i class="glyphicon glyphicon-ban-circle"></i>
-			<span>Cancel upload</span>
-		</button>
+	</div>
+
+	<div class="col-lg-5">
+		
 	</div>
 </div>
 <div class="table table-striped" class="files" id="previews">
+
 	<div id="template" class="file-row">
 		<!-- This is used as the file preview template -->
 		<div>
@@ -30,18 +30,24 @@
 		</div>
 		<div>
 			<p class="size" data-dz-size></p>
-			<div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-				<div class="progress-bar progress-bar-success" style="width:0%;" data-dz-uploadprogress></div>
+			<div class="progress progress-striped active" role="progressbar">
+				<div class="progress-bar progress-bar-success" style="width:0%; height:100%;" data-dz-uploadprogress><span id="progress-message">Message</span></div>
 			</div>
+		</div>
+		<div>
+			<button class="btn btn-primary start">
+				<i class="glyphicon glyphicon-upload"></i>
+				<span>Start</span>
+			</button>
+			<button data-dz-remove class="btn btn-danger delete">
+				<i class="glyphicon glyphicon-trash"></i>
+				<span>Remove</span>
+			</button>
 		</div>
 	</div>
 
 </div>
-{% if filename %}
-<h2>
-	{{ filename }} uploaded successfully
-</h2>
+<!-- <div id="preview-template" style="display:none"></div> -->
 <script src="{{ url_for('static', filename='scripts/dropzone.js') }}"></script>
 <script src="{{ url_for('static', filename='scripts/upload.js') }}"></script>
-{% endif %}
 {% endblock %}
