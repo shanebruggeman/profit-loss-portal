@@ -7,6 +7,7 @@ from functools import wraps
 from db_create import db, application
 from models import *
 from viewmethods import *
+import sys
 
 UPLOAD_FOLDER = 'C:\\Users\\watersdr\\Documents\\GitHub\\profit-loss-portal\\file_uploads'
 ALLOWED_EXTENSIONS = set(['txt'])
@@ -211,4 +212,10 @@ def page_not_found(e):
 	return render_template('pagenotfound.html')
 
 if __name__ == '__main__':
-	application.run(debug=True)
+	if len(sys.argv) > 1:
+		if sys.argv[1] == '-nonlocal':
+			application.run(host='0.0.0.0')
+		else:
+			application.run(debug=True)
+	else:
+		application.run(debug=True)
