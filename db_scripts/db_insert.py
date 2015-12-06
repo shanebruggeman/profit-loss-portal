@@ -1,15 +1,16 @@
+import sys
+sys.path.append('../')
 from app import db
 from models import *
 import datetime
-import sys
-sys.path.append('./parser')
+
+sys.path.append('../parser')
 import parse
 from datetime import datetime
 import re
 
 # res = parse.main('./parser/testdata1.txt')
-res = parse.parse_transactions("example_parse_data.txt", "example_maketake.txt", "Box")
-
+res = parse.main(["", "example_parse_data.txt", "example_maketake.txt", "Box"])
 #Add to this list for creating transactions, (CURRENTLY ONLY SEND ORDERS)
 allowedMessages = 'D'
 for trans in res:

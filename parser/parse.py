@@ -310,8 +310,8 @@ def main(exec_args):
 
 	parsed_results = parse_transactions(data_filetext, maketake_filetext, exchange)
 
-	print_results_nicely(parsed_results)
-
+	#print_results_nicely(parsed_results)
+	return parsed_results
 def print_results_nicely(results):
 	for transaction in results:
 		print transaction
