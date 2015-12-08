@@ -173,19 +173,6 @@ def adminpage():
 			accounts_adding = request.form.getlist('accounts_adding')
 			associate_accounts_to_user(user_assoc, accounts_adding)
 			return redirect(url_for('home'))
-		elif request.form['button'] == "Create Account":
-			acct_name = request.form['new_account_name']
-			acct_initials = request.form['new_account_initials']
-			new_acct = Account(acct_name, acct_initials)
-			db.session.add(new_acct)
-			db.session.commit()
-			return redirect(url_for('home'))
-		elif request.form['button'] == "Change Commission":
-			acct_id = request.form['account_commission_id']
-			commission = request.form['account_commission_value']
-			update_commission(acct_id, commission)
-			print "we got here"
-			return redirect(url_for('home'))
 
 @application.route('/_get_transactions')
 def get_transactions():
@@ -206,6 +193,27 @@ def upload():
             return render_template('upload.html', filename=filename)
         else:
         	return render_template('upload.html', )
+
+@application.route('/editaccount', methods=['GET', 'POST'])
+def editaccount():
+	if request.method == 'GET':
+		accountsList = db.session.query(Account).order_by(Account.initials).all()
+		return render_template('editaccount.html', accounts=accountsList)
+	else:
+		if request.form['button'] == "Create Account":
+			acct_name = request.form['new_account_name']
+			acct_initials = request.form['new_account_initials']
+			acct_comm = request.form['new_account_commission']
+			new_acct = Account(acct_name, acct_initials, acct_comm)
+			db.session.add(new_acct)
+			db.session.commit()
+			return redirect(url_for('editaccount'))
+		elif request.form['button'] == "Change Commission":
+			acct_id = request.form['account_commission_id']
+			commission = request.form['account_commission_value']
+			update_commission(acct_id, commission)
+			print "we got here"
+			return redirect(url_for('editaccount'))
 
 @application.errorhandler(404)
 def page_not_found(e):

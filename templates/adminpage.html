@@ -42,33 +42,7 @@
 			</form>
 		</div>
 		<div class="col-sm-12 col-lg-3">
-			<h2>Create Accounts</h2>
-			<form action="" method="post">
-				<label>Account Name: <br><input type="text" name="new_account_name"></label>
-				<label>Account Initials: <br><input type="text" name="new_account_initials"></label>
-				<br>
-				<input name="button" class="btn btn-default pull-right" type="submit" value="Create Account">
-			</form>
-		</div>
-		<div class="col-sm-12 col-lg-3">
-			<h2>Edit Account Commission</h2>
-			<form action="" method="post">
-				<div class="row">
-					<div class="col-sm-6">
-						<label for="#account_commission_box">Account:</label>
-						<div  id="account_commission_box" class="scrollable">
-							{% for account in accounts %}
-							<input type="radio" name="account_commission_id" value="{{ account.account_id }}">{{ account.initials }}<br>
-							{% endfor %}
-						</div>
-					</div>
-					<div class="col-sm-6">
-						<label>Commission: <br><input type="text" name="account_commission_value"></label>
-					</div>
-					<br>
-					<input name="button" class="pull-right btn btn-default" type="submit" value="Change Commission">					
-				</div>
-			</form>
+			<a class="btn btn-default" href="{{ url_for('editaccount') }}">Edit Accounts</a>
 		</div>
 	</div>
 </div>
