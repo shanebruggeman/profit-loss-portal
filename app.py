@@ -215,6 +215,10 @@ def editaccount():
 			print "we got here"
 			return redirect(url_for('editaccount'))
 
+@application.route('/newplreport')
+def newplreport():
+	return render_template('newplreport.html')
+
 @application.errorhandler(404)
 def page_not_found(e):
 	return render_template('pagenotfound.html')

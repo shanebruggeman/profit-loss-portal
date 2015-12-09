@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block content %}
+<script src="{{ url_for('static', filename='scripts/bootstrap-table-expandable.js') }}"></script>
+<link href="{{ url_for('static', filename='styles/bootstrap-table-expandable.css') }}" rel="stylesheet">
+
+<h1>Profit and Loss Report</h1>
+
+<div class="container-fluid">
+	
+	<table class="table table-expandable">
+		<thead>
+			<tr>
+				<th>Symbol</th>
+				<th>Strike</th>
+				<th>Unreal</th>
+				<th>Real</th>
+				<th>Net</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>RAD</td>
+				<td> </td>
+				<td>$300.00</td>
+				<td>$485.20</td>
+				<td>$785.20</td>
+			</tr>
+			<tr>
+				<td colspan="6">
+					<table class="table table-expandable">
+						<tbody>
+							<tr>
+								<td>RAD</td>
+								<td>0</td>
+								<td>$247.00</td>
+								<td>$247.00</td>
+							</tr>
+							<tr>
+								<td colspan="5">
+									<table class="table">
+										<thead>
+											<th>Trade Date</th>
+											<th>Ex Quan</th>
+											<th>Ex Price</th>
+											<th>Exch</th>
+											<th>Mark</th>
+											<th>Real</th>
+											<th>Net Fees</th>
+										</thead>
+										<tbody>
+											<tr>
+												<td>RAD</td>
+												<td>0</td>
+												<td>$247.00</td>
+												<td>$247.00</td>
+												<td>$247.00</td>
+												<td>$247.00</td>
+												<td>$247.00</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+
+</div>
+{% endblock %}
