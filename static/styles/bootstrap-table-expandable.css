@@ -7,7 +7,7 @@ table.table-expandable.table-hover > tbody > tr:nth-child(even):hover td {
 }
 
 table.table-expandable > tbody > tr div.table-expandable-arrow {
-    background:transparent url(../images/arrows.png) no-repeat scroll 0px -16px; width:16px; height:16px; display:block;
+    background:transparent url(../images/plusminus.png) no-repeat scroll 0px -16px; width:16px; height:16px; display:block;
 }
 
 table.table-expandable > tbody > tr div.table-expandable-arrow.up {
