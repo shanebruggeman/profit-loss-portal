@@ -11,3 +11,10 @@ print 'TRANSACTION'
 print Transaction.query.all()
 print 'EXCHANGE'
 print Exchange.query.all()
+print 'STOCKPOSITION'
+positions = StockPosition.query.all()
+for pos in positions:
+	print pos
+	trans = pos.all_transactions
+	for tran in trans:
+		print '\t' + str(tran)
