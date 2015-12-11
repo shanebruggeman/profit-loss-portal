@@ -71,7 +71,7 @@ class Transaction(db.Model):
 	isPosition = db.Column(db.Boolean, nullable=False)
 
 	def __repr__(self):
-		return 'Transaction <{}>'.format(self.sec_sym)
+		return 'Transaction <{}> with units {}, price {}, commission {}'.format(self.sec_sym)
 
 	def __str__(self):
 		return repr(self)

@@ -298,9 +298,6 @@ def main(exec_args):
 	if not data_filetext or not maketake_filetext or not exchange:
 		return
 
-	print data_filetext
-	print maketake_filetext
-
 	# allow for both filepaths and input strings to be parsed
 	if os.path.exists(data_filetext):
 		data_filetext = open(data_filetext, 'r').read()

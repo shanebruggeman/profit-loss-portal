@@ -75,4 +75,4 @@ db.session.commit()
 # db.session.add(example_transaction10)
 # db.session.add(example_transaction11)
 
-db.session.commit()
+# db.session.commit()
