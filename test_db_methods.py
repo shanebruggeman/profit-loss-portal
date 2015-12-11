@@ -61,7 +61,7 @@ class TestDatabaseMethods(unittest.TestCase):
         acc=Account.query.first()
         ex=Exchange.query.first()
         date=datetime.datetime.now()
-        test_trans=Transaction(acc.account_id, ex.exchange_id, 4.00, 400, 'TEST', date, date, date, 'TEST', 'TEST', -1.00)
+        test_trans=Transaction(acc.account_id, ex.exchange_id, 4.00, 400, 'TEST', date, date, date, 'TEST', 'TEST', -1.00, False)
         dm.insert(test_trans)
         query=Transaction.query.order_by(Transaction.transaction_id.desc()).first()
         self.assertEqual(str(test_trans), str(query))
