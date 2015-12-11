@@ -43,7 +43,7 @@ class OptionRowHolder(object):
 
 		# if the last added tab was nested less deeply than the incoming one
 		indent_back = next_added_tabval < last_added_tabval
-		
+
 		# if the last added tab was nested equally as deep as the incoming one
 		indent_same = next_added_tabval == last_added_tabval
 
@@ -168,7 +168,7 @@ class MakeTakeParser(object):
 						build_word = char
 						index = index + 1
 						continue
-					
+
 				index = index + 1
 				build_word = build_word + char
 
@@ -199,7 +199,7 @@ class Transaction(object):
 
 	def parse_fix_pairs(self):
 		parsed_string = self.base_string
-		
+
 		pairs_start = parsed_string.find('8=FIX')
 		pairs_string = parsed_string[pairs_start:]
 
@@ -211,7 +211,7 @@ class Transaction(object):
 				continue
 
 			split_pair = entry.split('=')
-			
+
 			if len(split_pair) != 2:
 				continue
 
@@ -282,7 +282,6 @@ def parse_transactions(data_filetext, maketake_filetext, exchange):
 
 	return valid_parsed_transactions
 
-
 def main(exec_args):
 	data_filetext = exec_args[1] if len(exec_args) > 1 else None
 	maketake_filetext = exec_args[2] if len(exec_args) > 2 else None
@@ -299,6 +298,9 @@ def main(exec_args):
 	if not data_filetext or not maketake_filetext or not exchange:
 		return
 
+	print data_filetext
+	print maketake_filetext
+
 	# allow for both filepaths and input strings to be parsed
 	if os.path.exists(data_filetext):
 		data_filetext = open(data_filetext, 'r').read()
@@ -312,6 +314,7 @@ def main(exec_args):
 
 	#print_results_nicely(parsed_results)
 	return parsed_results
+
 def print_results_nicely(results):
 	for transaction in results:
 		print transaction

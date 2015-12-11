@@ -1,3 +1,4 @@
+import sys
 from flask import Flask, render_template, jsonify, redirect, url_for, request, session, flash, g
 from flask.ext.sqlalchemy import SQLAlchemy
 from datetime import datetime, date, timedelta
@@ -37,7 +38,7 @@ def home():
 			return redirect(url_for('trconfreport', account=acct, date=dt))
 		else:
 			return redirect(url_for('plreport', account=acct, date=dt))
-	else:	
+	else:
 		if 'logged_in' in session:
 			accountsList = get_accounts_for_user(session['user_id'])
 			return render_template("index.html", accounts=accountsList)
@@ -55,7 +56,7 @@ def about():
 @application.route('/plreport/<account>/<date>')
 @login_required
 def plreport(account, date):
-	
+
 	trans_and_time_period = get_transactions_for_date(account, date)
 
 	transactionList = trans_and_time_period['trans']
@@ -84,7 +85,7 @@ def plreport(account, date):
 						SEC_fee = units*itemz.price
 					# print symb +" and "+ initSymb
 					itemTotal += SEC_fee + broker_fee; ##Need to add exchange fee
-			grand_total +=itemTotal		
+			grand_total +=itemTotal
 			stock_dict[initSymb] = itemTotal
 
 	# print(stock_dict)
@@ -129,7 +130,7 @@ def register():
 		if  request.form['name'] != None and request.form['email'] != None and request.form['password'] != None and request.form['password'] == request.form['confirm_password']:
 
 			req_name = request.form['name']
-			req_email = request.form['email'] 
+			req_email = request.form['email']
 			req_password = request.form['password']
 
 			new_user = User(req_email, req_password, req_name, False)
