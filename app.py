@@ -46,7 +46,7 @@ def home():
 		if (report_type == 'trader_conf'):
 			return redirect(url_for('trconfreport', account=acct, date=dt))
 		else:
-			return redirect(url_for('plreport', account=acct, date=dt))
+			return redirect(url_for('newplreport', account=acct, date=dt))
 	else:	
 		if 'logged_in' in session:
 			accountsList = get_accounts_for_user(session['user_id'])
@@ -62,44 +62,49 @@ def main_page():
 def about():
 	return render_template("about.html")
 
-@application.route('/plreport/<account>/<date>')
+@application.route('/newplreport/<account>/<date>')
 @login_required
-def plreport(account, date):
+def newplreport(account, date):
 	
 	trans_and_time_period = get_transactions_for_date(account, date)
-
 	transactionList = trans_and_time_period['trans']
 	time_period = trans_and_time_period['period']
+
+	print transactionList
 
 	stock_dict = {}
 	stock_names = []
 	num_trades = len(transactionList)
-	grand_total = 0
+	# grand_total = 0
 
 	for item in transactionList:
 		initSymb = item.sec_sym.partition(' ')[0]
 		if initSymb in stock_dict:
+			stock_dict[initSymb].append(item)
 			pass
 		else:
-			stock_names.append(initSymb)
-			itemTotal = 0;
-			for itemz in transactionList:
-				symb = itemz.sec_sym.partition(' ')[0]
-				if symb == initSymb:
-					commish = itemz.commission
-					units = itemz.units
-					broker_fee = commish*units
-					SEC_fee = 0
-					if itemz.buy_sell == "s":
-						SEC_fee = units*itemz.price
-					# print symb +" and "+ initSymb
-					itemTotal += SEC_fee + broker_fee; ##Need to add exchange fee
-			grand_total +=itemTotal		
-			stock_dict[initSymb] = itemTotal
+			stock_dict[initSymb] = []
+			stock_dict[initSymb].append(item)
+			# stock_names.append(initSymb)
+			# itemTotal = 0;
+			# for itemz in transactionList:
+			# 	symb = itemz.sec_sym.partition(' ')[0]
+			# 	if symb == initSymb:
+			# 		commish = itemz.commission
+			# 		units = itemz.units
+			# 		broker_fee = commish*units
+			# 		SEC_fee = 0
+			# 		if itemz.buy_sell == "s":
+			# 			SEC_fee = units*itemz.price
+			# 		# print symb +" and "+ initSymb
+			# 		itemTotal += SEC_fee + broker_fee; ##Need to add exchange fee
+			# grand_total +=itemTotal		
+			# stock_dict[initSymb] = itemTotal
 
 	# print(stock_dict)
 
-	return render_template('plreport.html', transList = transactionList, totalProfit=grand_total, numTrades= num_trades, list=stock_names, dict=stock_dict, period = time_period)
+	# return render_template('plreport.html', transList = transactionList, totalProfit=grand_total, numTrades= num_trades, list=stock_names, dict=stock_dict, period = time_period)
+	return render_template('newplreport.html', stockdict=stock_dict)
 
 @application.route('/trconfreport/<account>/<date>')
 @login_required
@@ -215,9 +220,9 @@ def editaccount():
 			print "we got here"
 			return redirect(url_for('editaccount'))
 
-@application.route('/newplreport')
-def newplreport():
-	return render_template('newplreport.html')
+# @application.route('/newplreport')
+# def newplreport():
+# 	return render_template('newplreport.html')
 
 @application.errorhandler(404)
 def page_not_found(e):

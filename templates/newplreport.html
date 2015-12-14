@@ -18,23 +18,28 @@
 			</tr>
 		</thead>
 		<tbody>
+		<!-- loop over all stocks traded -->
+		{% for stocksymbol, transactions in stockdict.iteritems() %}
 			<tr>
-				<td>RAD</td>
+				<td>{{ stocksymbol }}</td>
 				<td> </td>
 				<td>$300.00</td>
 				<td>$485.20</td>
 				<td>$785.20</td>
 			</tr>
+			<!-- loop over all options -->
+			{% for transaction in transactions %}
 			<tr>
 				<td colspan="6">
 					<table class="table table-expandable">
 						<tbody>
 							<tr>
-								<td>RAD</td>
+								<td>blah</td>
 								<td>0</td>
 								<td>$247.00</td>
 								<td>$247.00</td>
 							</tr>
+							<!-- Another forloop here for individual trades on each option -->
 							<tr>
 								<td colspan="5">
 									<table class="table">
@@ -272,6 +277,7 @@
 					</table>
 				</td>
 			</tr>
+			{% endfor %}
 			<tr>
 				<td>SFUN</td>
 				<td> </td>
@@ -836,6 +842,7 @@
 					</table>
 				</td>
 			</tr>
+		{% endfor %}
 		</tbody>
 	</table>
 </div>
