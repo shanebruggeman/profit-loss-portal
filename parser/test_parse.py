@@ -1,5 +1,6 @@
-import parse
 import sys
+sys.path.append('../parser')
+import parse
 import re
 
 def compare(trans, dic):

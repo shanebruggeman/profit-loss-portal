@@ -1,11 +1,14 @@
 import unittest
+import sys
+sys.path.append('../')
 import parse
+
 
 class TestDataParsing(unittest.TestCase):
 
 	def test_single_order_transactions(self):
-		testdata_file = open("test/example_parse_data.txt", "r").read()
-		test_maketake_file = open("test/example_maketake.txt", "r").read()
+		testdata_file = open("example_parse_data.txt", "r").read()
+		test_maketake_file = open("example_maketake.txt", "r").read()
 		test_exchange = "Ase"
 
 		transaction_required_values = [
@@ -130,7 +133,7 @@ class TestDataParsing(unittest.TestCase):
 
 
 	def test_maketake_fee_lookup(self):
-		test_maketake_file = open("test/example_maketake.txt", "r").read()
+		test_maketake_file = open("example_maketake.txt", "r").read()
 
 		# exchange name
 		# adding liquidity (left)
