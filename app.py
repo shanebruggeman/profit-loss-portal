@@ -1,4 +1,5 @@
 import os
+import sys
 from flask import Flask, render_template, jsonify, redirect, url_for, request, session, flash, g
 from flask.ext.sqlalchemy import SQLAlchemy
 from werkzeug import secure_filename
@@ -47,7 +48,7 @@ def home():
 			return redirect(url_for('trconfreport', account=acct, date=dt))
 		else:
 			return redirect(url_for('newplreport', account=acct, date=dt))
-	else:	
+
 		if 'logged_in' in session:
 			accountsList = get_accounts_for_user(session['user_id'])
 			return render_template("index.html", accounts=accountsList)
@@ -80,11 +81,17 @@ def newplreport(account, date):
 	for item in transactionList:
 		initSymb = item.sec_sym.partition(' ')[0]
 		if initSymb in stock_dict:
-			stock_dict[initSymb].append(item)
-			pass
+			if item.sec_sym in stock_dict[initSymb]:
+				# item.sec_sym might not be the correct field
+				# need way to tell what option a transaction was made on
+				stock_dict[initSymb][item.sec_sym].append(item)
+			else:
+				stock_dict[initSymb][item.sec_sym] = []
+				stock_dict[initSymb][item.sec_sym].append(item)				
 		else:
-			stock_dict[initSymb] = []
-			stock_dict[initSymb].append(item)
+			stock_dict[initSymb] = {}
+			stock_dict[initSymb][item.sec_sym] = []
+			stock_dict[initSymb][item.sec_sym].append(item)
 			# stock_names.append(initSymb)
 			# itemTotal = 0;
 			# for itemz in transactionList:
@@ -105,6 +112,7 @@ def newplreport(account, date):
 
 	# return render_template('plreport.html', transList = transactionList, totalProfit=grand_total, numTrades= num_trades, list=stock_names, dict=stock_dict, period = time_period)
 	return render_template('newplreport.html', stockdict=stock_dict)
+
 
 @application.route('/trconfreport/<account>/<date>')
 @login_required
@@ -144,7 +152,7 @@ def register():
 		if  request.form['name'] != None and request.form['email'] != None and request.form['password'] != None and request.form['password'] == request.form['confirm_password']:
 
 			req_name = request.form['name']
-			req_email = request.form['email'] 
+			req_email = request.form['email']
 			req_password = request.form['password']
 
 			new_user = User(req_email, req_password, req_name, False)
