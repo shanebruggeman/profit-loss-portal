@@ -19,21 +19,21 @@ def get_transactions_for_date(account, date):
 		begin_today = current_time - timedelta(minutes=minutes_to_sub)
 		begin_today = begin_today - timedelta(hours=hours_to_sub)
 		time_period = "Period between " + str(begin_today).split(".")[0] + " and " + str(current_time).split(".")[0]
-		positionList = StockPosition.query.filter(StockPosition.account_id == account).all()
+		positionList = StockPosition.query.filter(StockPosition.account_id == account, StockPosition.date > begin_today).all()
 		# transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade < begin_today).all()
 
 	elif date == "yesterday":
 		one_day_ago = current_time - timedelta(days=1)
 		time_period = "Period between " + str(one_day_ago).split(".")[0] + " and " + str(current_time).split(".")[0] ##needs to be corrected
 		# transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade < one_day_ago).all()
-		positionList = db.session.query(StockPosition).filter(StockPosition.account_id == account, StockPosition.date < one_day_ago).all()
+		positionList = db.session.query(StockPosition).filter(StockPosition.account_id == account, StockPosition.date > one_day_ago).all()
 
 	elif date == "this_month":
 		day_of_the_month = datetime.today().day
 		x_days_ago = current_time - timedelta(days=day_of_the_month)
 		time_period = "Period between " + str(x_days_ago).split(".")[0] + " and " + str(current_time).split(".")[0]
 		# transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade < x_days_ago).all()
-		positionList = db.session.query(StockPosition).filter(StockPosition.account_id == account, StockPosition.date < x_days_ago).all()
+		positionList = db.session.query(StockPosition).filter(StockPosition.account_id == account, StockPosition.date > x_days_ago).all()
 
 	elif date == "prev_month":
 		day_of_the_month = datetime.today().day
@@ -50,7 +50,7 @@ def get_transactions_for_date(account, date):
 		sub_months = sub_days - timedelta(days=30*month_of_the_year)
 		time_period = "Period between " + str(sub_months).split(".")[0] + " and " + str(current_time).split(".")[0]
 		# transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade < sub_months).all()
-		positionList = db.session.query(StockPosition).filter(StockPosition.account_id == account, StockPosition.date < sub_months).all()
+		positionList = db.session.query(StockPosition).filter(StockPosition.account_id == account, StockPosition.date > sub_months).all()
 
 	if date == "last_year":
 		day_of_the_month = datetime.today().day

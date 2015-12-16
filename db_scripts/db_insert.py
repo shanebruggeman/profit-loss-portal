@@ -1,7 +1,7 @@
 import sys
 sys.path.append('../')
-sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/")
-sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/parser")
+sys.path.append("/Users/hullzr/Documents/Github/profit-loss-portal/")
+sys.path.append("/Users/hullzr/Documents/Github/profit-loss-portal/parser")
 from app import db
 from models import *
 import datetime
@@ -69,7 +69,7 @@ def main(exec_args):
 						print 'no prior position'
 						# make a 0 value trade to start a net position, mark it as "True", this is an opening position
 						baseStartPosition = Transaction(account_id, exchange_id, -1, 0, sec_sym, settle, entry, trade, ticket_number, buy_sell, commission, True)
-						firstStockPosition = StockPosition(sec_sym, entry)
+						firstStockPosition = StockPosition(sec_sym, entry, account_id)
 
 						# add the starting position and the first day trade to the new position
 						firstStockPosition.all_transactions.append(baseStartPosition)
@@ -85,7 +85,7 @@ def main(exec_args):
 						positionSumTransaction = sumPosition(priorPosition)
 
 						# the new day has the net value of the old position and the newly parsed entry
-						newDayPosition = StockPosition(sec_sym, entry)
+						newDayPosition = StockPosition(sec_sym, entry, account_id)
 						newDayPosition.all_transactions.append(positionSumTransaction)
 						newDayPosition.all_transactions.append(parsed_transaction)
 
