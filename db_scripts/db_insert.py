@@ -1,13 +1,13 @@
 import sys
 sys.path.append('../')
-sys.path.append("/Users/shanebruggeman/Documents/CodingProjects/profit-loss-portal/")
-sys.path.append("/Users/shanebruggeman/Documents/CodingProjects/profit-loss-portal/parser")
+sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/")
+sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/parser")
 from app import db
 from models import *
 import datetime
 from sqlalchemy.sql import extract
 
-sys.path.append('../parser')
+# sys.path.append('../parser')
 import parse
 from datetime import datetime
 import re
@@ -18,7 +18,7 @@ def main(exec_args):
 	# 	2) Transaction data file. This contains all the transactions to parse and insert in this run of the script
 	# 	3) Maketake file. This holds all of the relevant fees for the given exchange
 	# 	4) Exchange. Right now it's hard coded, but some time it will automatically be added to the parsed result
-	res = parse.main(["", (open("db_scripts/example_parse_data.txt",'r')).read(), (open ("db_scripts/example_maketake.txt", 'r')).read(), "Box"])
+	res = parse.main(["", (open("example_parse_data.txt",'r')).read(), (open ("example_maketake.txt", 'r')).read(), "Box"])
 
 	#Add to this list for creating transactions, (CURRENTLY ONLY SEND ORDERS)
 	allowedMessages = 'D'

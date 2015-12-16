@@ -1,6 +1,6 @@
 import sys
 sys.path.append("../")
-sys.path.append("/Users/shanebruggeman/Documents/CodingProjects/profit-loss-portal/")
+sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/")
 from models import *
 
 print 'USER'

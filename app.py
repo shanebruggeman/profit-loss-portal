@@ -49,11 +49,11 @@ def home():
 		else:
 			return redirect(url_for('newplreport', account=acct, date=dt))
 
-		if 'logged_in' in session:
-			accountsList = get_accounts_for_user(session['user_id'])
-			return render_template("index.html", accounts=accountsList)
-		else:
-			return redirect(url_for('login'))
+	if 'logged_in' in session:
+		accountsList = get_accounts_for_user(session['user_id'])
+		return render_template("index.html", accounts=accountsList)
+	else:
+		return redirect(url_for('login'))
 
 @application.route('/index')
 def main_page():
@@ -70,8 +70,6 @@ def newplreport(account, date):
 	trans_and_time_period = get_transactions_for_date(account, date)
 	transactionList = trans_and_time_period['trans']
 	time_period = trans_and_time_period['period']
-
-	print transactionList
 
 	stock_dict = {}
 	stock_names = []

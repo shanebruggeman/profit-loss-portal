@@ -72,7 +72,7 @@ class Transaction(db.Model):
 	isPosition = db.Column(db.Boolean, nullable=False)
 
 	def __repr__(self):
-		return 'Transaction <{}> with id <{}>'.format(self.sec_sym, self.transaction_id)
+		return 'Transaction <{}> with id <{}> accountID: <{}>'.format(self.sec_sym, self.transaction_id, self.account_id)
 
 	def __str__(self):
 		return repr(self)
@@ -121,11 +121,12 @@ class StockPosition(db.Model):
 	 backref=db.backref('stock_positions', lazy='dynamic'))
 
 	def __repr__(self):
-		return 'StockPosition: <{}> symbol: <{}>'.format(self.date, self.symbol)
+		return 'StockPosition: <{}> symbol: <{}> account_id: <{}>'.format(self.date, self.symbol, self.account_id)
 
 	def __str(self):
 		return repr(self)
 
-	def __init__(self, symbol, date):
+	def __init__(self, symbol, date, account_id):
 		self.symbol = symbol
 		self.date = date
+		self.account_id = account_id
