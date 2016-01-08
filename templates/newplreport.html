@@ -34,10 +34,10 @@
 						<tbody>
 							{% for option in stockdict[stocksymbol] %}
 							<tr>
-								<td>summary</td>
-								<td>of</td>
-								<td>option</td>
-								<td>transactions</td>
+								<td>{{ option }}</td>
+								<td>Unreal</td>
+								<td>Real</td>
+								<td>Net</td>
 							</tr>
 							<tr>
 								<td colspan="5">
@@ -55,6 +55,15 @@
 											<!-- Another forloop here for individual trades on each option -->
 											{% for transaction in stockdict[stocksymbol][option] %}
 											<tr>
+												{% if transaction.isPosition and not (transaction.price == -1) %}
+												<td>This</td>
+												<td>is</td>
+												<td>a</td>
+												<td>position</td>
+												<td>need to</td>
+												<td>display</td>
+												<td>differently</td>
+												{% else %}
 												<td>{{ transaction.trade }}</td>
 												<td>{{ transaction.units }}</td>
 												<td>{{ transaction.price }}</td>
@@ -62,6 +71,7 @@
 												<td>mark</td>
 												<td>real</td>
 												<td>fees</td>
+												{% endif %}
 											</tr>
 											{% endfor %}
 										</tbody>

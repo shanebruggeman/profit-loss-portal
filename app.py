@@ -105,6 +105,18 @@ def newplreport(account, date):
 			# 		itemTotal += SEC_fee + broker_fee; ##Need to add exchange fee
 			# grand_total +=itemTotal		
 			# stock_dict[initSymb] = itemTotal
+	
+	# for symbol in stock_dict:
+	# 	for option in stock_dict[symbol]:
+	# 		current_quantity = 0
+	# 		last_trans = None
+	# 		for trans in stock_dict[symbol][option]:
+	# 			current_quantity += trans.units
+	# 			last_trans = trans
+
+	# 		if current_quantity != 0:
+	# 			closing_position = StockPosition(last_trans.sec_sym, last_trans.settle ,last_trans.account_id)
+	# 			closing_position.all_transactions.append(stock_dict[symbol][option])
 
 	# print(stock_dict)
 

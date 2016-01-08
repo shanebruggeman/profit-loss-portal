@@ -19,7 +19,7 @@ def get_transactions_for_date(account, date):
 		begin_today = current_time - timedelta(minutes=minutes_to_sub)
 		begin_today = begin_today - timedelta(hours=hours_to_sub)
 		time_period = "Period between " + str(begin_today).split(".")[0] + " and " + str(current_time).split(".")[0]
-		positionList = StockPosition.query.filter(StockPosition.account_id == account, StockPosition.date > begin_today).all()
+		positionList = StockPosition.query.filter(StockPosition.account_id == account, StockPosition.date < begin_today).all()
 		# transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade < begin_today).all()
 
 	elif date == "yesterday":

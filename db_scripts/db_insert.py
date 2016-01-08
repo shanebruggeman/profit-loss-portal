@@ -1,7 +1,7 @@
 import sys
 sys.path.append('../')
-sys.path.append("/Users/hullzr/Documents/Github/profit-loss-portal/")
-sys.path.append("/Users/hullzr/Documents/Github/profit-loss-portal/parser")
+sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/")
+sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/parser")
 from app import db
 from models import *
 import datetime
@@ -21,6 +21,7 @@ def main(exec_args):
 	res = parse.main(["", (open("example_parse_data.txt",'r')).read(), (open ("example_maketake.txt", 'r')).read(), "Box"])
 
 	#Add to this list for creating transactions, (CURRENTLY ONLY SEND ORDERS)
+	parsed_transaction_list = []
 	allowedMessages = 'D'
 	for trans in res:
 		# only messages that we know how to parse are going into the database
@@ -55,7 +56,7 @@ def main(exec_args):
 
 				# if we parsed it the transaction is not an opening position
 				parsed_transaction = Transaction(account_id, exchange_id, price, units, sec_sym, settle, entry, trade, ticket_number, buy_sell, commission, False)
-
+				parsed_transaction_list.append(parsed_transaction)
 				existingPosition = StockPosition.query.filter(extract('year', StockPosition.date) == year).filter(extract('month', StockPosition.date) == month).filter(extract('day', StockPosition.date) == day).first()
 
 				# this option has not been traded today
