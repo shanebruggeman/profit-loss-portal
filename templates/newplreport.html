@@ -64,7 +64,7 @@
 												<td>display</td>
 												<td>differently</td>
 												{% else %}
-												<td>{{ transaction.trade }}</td>
+												<td>{{transaction.settle.day|string + "-" +transaction.settle.month|string + "-" + transaction.settle.year|string}}</td>
 												<td>{{ transaction.units }}</td>
 												<td>{{ transaction.price }}</td>
 												<td>{{ transaction.exchange_id }}</td>
