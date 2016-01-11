@@ -1,13 +1,16 @@
 import sys
 sys.path.append('../')
-sys.path.append("/Users/shanebruggeman/Documents/CodingProjects/profit-loss-portal/")
-sys.path.append("/Users/shanebruggeman/Documents/CodingProjects/profit-loss-portal/parser")
-from app import db
+sys.path.append('../parser')
+sys.path.append('parser')
+# sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/")
+# sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/parser")
+# from app import db
+from db_create import db
 from models import *
 import datetime
 from sqlalchemy.sql import extract
 
-sys.path.append('../parser')
+# sys.path.append('../parser')
 import parse
 from datetime import datetime
 import re
@@ -18,7 +21,7 @@ def main(exec_args):
 	# 	2) Transaction data file. This contains all the transactions to parse and insert in this run of the script
 	# 	3) Maketake file. This holds all of the relevant fees for the given exchange
 	# 	4) Exchange. Right now it's hard coded, but some time it will automatically be added to the parsed result
-	res = parse.main(["", (open("db_scripts/example_parse_data.txt",'r')).read(), (open ("db_scripts/example_maketake.txt", 'r')).read(), "Box"])
+	res = parse.main(["", (open(exec_args[0],'r')).read(), (open ("example_maketake.txt", 'r')).read(), "Box"])
 
 	#Add to this list for creating transactions, (CURRENTLY ONLY SEND ORDERS)
 	allowedMessages = 'D'
@@ -55,7 +58,6 @@ def main(exec_args):
 
 				# if we parsed it the transaction is not an opening position
 				parsed_transaction = Transaction(account_id, exchange_id, price, units, sec_sym, settle, entry, trade, ticket_number, buy_sell, commission, False)
-
 				existingPosition = StockPosition.query.filter(extract('year', StockPosition.date) == year).filter(extract('month', StockPosition.date) == month).filter(extract('day', StockPosition.date) == day).first()
 
 				# this option has not been traded today
@@ -66,36 +68,50 @@ def main(exec_args):
 
 					# there is no prior position, because this option has never been traded, and the parsed transaction will be part of the first position
 					if priorPosition == None:
-						print 'no prior position'
+						print 'NO PRIOR POSITION'
 						# make a 0 value trade to start a net position, mark it as "True", this is an opening position
-						baseStartPosition = Transaction(account_id, exchange_id, -1, 0, sec_sym, settle, entry, trade, ticket_number, buy_sell, commission, True)
-						firstStockPosition = StockPosition(sec_sym, entry)
+						baseStartPosition = Transaction(account_id, exchange_id, 0, 0, sec_sym, settle, entry, trade, ticket_number, buy_sell, commission, True)
+						firstStockPosition = StockPosition(sec_sym, entry, account_id)
 
 						# add the starting position and the first day trade to the new position
 						firstStockPosition.all_transactions.append(baseStartPosition)
 						firstStockPosition.all_transactions.append(parsed_transaction)
+
+						# adding an empty closing position 
+						initial_closing = sumPosition(firstStockPosition)
+						firstStockPosition.all_transactions.append(initial_closing)
+
+
 
 						db.session.add(firstStockPosition)
 						db.session.commit()
 
 					# prior position is available, and we have no position (yet) for the parsed transaction's day and symbol
 					else:
-						print 'prior position, no active position'
+						print 'PRIOR POSITION NO ACTIVE POSITION'
 						# take the net values from the old position and represent them as a summed transaction of all that has occurred before this day
 						positionSumTransaction = sumPosition(priorPosition)
 
 						# the new day has the net value of the old position and the newly parsed entry
-						newDayPosition = StockPosition(sec_sym, entry)
+						newDayPosition = StockPosition(sec_sym, entry, account_id)
 						newDayPosition.all_transactions.append(positionSumTransaction)
 						newDayPosition.all_transactions.append(parsed_transaction)
+
+						initial_closing = sumPosition(newDayPosition)
+						newDayPosition.all_transactions.append(initial_closing)
 
 						db.session.add(newDayPosition)
 						db.session.commit()
 
 				# this option has been traded today
 				else:
-					print 'existing position'
+					print 'EXISTING POSITION'
+					existingPosition.all_transactions.pop(len(existingPosition.all_transactions)-1)
 					existingPosition.all_transactions.append(parsed_transaction)
+
+					new_closing = sumPosition(existingPosition)
+					existingPosition.all_transactions.append(new_closing)
+
 					db.session.commit()
 
 
@@ -117,31 +133,34 @@ def sumPosition(old_position):
 	sum_entry = first_old.entry
 	sum_trade = first_old.trade
 	sum_ticket_number = first_old.ticket_number
-	sum_buy_sell = 'buy'
+	sum_buy_sell = 'Buy'
 
 	# we care about price, units, and commission particularly
+	summed_units = 0
 	total_price = 0
 	total_units = 0
 	total_commision = 0
 
 	# find the net units, commision, and price
 	for transaction in old_transactions:
-		total_units += transaction.units
 
-		if transaction.buy_sell == 'buy':
-			total_price += transaction.price * transaction.units
+		total_units += transaction.units
+		total_price += transaction.price * transaction.units
+		if transaction.buy_sell == 'Buy':
+			summed_units += transaction.units
 		else:
-			total_price += transaction.price * -1 * transaction.units
+			summed_units -= transaction.units
 
 		total_commision += transaction.units * transaction.commission
+		print transaction.units
+		print transaction.price
 
 	# average the commision and price
-	sum_price = total_price / total_units
-	sum_units = total_units
+	sum_price = round((total_price / total_units), 2)
 	sum_commision = total_commision / total_units
 
 	# return the transaction representing everything that has happened before this date
-	return Transaction(old_position.account_id, 'no-exchange', sum_price, sum_units, sum_sec_sym, sum_settle, sum_entry, sum_trade, sum_ticket_number, sum_buy_sell, sum_commision, True)
+	return Transaction(old_position.account_id, old_position.all_transactions[0].exchange_id, sum_price, summed_units, sum_sec_sym, sum_settle, sum_entry, sum_trade, sum_ticket_number, sum_buy_sell, sum_commision, True)
 
 if __name__ == '__main__':
 	main(sys.argv)
