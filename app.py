@@ -9,7 +9,8 @@ from db_create import db, application
 from models import *
 from viewmethods import *
 import sys
-sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/db_scripts")
+# sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/db_scripts")
+sys.path.append("db_scripts")
 import db_insert
 
 UPLOAD_FOLDER = 'C:\\Users\\watersdr\\Documents\\GitHub\\profit-loss-portal\\file_uploads'

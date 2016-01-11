@@ -63,7 +63,7 @@
 												<td>mark</td>
 												<td>real</td>
 												<td>fees</td>
-												{% else %}
+												{% elif not (transaction.price == 0) %}
 												<td>{{transaction.settle.day|string + "-" +transaction.settle.month|string + "-" + transaction.settle.year|string}}</td>
 												<td>{% if transaction.buy_sell == "Sell" %}
 														-{{ transaction.units }}

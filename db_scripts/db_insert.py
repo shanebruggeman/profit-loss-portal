@@ -1,7 +1,9 @@
 import sys
 sys.path.append('../')
-sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/")
-sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/parser")
+sys.path.append('../parser')
+sys.path.append('parser')
+# sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/")
+# sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/parser")
 # from app import db
 from db_create import db
 from models import *
@@ -66,7 +68,7 @@ def main(exec_args):
 
 					# there is no prior position, because this option has never been traded, and the parsed transaction will be part of the first position
 					if priorPosition == None:
-						print 'NO PRIOR POSITIONNNNNNNNNNNNNNNNNNNNNNNN'
+						print 'NO PRIOR POSITION'
 						# make a 0 value trade to start a net position, mark it as "True", this is an opening position
 						baseStartPosition = Transaction(account_id, exchange_id, 0, 0, sec_sym, settle, entry, trade, ticket_number, buy_sell, commission, True)
 						firstStockPosition = StockPosition(sec_sym, entry, account_id)
@@ -154,7 +156,7 @@ def sumPosition(old_position):
 		print transaction.price
 
 	# average the commision and price
-	sum_price = total_price / total_units
+	sum_price = round((total_price / total_units), 2)
 	sum_commision = total_commision / total_units
 
 	# return the transaction representing everything that has happened before this date

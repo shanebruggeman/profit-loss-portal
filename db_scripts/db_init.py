@@ -1,5 +1,6 @@
 import sys
-sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/")
+# sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/")
+sys.path.append("../")
 # print sys.path
 from app import db
 from models import *
