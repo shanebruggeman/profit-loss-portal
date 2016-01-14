@@ -13,8 +13,11 @@ from datetime import datetime
 import re
 
 def main(exec_args):
-	# res = parse.main('./parser/testdata1.txt')
-	res = parse.main(["", (open("db_scripts/example_parse_data.txt",'r')).read(), (open ("db_scripts/example_maketake.txt", 'r')).read(), "Box"])
+	dataFile = open("db_scripts/example_parse_data.txt","r").read()
+	maketakeFile = open("db_scripts/example_maketake.txt","r").read()
+	chosenExchange = "Box"
+
+	res = parse.main(["", dataFile, maketakeFile, chosenExchange])
 
 	#Add to this list for creating transactions, (CURRENTLY ONLY SEND ORDERS)
 	allowedMessages = 'D'
@@ -50,35 +53,44 @@ def main(exec_args):
 				commission = float(trans.get('Commission'))
 
 				# all parsed transactions are not opening positions
-				parsed_transaction = Transaction(account_id, exchange_id, price, units, sec_sym, settle, entry, trade, ticket_number, buy_sell, commission, False)
+				isPosition = False
+				parsed_transaction = Transaction(account_id, exchange_id, price, units, sec_sym, settle, entry, trade, ticket_number, buy_sell, commission, isPosition)
 
-				# existingPosition = StockPosition.query.filter(StockPosition.account_id == account_id).filter(StockPosition.symbol == sec_sym).filter(extract('year',StockPosition.date) == year).filter(extract('month',StockPosition.date) == month).filter(extract('day',StockPosition.date) == day).first()
-				# existingPosition = StockPosition.query.filter(StockPosition.account_id == account_id).filter(StockPosition.symbol == sec_sym).orderBy(StockPosition.date.desc()).first()
 				existingPosition = StockPosition.query.filter(extract('year', StockPosition.date) == year).filter(extract('month', StockPosition.date) == month).filter(extract('day', StockPosition.date) == day).first()
 
-				# this option has not been traded today
+				"""
+				If there isn't an existing position, then no transactions have occured on this date, for any stocks / options
+				"""
 				if existingPosition == None:
-					# priorPosition = StockPosition.query.filter(StockPosition.account_id == account_id).filter(StockPosition.symbol == sec_sym).orderBy(StockPosition.date).first()
+					"""
+					Take positions in the database that match account and stock symbol
+					Then sort them chronologically (new -> old), and take the first
+					"""
 					priorPosition = StockPosition.query.filter(StockPosition.account_id == account_id).filter(StockPosition.symbol == sec_sym).order_by(StockPosition.date.desc()).first()
-					print priorPosition
 
-					# there is no prior position, because this option has never been traded, and the parsed transaction will be part of the first position
+					# if no 'first' prior position, this option type has never been traded for the user
 					if priorPosition == None:
-						print 'no prior position'
-						# make a 0 value trade to start a net position, mark it as "True", this is an opening position
-						baseStartPosition = Transaction(account_id, exchange_id, -1, 0, sec_sym, settle, entry, trade, ticket_number, buy_sell, commission, True)
+						print 'User has never traded this option before. Building first position ...'
+
+						# make an empty '0' position for our first start position and flag it as 'isPosition'
+						startIsPostion = True
+						baseStartPosition = Transaction(account_id, exchange_id, -1, 0, sec_sym, settle, entry, trade, ticket_number, buy_sell, commission, startIsPostion)
+
+						# create the position itself
 						firstStockPosition = StockPosition(sec_sym, entry)
 
 						# add the starting position and the first day trade to the new position
 						firstStockPosition.all_transactions.append(baseStartPosition)
 						firstStockPosition.all_transactions.append(parsed_transaction)
 
+						# write the changes to the database
 						db.session.add(firstStockPosition)
 						db.session.commit()
 
-					# prior position is available, and we have no position (yet) for the parsed transaction's day and symbol
+					# this position has been traded before this day, but not on this day (yet)
 					else:
-						print 'prior position, no active position'
+						print 'User has traded this option in the past, but not today'
+
 						# take the net values from the old position and represent them as a summed transaction of all that has occurred before this day
 						positionSumTransaction = sumPosition(priorPosition)
 
@@ -90,11 +102,16 @@ def main(exec_args):
 						db.session.add(newDayPosition)
 						db.session.commit()
 
-				# this option has been traded today
+				# this option has been traded before
 				else:
-					print 'existing position'
-					existingPosition.all_transactions.append(parsed_transaction)
-					db.session.commit()
+					isPreviousDay = False
+					if isPreviousDay:
+						print 'Adding transaction into previous day history, updating later positions'
+						# update all stock positions on days after the inserted position
+					else:
+						print 'Adding transaction to today, no retroactive update needed'
+						existingPosition.all_transactions.append(parsed_transaction)
+						db.session.commit()
 
 
 			except Exception as e:
@@ -103,20 +120,21 @@ def main(exec_args):
 
 	db.session.commit()
 
-# def sumPosition(old_position):
-# 	account_id = 1
-# 	exchange_id = 1
+"""
+A position's transaction list is composed of three parts:
+	1) The opening position for the day (flagged as isPosition)
+	2) All transactions that are traded during the day
+	3) The closing position for the day (flagged as isPosition)
 
-# 	sec_sym = old_position.symbol
-# 	settle = old_position.date
-# 	entry = old_position.date
-# 	trade = old_position.date
-# 	ticket_number = "UNKNOWN TICKET NUMBER"
-# 	buy_sell = "buy"
-# 	commission = 0
+This function will take all transactions within this list and
+find the net effects for the day, summed up as if it all
+happened in one transaction. The returned transaction will also
+be flagged as "isPosition" to indicate it is a summary of other
+transactions on a given day.
 
-# 	return Transaction(account_id, exchange_id, -1, 0, sec_sym, settle, entry, trade, ticket_number, buy_sell, commission, True)
-
+Note, if using this function for finding the closing position,
+remember to remove the old closing position before summing.
+"""
 def sumPosition(old_position):
 	old_transactions = old_position.all_transactions
 

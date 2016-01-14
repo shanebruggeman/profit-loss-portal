@@ -22,7 +22,7 @@ class Account(db.Model):
 		self.commission = commission
 
 	def __repr__(self):
-		return 'Account name: <{}> initials: <{}> id: <{}>'.format(self.name, self.initials, self.account_id)
+		return '<Account id="{}" initials="{}" name="{}">'.format(self.account_id, self.initials, self.name)
 
 	def __str__(self):
 		return repr(self)
@@ -46,7 +46,7 @@ class User(db.Model):
 		self.admin = admin
 
 	def __repr__(self):
-		return 'User <{}> with id {}. Is admin? {}'.format(self.name, self.user_id, self.admin)
+		return '<User id="{}" name="{}" AdminStatus="{}"'.format(self.user_id, self.name, self.admin)
 
 	def __str__(self):
 		return repr(self)
@@ -71,7 +71,7 @@ class Transaction(db.Model):
 	isPosition = db.Column(db.Boolean, nullable=False)
 
 	def __repr__(self):
-		return 'Transaction <{}> with units {}, price {}, commission {}'.format(self.sec_sym)
+		return '<Transaction id="{}" symbol="{}" units="{}" price="{}" commission="{}" date="{}">'.format(self.transaction_id, self.sec_sym, self.units, self.price, self.commission, self.settle.date())
 
 	def __str__(self):
 		return repr(self)
@@ -98,11 +98,10 @@ class Exchange(db.Model):
 	symbol = db.Column(db.String, nullable=False)
 
 	def __repr__(self):
-		return 'Exchange: <{}> id: <{}>'.format(self.symbol, self.exchange_id)
+		return '<Exchange id="{}" symbol="{}">'.format(self.exchange_id, self.symbol)
 
 	def __str__(self):
 		return repr(self)
-
 
 	def __init__(self, symbol):
 		self.symbol=symbol

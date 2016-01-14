@@ -3,4 +3,4 @@ venv
 *.db
 .sublime-*
 .DS_Store
-parser/dump.txt
+*dump.txt
