@@ -5,7 +5,7 @@ python:
 install: "pip install -r requirements.txt"
 # command to run tests
 script:
-  - cd parser
+  - cd parser/test
   - python -m unittest discover
 # notifications for profit-loss-portal on slack
 notifications:
