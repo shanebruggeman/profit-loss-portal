@@ -70,8 +70,11 @@ class Transaction(db.Model):
 	commission = db.Column(db.Float, nullable=False)
 	isPosition = db.Column(db.Boolean, nullable=False)
 
+	def getSymbol(self):
+		return self.sec_sym
+
 	def __repr__(self):
-		return '<Transaction id="{}" symbol="{}" units="{}" price="{}" commission="{}" date="{}">'.format(self.transaction_id, self.sec_sym, self.units, self.price, self.commission, self.settle.date())
+		return '<Transaction id="{}" symbol="{}" isPosition={} units="{}" price="{}" commission="{}" date="{}">'.format(self.transaction_id, self.sec_sym, self.isPosition, self.units, self.price, self.commission, self.settle.date())
 
 	def __str__(self):
 		return repr(self)
@@ -119,11 +122,12 @@ class StockPosition(db.Model):
 	 backref=db.backref('stock_positions', lazy='dynamic'))
 
 	def __repr__(self):
-		return 'StockPosition: <{}> symbol: <{}>'.format(self.date, self.symbol)
+		return '<StockPosition id={} date={} stock={}'.format(self.stock_position_id, self.date, self.symbol)
 
 	def __str(self):
 		return repr(self)
 
-	def __init__(self, symbol, date):
+	def __init__(self, symbol, date, owner):
 		self.symbol = symbol
 		self.date = date
+		self.account_id = owner

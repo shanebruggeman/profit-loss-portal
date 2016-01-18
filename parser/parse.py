@@ -275,11 +275,11 @@ def parse_maketake(data_file):
 	parser = MakeTakeParser()
 	return parser.parse_maketake(data_file)
 
-"""
-Read in a data file and maketake file, and output a list of transactions
-
-The exchange parameter is no longer necessary
-"""
+###
+# Read in a data file and maketake file, and output a list of transactions
+#
+# The exchange parameter is no longer necessary
+##
 def parse_transactions(data_filetext, maketake_filetext, exchange):
 	unparsed_transactions = data_filetext.split('\n')
 
