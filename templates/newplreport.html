@@ -10,7 +10,7 @@
 	<table class="table table-expandable">
 		<thead>
 			<tr>
-				<th>Symbol</th>
+				<th class='symbol-cell'>Symbol</th>
 				<th>Strike</th>
 				<th>Unreal</th>
 				<th>Real</th>
@@ -20,74 +20,80 @@
 		<tbody>
 			<!-- loop over all stocks traded -->
 			{% for stocksymbol in stockdict %}
-			<tr>
-				<td> {% if stocksymbol %}{{ stocksymbol }}{% endif %}</td>
+			<tr class="expandable top-level">
+				<td class="arrow-cell"></td>
+				<td class='symbol-cell'> {% if stocksymbol %}{{ stocksymbol }}{% endif %}</td>
 				<td> </td>
 				<td>$300.00</td>
 				<td>$485.20</td>
 				<td>$785.20</td>
 			</tr>
-			<!-- loop over all options (needs tuning) -->
+			<!-- loop over all options -->
+			{% for option in stockdict[stocksymbol] %}
+			<tr class="expandable">
+				<td></td>
+				<td class="arrow-cell"></td>
+				<td class='symbol-cell'>{{ option }}</td>
+				<td>$Unreal</td>
+				<td>$Real</td>
+				<td>$Net</td>
+			</tr>
 			<tr>
-				<td colspan="6">
-					<table class="table table-expandable">
+				<td></td>
+				<td></td>
+				<td colspan="5">
+					<table class="table">
+						<thead>
+							<th>Trade Date</th>
+							<th>Ex Quan</th>
+							<th>Ex Price</th>
+							<th>Exch</th>
+							<th>Mark</th>
+							<th>Real</th>
+							<th>Net Fees</th>
+						</thead>
 						<tbody>
-							{% for option in stockdict[stocksymbol] %}
+							<!-- Another forloop here for individual trades on each option -->
+							{% for transaction in stockdict[stocksymbol][option] %}
 							<tr>
-								<td>{{ option }}</td>
-								<td>Unreal</td>
-								<td>Real</td>
-								<td>Net</td>
-							</tr>
-							<tr>
-								<td colspan="5">
-									<table class="table">
-										<thead>
-											<th>Trade Date</th>
-											<th>Ex Quan</th>
-											<th>Ex Price</th>
-											<th>Exch</th>
-											<th>Mark</th>
-											<th>Real</th>
-											<th>Net Fees</th>
-										</thead>
-										<tbody>
-											<!-- Another forloop here for individual trades on each option -->
-											{% for transaction in stockdict[stocksymbol][option] %}
-											<tr>
-												{% if transaction.isPosition and not (transaction.price == 0) %}
-												<td>CLOSING</td>
-												<td>{{ transaction.units }}</td>
-												<td>{{ transaction.price }}</td>
-												<td>{{ transaction.exchange_id }}</td>
-												<td>mark</td>
-												<td>real</td>
-												<td>fees</td>
-												{% elif not (transaction.price == 0) %}
-												<td>{{transaction.settle.day|string + "-" +transaction.settle.month|string + "-" + transaction.settle.year|string}}</td>
-												<td>{% if transaction.buy_sell == "Sell" %}
-														-{{ transaction.units }}
-													{% else %}
-														{{ transaction.units }}
-													{% endif %}
-													</td>
-												<td>{{ transaction.price }}</td>
-												<td>{{ transaction.exchange_id }}</td>
-												<td>mark</td>
-												<td>real</td>
-												<td>fees</td>
-												{% endif %}
-											</tr>
-											{% endfor %}
-										</tbody>
-									</table>
+								{% if transaction.isPosition and not (transaction.price == 0) %}
+								<td>CLOSING</td>
+								<td>{{ transaction.units }}</td>
+								<td>{{ transaction.price }}</td>
+								<td>{{ transaction.exchange_id }}</td>
+								<td>mark</td>
+								<td>real</td>
+								<td>fees</td>
+								{% elif not (transaction.price == 0) %}
+								<td>{{transaction.settle.day|string + "-" +transaction.settle.month|string + "-" + transaction.settle.year|string}}</td>
+								<td>{% if transaction.buy_sell == "Sell" %}
+									-{{ transaction.units }}
+									{% else %}
+									{{ transaction.units }}
+									{% endif %}
 								</td>
+								<td>{{ transaction.price }}</td>
+								<td>{{ transaction.exchange_id }}</td>
+								<td>mark</td>
+								<td>real</td>
+								<td>fees</td>
+								{% endif %}
 							</tr>
 							{% endfor %}
 						</tbody>
 					</table>
 				</td>
 			</tr>
+			{% endfor %}
+			<!-- <tr class="table-options">
+				<td colspan="6">
+					<table class="table table-expandable">
+						<tbody>
+							
+						</tbody>
+					</table>
+				</td>
+			</tr> -->
 			{% endfor %}
 		</tbody>
 	</table>
