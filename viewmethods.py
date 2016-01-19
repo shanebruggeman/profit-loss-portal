@@ -66,11 +66,11 @@ def get_transactions_for_date(account, date):
 		month_of_the_year = datetime.today().month
 		days_to_sub = 0;
 		days_to_sub_this_year = 0;
-		for i in range(1, 12):
+		for i in range(1, 13):
 			days_to_sub+= calendar.monthrange(datetime.today().year-1, i)[1]
 
 		if month_of_the_year == 1:
-			days_to_sub_this_year = datetime.today().days
+			days_to_sub_this_year = datetime.today().day
 		else:
 			for j in range(1, month_of_the_year):
 				days_to_sub_this_year+= calendar.monthrange(datetime.today().year, i)[1]
