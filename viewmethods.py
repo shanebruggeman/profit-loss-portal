@@ -3,6 +3,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from datetime import datetime, date, timedelta
 from db_create import db, application
 from models import *
+import calendar
 
 def get_accounts_for_user(user_id):
 	logged_user = db.session.query(User).filter(User.user_id == user_id).first()
@@ -30,7 +31,7 @@ def get_transactions_for_date(account, date):
 
 	elif date == "this_month":
 		day_of_the_month = datetime.today().day
-		x_days_ago = current_time - timedelta(days=day_of_the_month)
+		x_days_ago = current_time - timedelta(days=day_of_the_month-1)
 		time_period = "Period between " + str(x_days_ago).split(".")[0] + " and " + str(current_time).split(".")[0]
 		# transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade < x_days_ago).all()
 		positionList = db.session.query(StockPosition).filter(StockPosition.account_id == account, StockPosition.date > x_days_ago).all()
@@ -38,7 +39,10 @@ def get_transactions_for_date(account, date):
 	elif date == "prev_month":
 		day_of_the_month = datetime.today().day
 		last_month_end = current_time - timedelta(days=day_of_the_month)
-		last_month_begin = last_month_end - timedelta(days=30)
+		if datetime.today().month==1:
+			last_month_num = datetime.today().month+11
+			last_year_num = datetime.today().year - 1
+		last_month_begin = last_month_end - timedelta(days=calendar.monthrange(last_year_num, last_month_num)[1] -1)
 		time_period = "Period between " + str(last_month_begin).split(".")[0] + " and " + str(last_month_end).split(".")[0]
 		# transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade < last_month_begin, Transaction.trade > last_month_end).all() 
 		positionList = db.session.query(StockPosition).filter(StockPosition.account_id == account, StockPosition.date < last_month_begin, StockPosition.date > last_month_end).all()
@@ -46,18 +50,34 @@ def get_transactions_for_date(account, date):
 	elif date == "this_year":
 		day_of_the_month = datetime.today().day
 		month_of_the_year = datetime.today().month
+		days_to_sub = 0;
+		for i in range(1,month_of_the_year):
+			days_to_sub+= calendar.monthrange(datetime.today().year, i)[1]
+		days_to_sub = days_to_sub - 1
 		sub_days = current_time - timedelta(days=day_of_the_month)
-		sub_months = sub_days - timedelta(days=30*month_of_the_year)
+		sub_months = sub_days - timedelta(days=days_to_sub)
 		time_period = "Period between " + str(sub_months).split(".")[0] + " and " + str(current_time).split(".")[0]
 		# transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade < sub_months).all()
-		positionList = db.session.query(StockPosition).filter(StockPosition.account_id == account, StockPosition.date > sub_months).all()
+		positionList = db.session.query(StockPosition).filter(StockPosition.account_id == account, StockPosition.date < sub_months).all()
 
 	if date == "last_year":
+		##Eff this ill do it tomorrow
 		day_of_the_month = datetime.today().day
 		month_of_the_year = datetime.today().month
-		sub_days = current_time - timedelta(days=day_of_the_month)
-		last_year_end = sub_days - timedelta(days= 30*month_of_the_year)
-		last_year_begin = last_year_end - timedelta(weeks=52)
+		days_to_sub = 0;
+		days_to_sub_this_year = 0;
+		for i in range(1, 12):
+			days_to_sub+= calendar.monthrange(datetime.today().year-1, i)[1]
+
+		if month_of_the_year == 1:
+			days_to_sub_this_year = datetime.today().days
+		else:
+			for j in range(1, month_of_the_year):
+				days_to_sub_this_year+= calendar.monthrange(datetime.today().year, i)[1]
+		days_to_sub = days_to_sub - 1
+		sub_days = current_time - timedelta(days=days_to_sub_this_year)
+		last_year_end = sub_days
+		last_year_begin = last_year_end - timedelta(days_to_sub)
 		time_period = "Period between " + str(last_year_begin).split(".")[0] + " and " + str(last_year_end).split(".")[0]
 		# transactionList = db.session.query(Transaction).filter(Transaction.account_id == account, Transaction.trade < last_year_begin, Transaction.trade > last_year_end).all()
 		positionList = db.session.query(StockPosition).filter(StockPosition.account_id == account, StockPosition.date < last_year_begin, StockPosition.date > last_year_end).all()
