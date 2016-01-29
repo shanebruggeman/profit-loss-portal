@@ -6,8 +6,8 @@ watches = db.Table('watches',
 )
 
 position_watches = db.Table('position_watches',
-	db.Column('position_id', db.Integer, db.ForeignKey('stock_positions.stock_position_id')),
-	db.Column('transaction_id', db.Integer, db.ForeignKey('transactions.transaction_id')))
+	db.Column('position_id', db.Integer, db.ForeignKey('stock_positions.stock_position_id', ondelete='cascade', onupdate='cascade')),
+	db.Column('transaction_id', db.Integer, db.ForeignKey('transactions.transaction_id', ondelete='cascade', onupdate='cascade')))
 
 class Account(db.Model):
 	__tablename__ = "accounts"
@@ -70,6 +70,12 @@ class Transaction(db.Model):
 	commission = db.Column(db.Float, nullable=False)
 	isPosition = db.Column(db.Boolean, nullable=False)
 
+	# make an identical transaction not linked to the originals
+	def clone(self):
+		copy = Transaction(self.account_id, self.exchange_id, self.price, self.units, self.sec_sym, self.settle, self.entry, self.trade, self.ticket_number, self.buy_sell, self.commission, self.isPosition)
+		copy.transaction_id = None
+		return copy
+
 	def getSymbol(self):
 		return self.sec_sym
 
@@ -122,7 +128,11 @@ class StockPosition(db.Model):
 	 backref=db.backref('stock_positions', lazy='dynamic'))
 
 	def __repr__(self):
-		return '<StockPosition id={} date={} stock={}'.format(self.stock_position_id, self.date, self.symbol)
+		# return '<StockPosition id={} date={} stock={}>'.format(self.stock_position_id, self.date, self.symbol)
+		rep = '<StockPosition id={} date={} stock={}>'.format(self.stock_position_id, self.date, self.symbol)
+		for transaction in self.all_transactions:
+			rep = rep + '\n\t' + str(transaction)
+		return rep
 
 	def __str(self):
 		return repr(self)

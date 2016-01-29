@@ -1,10 +1,11 @@
-I#heartbeat
+#change tag 60 to change the date. Data parses '#send order' first
+#heartbeat
        21:52:50.095582 8136 c:\samsara\libraries\common\mwFixClient.h:19 Outgoing FIX len 107: 8=FIX.4.29=08435=A52=20151006-02:52:50.76549=_SenderCompID56=_TargetCompID34=625598=0108=3010=142 
    
        21:52:57.031892 8136 FixParser.cpp:42 `Incoming Fix len 78: 8=FIX.4.29=05535=052=20151006-02:52:57.70249=XXXX56=YYYY34=5500610=148 
 
-#send order	   
-       21:53:33.299180 8136 c:\samsara\libraries\common\mwFixClient.h:19 Outgoing FIX len 265: 8=FIX.4.29=24235=D52=20151007-02:53:33.97149=_SenderCompID56=_TargetCompID34=625711=10121=1100=AMEXO40=247=I55=BAC   160616C0002500054=138=50115=PCUS44=2.0060=20151007-02:53:33.971311=BAC202=25.0077=O201=1167=OPT200=201606205=1659=010=200 
+#send order      
+       21:53:33.299180 8136 c:\samsara\libraries\common\mwFixClient.h:19 Outgoing FIX len 265: 8=FIX.4.29=24235=D52=20151006-02:53:33.97149=_SenderCompID56=_TargetCompID34=625711=10121=1100=AMEXO40=247=I55=BAC   160616C0002500054=138=50115=PCUS44=2.0060=20151006-02:53:33.971311=BAC202=25.0077=O201=1167=OPT200=201606205=1659=010=200 
        
 #incoming confirmation of order receipt
        21:53:40.541283 8136 FixParser.cpp:42 `Incoming Fix len 91: 8=FIX.4.29=06835=852=20151006-02:53:40.21249=XXXX56=YYYY34=5500811=101150=010=205 
@@ -12,8 +13,8 @@ I#heartbeat
 #canceled message from server, no cancel request sent
        21:53:48.495564 8136 FixParser.cpp:42 `Incoming Fix len 91: 8=FIX.4.29=06835=852=20151006-02:53:48.16549=XXXX56=YYYY34=5500911=101150=410=225 
        
-#order with cancel request sent by client	   
-       21:54:19.251694 8136 c:\samsara\libraries\common\mwFixClient.h:19 Outgoing FIX len 265: 8=FIX.4.29=24235=D52=20151006-02:54:19.92449=_SenderCompID56=_TargetCompID34=625911=20121=1100=AMEXO40=247=I55=BAC   160616C0002500054=238=50115=PCUS44=2.0560=20151008-02:54:19.924311=BAC202=25.0077=O201=1167=OPT200=201606205=1659=010=215 
+#order with cancel request sent by client    
+       21:54:19.251694 8136 c:\samsara\libraries\common\mwFixClient.h:19 Outgoing FIX len 265: 8=FIX.4.29=24235=D52=20151006-02:54:19.92449=_SenderCompID56=_TargetCompID34=625911=20121=1100=AMEXO40=247=I55=BAC   160616C0002500054=238=50115=PCUS44=2.0560=20151007-02:54:19.924311=BAC202=25.0077=O201=1167=OPT200=201606205=1659=010=215 
        21:54:19.253580 8136 FixParser.cpp:42 `Incoming Fix len 91: 8=FIX.4.29=06835=852=20151006-02:54:19.92549=XXXX56=YYYY34=5501111=201150=010=218 
        21:54:26.656887 8136 c:\samsara\libraries\common\mwFixClient.h:19 Outgoing FIX len 240: 8=FIX.4.29=21735=F52=20151006-02:54:26.33049=_SenderCompID56=_TargetCompID34=626011=201.041=20160=20151006-02:54:26.33055=BAC38=50100=AMEXO55=BAC   160616C00025000202=25.00201=1200=201606167=OPT205=16115=PCUS54=210=076 
        21:54:27.073878 8136 FixParser.cpp:42 `Incoming Fix len 78: 8=FIX.4.29=05535=052=20151006-02:54:27.74549=XXXX56=YYYY34=5501210=151150=010=218 
@@ -21,7 +22,7 @@ I#heartbeat
        21:54:29.292011 8136 OrderInfoBase.cpp:107 SetStatus called for order num 201 status cancelled 
        
 #order filled after cancel request sent (too late)
-	   21:54:34.716127 8136 c:\samsara\libraries\common\mwFixClient.h:19 Outgoing FIX len 265: 8=FIX.4.29=24235=D52=20151006-02:54:34.38949=_SenderCompID56=_TargetCompID34=626111=30121=1100=AMEXO40=247=I55=BAC   160616C0002500054=238=50115=PCUS44=2.0560=20151006-02:54:34.389311=BAC202=25.0077=O201=1167=OPT200=201606205=1659=010=213 
+          21:54:34.716127 8136 c:\samsara\libraries\common\mwFixClient.h:19 Outgoing FIX len 265: 8=FIX.4.29=24235=D52=20151006-02:54:34.38949=_SenderCompID56=_TargetCompID34=626111=30121=1100=AMEXO40=247=I55=BAC   160616C0002500054=238=50115=PCUS44=2.0560=20151006-02:54:34.389311=BAC202=25.0077=O201=1167=OPT200=201606205=1659=010=213 
        21:54:34.720057 8136 FixParser.cpp:42 `Incoming Fix len 91: 8=FIX.4.29=06835=852=20151006-02:54:34.39149=XXXX56=YYYY34=5501411=301150=010=216 
        21:54:39.592333 8136 c:\samsara\libraries\common\mwFixClient.h:19 Outgoing FIX len 240: 8=FIX.4.29=21735=F52=20151006-02:54:39.26549=_SenderCompID56=_TargetCompID34=626211=301.041=30160=20151006-02:54:39.26555=BAC38=50100=AMEXO55=BAC   160616C00025000202=25.00201=1200=201606167=OPT205=16115=PCUS54=210=102 
        21:54:39.592339 8136 OrderInfoBase.cpp:107 SetStatus called for order num 301 status cancel_sent 
@@ -38,7 +39,7 @@ I#heartbeat
        21:55:16.457440 8136 FixParser.cpp:42 `Incoming Fix len 91: 8=FIX.4.29=06835=852=20151006-02:55:16.13049=XXXX56=YYYY34=5501911=501150=010=2151=1.9710=079 
        21:55:27.052834 8136 FixParser.cpp:42 `Incoming Fix len 105: 8=FIX.4.29=08235=852=20151006-02:55:27.72549=XXXX56=YYYY34=5502011=501150=232=5031=2.0510=072 
 
-	   
+          
 #one order sent and partialled multiple times, another is rejected
        21:55:27.055864 8136 c:\samsara\libraries\common\mwFixClient.h:19 Outgoing FIX len 266: 8=FIX.4.29=24335=D52=20151006-02:55:27.73049=_SenderCompID56=_TargetCompID34=626511=60121=1100=SMARTO40=247=I55=BAC   160616C0002500054=138=50115=PCUS44=2.0060=20151006-02:55:27.730311=BAC202=25.0077=C201=1167=OPT200=201606205=1659=010=025 
        21:55:27.059819 8136 FixParser.cpp:42 `Incoming Fix len 91: 8=FIX.4.29=06835=852=20151006-02:55:27.73249=XXXX56=YYYY34=5502111=601150=010=2191=2.0510=072 
