@@ -31,6 +31,3 @@ print 'STOCKPOSITIONS'
 positions = StockPosition.query.all()
 for pos in positions:
 	print pos
-	trans = pos.all_transactions
-	for tran in trans:
-		print '\t' + str(tran)

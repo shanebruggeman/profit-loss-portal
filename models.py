@@ -68,13 +68,36 @@ class Transaction(db.Model):
 	ticket_number = db.Column(db.String, nullable=False)
 	buy_sell = db.Column(db.String, nullable=False)
 	commission = db.Column(db.Float, nullable=False)
-	isPosition = db.Column(db.Boolean, nullable=False)
+	isPosition = db.Column(db.String, nullable=False)
 
 	# make an identical transaction not linked to the originals
 	def clone(self):
 		copy = Transaction(self.account_id, self.exchange_id, self.price, self.units, self.sec_sym, self.settle, self.entry, self.trade, self.ticket_number, self.buy_sell, self.commission, self.isPosition)
 		copy.transaction_id = None
 		return copy
+
+	def mimic(self, other_transaction):
+		self.exchange_id = other_transaction.account_id;
+		self.price = other_transaction.price;
+		self.units = other_transaction.units;
+		self.sec_sym = other_transaction.sec_sym;
+		self.settle = other_transaction.settle;
+		self.entry = other_transaction.entry;
+		self.trade = other_transaction.trade;
+		self.ticket_number = other_transaction.ticket_number;
+		self.buy_sell = other_transaction.buy_sell;
+		self.commission = other_transaction.commission;
+		self.isPosition = other_transaction.isPosition;
+
+	def mimic_except_date(self, other_transaction):
+		self.exchange_id = other_transaction.account_id;
+		self.price = other_transaction.price;
+		self.units = other_transaction.units;
+		self.sec_sym = other_transaction.sec_sym;
+		self.ticket_number = other_transaction.ticket_number;
+		self.buy_sell = other_transaction.buy_sell;
+		self.commission = other_transaction.commission;
+		self.isPosition = other_transaction.isPosition;
 
 	def getSymbol(self):
 		return self.sec_sym
@@ -126,6 +149,27 @@ class StockPosition(db.Model):
 
 	all_transactions = db.relationship('Transaction', secondary=position_watches,
 	 backref=db.backref('stock_positions', lazy='dynamic'))
+
+	def get_open(self):
+		open_transactions = filter(lambda transaction: transaction.isPosition == 'open', self.all_transactions)
+
+		if len(open_transactions) > 1:
+			print self
+			raise 'More than one open transaction on the position'
+		else:
+			return open_transactions[0]
+
+	def get_close(self):
+		close_transactions = filter(lambda transaction: transaction.isPosition == 'close', self.all_transactions)
+		if len(close_transactions) > 1:
+			print self
+			raise 'More than one closing transaction on the position'
+		else:
+			return close_transactions[0]
+
+	def remove(self, removed):
+		db.session.delete(removed)
+		db.session.commit()
 
 	def __repr__(self):
 		# return '<StockPosition id={} date={} stock={}>'.format(self.stock_position_id, self.date, self.symbol)
