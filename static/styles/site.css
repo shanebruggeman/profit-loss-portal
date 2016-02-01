@@ -21,6 +21,14 @@ body {
   font-size: 30px;
 }
 
+.boldtext {
+  font-weight: bold;
+}
+
+.graytext {
+  color: #808080;
+}
+
 .flash {
   background-color: #ffffff;
   color: #696969;

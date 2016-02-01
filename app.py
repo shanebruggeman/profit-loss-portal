@@ -75,6 +75,7 @@ def newplreport(account, date):
 	time_period = trans_and_time_period['period']
 
 	stock_dict = {}
+	bold_dict = {}
 	stock_names = []
 	num_trades = len(transactionList)
 	# grand_total = 0
@@ -108,23 +109,33 @@ def newplreport(account, date):
 			# 		itemTotal += SEC_fee + broker_fee; ##Need to add exchange fee
 			# grand_total +=itemTotal		
 			# stock_dict[initSymb] = itemTotal
-	
-	# for symbol in stock_dict:
-	# 	for option in stock_dict[symbol]:
-	# 		current_quantity = 0
-	# 		last_trans = None
-	# 		for trans in stock_dict[symbol][option]:
-	# 			current_quantity += trans.units
-	# 			last_trans = trans
+	for symbol in stock_dict:
+		for option in stock_dict[symbol]:
+			current_quantity = 0
+			bold_dict[option] = []
+			trans_to_bold = []
+			for trans in stock_dict[symbol][option]:
+				
+				print(trans.entry)
+				print(trans.units)
+				current_quantity = current_quantity + trans.units
+				print(current_quantity)
+				if current_quantity == 0:
+					del trans_to_bold[:]
+				else:
+					trans_to_bold.append(trans.transaction_id)
 
-	# 		if current_quantity != 0:
-	# 			closing_position = StockPosition(last_trans.sec_sym, last_trans.settle ,last_trans.account_id)
-	# 			closing_position.all_transactions.append(stock_dict[symbol][option])
-
-	# print(stock_dict)
+			if current_quantity != 0:
+				bold_dict[option] = trans_to_bold
+			# if current_quantity != 0:
+				# 
+				# closing_position = StockPosition(last_trans.sec_sym, last_trans.settle ,last_trans.account_id)
+				# closing_position.all_transactions.append(stock_dict[symbol][option])
+	print("bold_dict goes here")
+	print(bold_dict)
 
 	# return render_template('plreport.html', transList = transactionList, totalProfit=grand_total, numTrades= num_trades, list=stock_names, dict=stock_dict, period = time_period)
-	return render_template('newplreport.html', stockdict=stock_dict, period=time_period)
+	return render_template('newplreport.html', stockdict=stock_dict, period=time_period, bolddict=bold_dict)
 
 
 @application.route('/trconfreport/<account>/<date>')

@@ -55,7 +55,8 @@
 						<tbody>
 							<!-- Another forloop here for individual trades on each option -->
 							{% for transaction in stockdict[stocksymbol][option] %}
-							<tr>
+							{% if transaction.transaction_id in bolddict[option] %}
+							<tr class="boldtext">
 								{% if transaction.isPosition and not (transaction.price == 0) %}
 								<td>CLOSING</td>
 								<td>{{ transaction.units }}</td>
@@ -79,6 +80,32 @@
 								<td>fees</td>
 								{% endif %}
 							</tr>
+							{% else %}
+							<tr class="graytext">
+								{% if transaction.isPosition and not (transaction.price == 0) %}
+								<td>CLOSING</td>
+								<td>{{ transaction.units }}</td>
+								<td>{{ transaction.price }}</td>
+								<td>{{ transaction.exchange_id }}</td>
+								<td>mark</td>
+								<td>real</td>
+								<td>fees</td>
+								{% elif not (transaction.price == 0) %}
+								<td>{{transaction.settle.day|string + "-" +transaction.settle.month|string + "-" + transaction.settle.year|string}}</td>
+								<td>{% if transaction.buy_sell == "Sell" %}
+									-{{ transaction.units }}
+									{% else %}
+									{{ transaction.units }}
+									{% endif %}
+								</td>
+								<td>{{ transaction.price }}</td>
+								<td>{{ transaction.exchange_id }}</td>
+								<td>mark</td>
+								<td>real</td>
+								<td>fees</td>
+								{% endif %}
+							</tr>
+							{% endif %}
 							{% endfor %}
 						</tbody>
 					</table>
