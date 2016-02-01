@@ -5,7 +5,7 @@
 	<h1>Admin</h1>
 	<br>
 	<div class="container-fluid">
-		<div class="col-sm-12 col-lg-4">
+		<div class="col-sm-12 col-lg-3">
 			<h2>Make Admins</h2>
 			<form action="" method="post">
 				{% for user in nonAdmins %}
@@ -14,7 +14,7 @@
 				<input name="button" class="btn btn-default" type="submit" value="Set as Admins">
 			</form>
 		</div>
-		<div class="col-sm-12 col-lg-4">
+		<div class="col-sm-12 col-lg-3">
 			<h2>Assign Accounts</h2>
 			<form action="" method="post">
 				<div class="row">
@@ -41,14 +41,8 @@
 				</div>
 			</form>
 		</div>
-		<div class="col-sm-12 col-lg-4">
-			<h2>Create Accounts</h2>
-			<form action="" method="post">
-				<label>Account Name: <br><input type="text" name="new_account_name"></label>
-				<label>Account Initials: <br><input type="text" name="new_account_initials"></label>
-				<br>
-				<input name="button" class="btn btn-default pull-right" type="submit" value="Create Account">
-			</form>
+		<div class="col-sm-12 col-lg-3">
+			<a class="btn btn-default" href="{{ url_for('editaccount') }}">Edit Accounts</a>
 		</div>
 	</div>
 </div>

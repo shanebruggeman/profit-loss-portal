@@ -15,7 +15,8 @@ import re
 
 def main(exec_args):
 	dataFile = open("db_scripts/example_parse_data.txt","r").read()
-	maketakeFile = open("db_scripts/example_maketake.txt","r").read()
+	maketakeFile = open("example_maketake.txt","r").read()
+	# chosen exchange no longer matters
 	chosenExchange = "Box"
 
 	res = parse.main(["", dataFile, maketakeFile, chosenExchange])

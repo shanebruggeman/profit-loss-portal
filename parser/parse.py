@@ -23,6 +23,7 @@ class OptionRowHolder(object):
 	def get_first(self):
 		return self.all_tabs[0]
 
+	# determines the correct fee for a given exchange and liquidity boolean
 	def lookup(self, exchange, isAddingLiquidity):
 		print "Looking up the exchange " + exchange
 		print self.all_tabs[3]
@@ -35,6 +36,7 @@ class OptionRowHolder(object):
 		print "Exchange " + exchange + " was not found!\n"
 		return False
 
+	# each tab acts as a container to those beneath it
 	def add(self, stock_row):
 		last_added_tab = self.all_tabs[len(self.all_tabs) - 1]
 		last_added_tabval = last_added_tab.get_tabval()
@@ -94,6 +96,8 @@ class StockRow(object):
 		return self.properties["tabval"]
 
 	def parse(self, line_parts):
+		# each of these corresponds to a part of the line
+		# where lines go [characters, space, characters, space, ....]
 		make_take = 0
 		option_name = 2
 		add_liquidity_fee = 4
@@ -101,9 +105,11 @@ class StockRow(object):
 		tabbed_space = 7
 		attributes_pos = 8
 
+		# tabval lets us know how deeply nested our row is
 		tabbing = line_parts[tabbed_space]
 		tabval = len(tabbing) / 4
 
+		# retrieve the predetermined parts of the line
 		maketake = line_parts[make_take]
 		op_name = line_parts[option_name]
 		op_aliases = []
@@ -158,6 +164,7 @@ class StockRow(object):
 		return str(self)
 
 
+# process the fee file so that we can easily look up relevant fees
 class MakeTakeParser(object):
 
 	def __init__(self):
@@ -175,9 +182,13 @@ class MakeTakeParser(object):
 		properties = {}
 		count = 0
 
+		# word map holds the parts of the line
+		# like add_fee, take_fee, and the spaces between
 		word_map = []
 
+		# build the word map for each of the lines
 		for line in lines:
+			# remove commented or irrelevant lines
 			if '#' in line or not line.strip():
 				continue
 
@@ -209,6 +220,8 @@ class MakeTakeParser(object):
 
 		holder = OptionRowHolder()
 
+		# make a stock row object to hold each line's information,
+		# and hold all the rows inside an OptionRowHolder
 		for line in word_map:
 			tab = StockRow(line)
 			holder.add(tab)
@@ -233,11 +246,15 @@ class Transaction(object):
 	def parse_fix_pairs(self):
 		parsed_string = self.base_string
 
+		# each transaction always begins with this prefix
 		pairs_start = parsed_string.find('8=FIX')
 		pairs_string = parsed_string[pairs_start:]
 
+		# all transaction attributes are split by this delimiter
 		pairs = pairs_string.split('')
 
+		# grab all the attribute pairs in the data file
+		# numbers will come in the form of a tag number and a corresponding value
 		pair_dict = {}
 		for entry in pairs:
 			if entry == ' ' or entry == '':
@@ -249,28 +266,40 @@ class Transaction(object):
 				continue
 
 			try:
+				# key is the left value, the tag number
 				key = split_pair[0]
+				# vlalue is the right value and can be anything
 				value = split_pair[1]
+				# store the information away and move to the next attribute
 				pair_dict[key] = value
 			except Exception as e:
 				print 'could not add key value pair to transaction data'
 				print e
 
+		# add all the properties to the Transaction object, translating as we go
+		# from our reference conversion tables
 		for key in pair_dict:
+			# only add attributes that we know about
 			if key in fix_fields_table:
+				# grab the key's translation and its value in the pairs list
 				key_label = fix_fields_table[key]
 				value = pair_dict[key]
+				# set the transaction's property
 				self.properties[key_label] = value
 
-		# look up the message type and set it on the transaction
+		# look up the message type, which will be a string value
 		msg_type_val = self.properties['MsgType']
-		self.transaction_type = fix_msg_types_table[msg_type_val]
-		# self.properties['MsgType'] = fix_msg_types_table[msg_type_val]
 
+		# use the message val to translate it to a meaningful string,
+		# using the message types table
+		self.transaction_type = fix_msg_types_table[msg_type_val]
+
+	# return the relevant property from the transaction
 	def get(self, key):
 		return str(self.properties[key])
 
 
+# trigger parsing the maketake file
 def parse_maketake(data_file):
 	parser = MakeTakeParser()
 	return parser.parse_maketake(data_file)
