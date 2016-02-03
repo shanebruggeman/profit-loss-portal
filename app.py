@@ -13,7 +13,9 @@ import sys
 sys.path.append("db_scripts")
 import db_insert
 
-UPLOAD_FOLDER = 'C:\\Users\\hullzr\\Documents\\GitHub\\profit-loss-portal\\file_uploads'
+# UPLOAD_FOLDER = 'C:\\Users\\hullzr\\Documents\\GitHub\\profit-loss-portal\\file_uploads'
+UPLOAD_FOLDER = 'C:\\Users\\watersdr\\Documents\\GitHub\\profit-loss-portal\\file_uploads'
+
 ALLOWED_EXTENSIONS = set(['txt'])
 application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 def allowed_file(filename):
