@@ -5,6 +5,13 @@
 <!-- <button id='submit-files'>Upload File(s)</button> -->
 <!-- HTML heavily inspired by http://blueimp.github.io/jQuery-File-Upload/ -->
 <div id="actions" class="row">
+	<select class="borderless-select" name="account" style="overflow: auto" size=10>
+		<optgroup label="Select an Account">
+			{% for account in accounts %}
+			<option name="account" value="{{ account.account_id }}">{{ account.initials }}</option>
+			{% endfor %}
+		</optgroup>
+	</select>
 	<div class="col-lg-7">
 		<!-- The fileinput-button span is used to style the file input field as button -->
 		<span class="btn btn-success fileinput-button" id='submit-files'>

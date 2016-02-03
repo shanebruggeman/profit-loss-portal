@@ -55,13 +55,11 @@ def main(exec_args):
 					else:
 						print 'User has traded this option in the past, but not today. Adding a new day position'
 						establish_new_position(parsed_transaction, last_position)
-
 				else:
 					print "Adding to an established position"
 					add_to_day_position(parsed_transaction, today_position)
 
 				db.session.commit()
-
 
 			except Exception as e:
 				print e
