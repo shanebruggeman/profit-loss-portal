@@ -86,13 +86,20 @@ def newplreport(account, date):
 			if item.sec_sym in stock_dict[initSymb]:
 				# item.sec_sym might not be the correct field
 				# need way to tell what option a transaction was made on
+				exch = db.session.query(Exchange).filter(Exchange.exchange_id == item.exchange_id).first()
+				item.exchange = exch.symbol
 				stock_dict[initSymb][item.sec_sym].append(item)
+
 			else:
 				stock_dict[initSymb][item.sec_sym] = []
+				exch = db.session.query(Exchange).filter(Exchange.exchange_id == item.exchange_id).first()
+				item.exchange = exch.symbol
 				stock_dict[initSymb][item.sec_sym].append(item)				
 		else:
 			stock_dict[initSymb] = {}
 			stock_dict[initSymb][item.sec_sym] = []
+			exch = db.session.query(Exchange).filter(Exchange.exchange_id == item.exchange_id).first()
+			item.exchange = exch.symbol
 			stock_dict[initSymb][item.sec_sym].append(item)
 			# stock_names.append(initSymb)
 			# itemTotal = 0;
@@ -219,13 +226,16 @@ def get_transactions():
 @application.route('/upload', methods=['GET', 'POST'])
 def upload():
 	if request.method == 'GET':
-		return render_template('upload.html')
+		accountsList = get_accounts_for_user(session['user_id'])
+		return render_template('upload.html', accounts=accountsList)
 	else:
 		file = request.files['file']
+		acct = request.form['account']
+		print 'Account ID uploading to: ' + acct
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(application.config['UPLOAD_FOLDER'] + "\\" + filename)
-            db_insert.main([application.config['UPLOAD_FOLDER'] + "\\" + filename])
+            db_insert.main([application.config['UPLOAD_FOLDER'] + "\\" + filename, acct])
             return render_template('upload.html', filename=filename)
         else:
         	return render_template('upload.html', )

@@ -61,10 +61,10 @@
 								<td>CLOSING</td>
 								<td>{{ transaction.units }}</td>
 								<td>{{ transaction.price }}</td>
-								<td>{{ transaction.exchange_id }}</td>
+								<td></td>
 								<td>mark</td>
 								<td>real</td>
-								<td>fees</td>
+								<td></td>
 								{% elif not (transaction.price == 0) %}
 								<td>{{transaction.settle.day|string + "-" +transaction.settle.month|string + "-" + transaction.settle.year|string}}</td>
 								<td>{% if transaction.buy_sell == "Sell" %}
@@ -74,10 +74,10 @@
 									{% endif %}
 								</td>
 								<td>{{ transaction.price }}</td>
-								<td>{{ transaction.exchange_id }}</td>
-								<td>mark</td>
+								<td>{{ transaction.exchange }}</td>
+								<td></td>
 								<td>real</td>
-								<td>fees</td>
+								<td>{{ transaction.commission }}</td>
 								{% endif %}
 							</tr>
 							{% else %}

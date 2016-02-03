@@ -40,7 +40,7 @@ def main(exec_args):
 				date_str=year+'/'+month+'/'+day+' '+ttime
 				bs=trans.get('PutOrCall')
 
-				account_id = 1
+				account_id = exec_args[1]
 				exchange_id = 1
 				price = float(trans.get('Price'))
 				units = int(trans.get('OrderQty'))
@@ -55,10 +55,14 @@ def main(exec_args):
 					buy_sell='Sell'
 
 				commission = float(trans.get('Commission'))
+				# Add all of this to get commission:
+				# units * account commission
+				# exchange fee
+				# (Sell-Order) Units * SEC rate
 
 				# if we parsed it the transaction is not an opening position
 				parsed_transaction = Transaction(account_id, exchange_id, price, units, sec_sym, settle, entry, trade, ticket_number, buy_sell, commission, False)
-				existingPosition = StockPosition.query.filter(extract('year', StockPosition.date) == year).filter(extract('month', StockPosition.date) == month).filter(extract('day', StockPosition.date) == day).first()
+				existingPosition = StockPosition.query.filter(StockPosition.account_id == account_id, extract('year', StockPosition.date) == year).filter(extract('month', StockPosition.date) == month).filter(extract('day', StockPosition.date) == day).first()
 
 				# this option has not been traded today
 				if existingPosition == None:

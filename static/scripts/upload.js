@@ -27,9 +27,11 @@ myDropzone.on("success", function(file) {
   file.previewElement.querySelector("#progress-message").innerHTML = "Success";
 });
 
-myDropzone.on("sending", function(file) {
+myDropzone.on("sending", function(file, xhr, formData) {
   // And disable the start button
   file.previewElement.querySelector(".start").setAttribute("disabled", "disabled");
+  acctid = $("option[name='account']:checked").val()
+  formData.append("account", acctid);
 });
 
 });
