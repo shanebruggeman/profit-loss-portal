@@ -1,9 +1,13 @@
-table.table-expandable > tbody > tr:nth-child(odd) {
+table.table-expandable > tbody > tr.expandable {
     cursor: pointer;
 }
 
+table.table-expandable > tbody > tr:nth-child(even) {
+	/*background-color: #000000;*/
+}
+
 table.table-expandable.table-hover > tbody > tr:nth-child(even):hover td {
-    background-color: white;
+    /*background-color: white;*/
 }
 
 table.table-expandable > tbody > tr div.table-expandable-arrow {

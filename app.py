@@ -13,7 +13,9 @@ import sys
 sys.path.append("db_scripts")
 import db_insert
 
+# UPLOAD_FOLDER = 'C:\\Users\\hullzr\\Documents\\GitHub\\profit-loss-portal\\file_uploads'
 UPLOAD_FOLDER = 'C:\\Users\\watersdr\\Documents\\GitHub\\profit-loss-portal\\file_uploads'
+
 ALLOWED_EXTENSIONS = set(['txt'])
 application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 def allowed_file(filename):
@@ -75,6 +77,7 @@ def newplreport(account, date):
 	time_period = trans_and_time_period['period']
 
 	stock_dict = {}
+	bold_dict = {}
 	stock_names = []
 	num_trades = len(transactionList)
 	# grand_total = 0
@@ -85,13 +88,20 @@ def newplreport(account, date):
 			if item.sec_sym in stock_dict[initSymb]:
 				# item.sec_sym might not be the correct field
 				# need way to tell what option a transaction was made on
+				exch = db.session.query(Exchange).filter(Exchange.exchange_id == item.exchange_id).first()
+				item.exchange = exch.symbol
 				stock_dict[initSymb][item.sec_sym].append(item)
+
 			else:
 				stock_dict[initSymb][item.sec_sym] = []
+				exch = db.session.query(Exchange).filter(Exchange.exchange_id == item.exchange_id).first()
+				item.exchange = exch.symbol
 				stock_dict[initSymb][item.sec_sym].append(item)				
 		else:
 			stock_dict[initSymb] = {}
 			stock_dict[initSymb][item.sec_sym] = []
+			exch = db.session.query(Exchange).filter(Exchange.exchange_id == item.exchange_id).first()
+			item.exchange = exch.symbol
 			stock_dict[initSymb][item.sec_sym].append(item)
 			# stock_names.append(initSymb)
 			# itemTotal = 0;
@@ -108,23 +118,31 @@ def newplreport(account, date):
 			# 		itemTotal += SEC_fee + broker_fee; ##Need to add exchange fee
 			# grand_total +=itemTotal		
 			# stock_dict[initSymb] = itemTotal
-	
-	# for symbol in stock_dict:
-	# 	for option in stock_dict[symbol]:
-	# 		current_quantity = 0
-	# 		last_trans = None
-	# 		for trans in stock_dict[symbol][option]:
-	# 			current_quantity += trans.units
-	# 			last_trans = trans
+	# create dictionary of transactions in a closing position
+	for symbol in stock_dict:
+		for option in stock_dict[symbol]:
+			current_quantity = 0
+			bold_dict[option] = []
+			trans_to_bold = []
+			for trans in stock_dict[symbol][option]:
+				if trans.isPosition == False:
+					current_quantity = current_quantity + trans.units
+					if current_quantity == 0:
+						del trans_to_bold[:]
+					else:
+						trans_to_bold.append(trans.transaction_id)
+				else:
+					trans_to_bold.append(trans.transaction_id)
 
-	# 		if current_quantity != 0:
-	# 			closing_position = StockPosition(last_trans.sec_sym, last_trans.settle ,last_trans.account_id)
-	# 			closing_position.all_transactions.append(stock_dict[symbol][option])
-
-	# print(stock_dict)
+			if current_quantity != 0:
+				bold_dict[option] = trans_to_bold
+			# if current_quantity != 0:
+				# 
+				# closing_position = StockPosition(last_trans.sec_sym, last_trans.settle ,last_trans.account_id)
+				# closing_position.all_transactions.append(stock_dict[symbol][option])
 
 	# return render_template('plreport.html', transList = transactionList, totalProfit=grand_total, numTrades= num_trades, list=stock_names, dict=stock_dict, period = time_period)
-	return render_template('newplreport.html', stockdict=stock_dict)
+	return render_template('newplreport.html', stockdict=stock_dict, period=time_period, bolddict=bold_dict)
 
 
 @application.route('/trconfreport/<account>/<date>')
@@ -210,13 +228,16 @@ def get_transactions():
 @application.route('/upload', methods=['GET', 'POST'])
 def upload():
 	if request.method == 'GET':
-		return render_template('upload.html')
+		accountsList = get_accounts_for_user(session['user_id'])
+		return render_template('upload.html', accounts=accountsList)
 	else:
 		file = request.files['file']
+		acct = request.form['account']
+		print 'Account ID uploading to: ' + acct
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(application.config['UPLOAD_FOLDER'] + "\\" + filename)
-            db_insert.main([application.config['UPLOAD_FOLDER'] + "\\" + filename])
+            db_insert.main([application.config['UPLOAD_FOLDER'] + "\\" + filename, acct])
             return render_template('upload.html', filename=filename)
         else:
         	return render_template('upload.html', )
