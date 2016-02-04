@@ -6,12 +6,11 @@ watches = db.Table('watches',
 )
 
 position_watches = db.Table('position_watches',
-	db.Column('position_id', db.Integer, db.ForeignKey('stock_positions.stock_position_id')),
-	db.Column('transaction_id', db.Integer, db.ForeignKey('transactions.transaction_id')))
+	db.Column('position_id', db.Integer, db.ForeignKey('stock_positions.stock_position_id', ondelete='cascade', onupdate='cascade')),
+	db.Column('transaction_id', db.Integer, db.ForeignKey('transactions.transaction_id', ondelete='cascade', onupdate='cascade')))
 
 class Account(db.Model):
 	__tablename__ = "accounts"
-
 	account_id = db.Column(db.Integer, primary_key=True)
 	name = db.Column(db.String, nullable=False)
 	initials = db.Column(db.String, nullable=False)
@@ -23,7 +22,7 @@ class Account(db.Model):
 		self.commission = commission
 
 	def __repr__(self):
-		return 'Account name: <{}> initials: <{}> id: <{}> commission: <{}>'.format(self.name, self.initials, self.account_id, self.commission)
+		return '<Account id="{}" initials="{}" name="{}">'.format(self.account_id, self.initials, self.name)
 
 	def __str__(self):
 		return repr(self)
@@ -47,7 +46,7 @@ class User(db.Model):
 		self.admin = admin
 
 	def __repr__(self):
-		return 'User <{}> with id {}. Is admin? {}'.format(self.name, self.user_id, self.admin)
+		return '<User id="{}" name="{}" AdminStatus="{}"'.format(self.user_id, self.name, self.admin)
 
 	def __str__(self):
 		return repr(self)
@@ -69,10 +68,42 @@ class Transaction(db.Model):
 	ticket_number = db.Column(db.String, nullable=False)
 	buy_sell = db.Column(db.String, nullable=False)
 	commission = db.Column(db.Float, nullable=False)
-	isPosition = db.Column(db.Boolean, nullable=False)
+	isPosition = db.Column(db.String, nullable=False)
+
+	# make an identical transaction not linked to the originals
+	def clone(self):
+		copy = Transaction(self.account_id, self.exchange_id, self.price, self.units, self.sec_sym, self.settle, self.entry, self.trade, self.ticket_number, self.buy_sell, self.commission, self.isPosition)
+		copy.transaction_id = None
+		return copy
+
+	def mimic(self, other_transaction):
+		self.exchange_id = other_transaction.account_id;
+		self.price = other_transaction.price;
+		self.units = other_transaction.units;
+		self.sec_sym = other_transaction.sec_sym;
+		self.settle = other_transaction.settle;
+		self.entry = other_transaction.entry;
+		self.trade = other_transaction.trade;
+		self.ticket_number = other_transaction.ticket_number;
+		self.buy_sell = other_transaction.buy_sell;
+		self.commission = other_transaction.commission;
+		self.isPosition = other_transaction.isPosition;
+
+	def mimic_except_date(self, other_transaction):
+		self.exchange_id = other_transaction.account_id;
+		self.price = other_transaction.price;
+		self.units = other_transaction.units;
+		self.sec_sym = other_transaction.sec_sym;
+		self.ticket_number = other_transaction.ticket_number;
+		self.buy_sell = other_transaction.buy_sell;
+		self.commission = other_transaction.commission;
+		self.isPosition = other_transaction.isPosition;
+
+	def getSymbol(self):
+		return self.sec_sym
 
 	def __repr__(self):
-		return 'Transaction <{}> with id <{}> accountID: <{}>'.format(self.sec_sym, self.transaction_id, self.account_id)
+		return '<Transaction id="{}" symbol="{}" isPosition={} units="{}" price="{}" commission="{}" date="{}">'.format(self.transaction_id, self.sec_sym, self.isPosition, self.units, self.price, self.commission, self.settle.date())
 
 	def __str__(self):
 		return repr(self)
@@ -99,11 +130,10 @@ class Exchange(db.Model):
 	symbol = db.Column(db.String, nullable=False)
 
 	def __repr__(self):
-		return 'Exchange: <{}> id: <{}>'.format(self.symbol, self.exchange_id)
+		return '<Exchange id="{}" symbol="{}">'.format(self.exchange_id, self.symbol)
 
 	def __str__(self):
 		return repr(self)
-
 
 	def __init__(self, symbol):
 		self.symbol=symbol
@@ -120,13 +150,38 @@ class StockPosition(db.Model):
 	all_transactions = db.relationship('Transaction', secondary=position_watches,
 	 backref=db.backref('stock_positions', lazy='dynamic'))
 
+	def get_open(self):
+		open_transactions = filter(lambda transaction: transaction.isPosition == 'open', self.all_transactions)
+
+		if len(open_transactions) > 1:
+			print self
+			raise 'More than one open transaction on the position'
+		else:
+			return open_transactions[0]
+
+	def get_close(self):
+		close_transactions = filter(lambda transaction: transaction.isPosition == 'close', self.all_transactions)
+		if len(close_transactions) > 1:
+			print self
+			raise 'More than one closing transaction on the position'
+		else:
+			return close_transactions[0]
+
+	def remove(self, removed):
+		db.session.delete(removed)
+		db.session.commit()
+
 	def __repr__(self):
-		return 'StockPosition: <{}> symbol: <{}> account_id: <{}>'.format(self.date, self.symbol, self.account_id)
+		# return '<StockPosition id={} date={} stock={}>'.format(self.stock_position_id, self.date, self.symbol)
+		rep = '<StockPosition id={} date={} stock={}>'.format(self.stock_position_id, self.date, self.symbol)
+		for transaction in self.all_transactions:
+			rep = rep + '\n\t' + str(transaction)
+		return rep
 
 	def __str(self):
 		return repr(self)
 
-	def __init__(self, symbol, date, account_id):
+	def __init__(self, symbol, date, owner):
 		self.symbol = symbol
 		self.date = date
-		self.account_id = account_id
+		self.account_id = owner

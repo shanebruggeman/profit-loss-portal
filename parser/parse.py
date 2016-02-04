@@ -7,7 +7,7 @@ from reference.fix_tables import fix_fields_table, fix_msg_types_table, sidevalu
 class OptionRowHolder(object):
 	def __init__(self):
 		self.all_tabs = []
-		top_props = ['top', '  ', 'top', '   ', '(top add fee)', '  ', '(top take fee)', '', 'top']
+		top_props = ['top', '  ', 'top', '   ', '(top add fee)', '  ', '(top take fee)', '', 'top=top']
 		top_tab = StockRow(top_props)
 		self.all_tabs.append(top_tab)
 
@@ -25,11 +25,15 @@ class OptionRowHolder(object):
 
 	# determines the correct fee for a given exchange and liquidity boolean
 	def lookup(self, exchange, isAddingLiquidity):
+		print "Looking up the exchange " + exchange
+		print self.all_tabs[3]
 		for tab in self.all_tabs:
-			if tab.properties["name"] == exchange:
+			if tab.properties["name"] == exchange or exchange in tab.properties["alias"]:
 				fee = "add_fee" if isAddingLiquidity else "take_fee"
+				print "Found exchange " + exchange + "\n"
 				return tab.properties[fee]
 
+		print "Exchange " + exchange + " was not found!\n"
 		return False
 
 	# each tab acts as a container to those beneath it
@@ -108,12 +112,40 @@ class StockRow(object):
 		# retrieve the predetermined parts of the line
 		maketake = line_parts[make_take]
 		op_name = line_parts[option_name]
+		op_aliases = []
 		add_fee = line_parts[add_liquidity_fee]
 		take_fee = line_parts[take_liquidity_fee]
 
-		# these are the base properties of a row / line in maketake
+		# split into (blank=blank) tokens
+		attributes = line_parts[attributes_pos].split(' ')
+
+		# split (blank1=blank2,blank3) into (blank) and (blank2,blank3)
+		for attr in attributes:
+			attribute_breakdown = attr.split('=')
+			attr_name = attribute_breakdown[0]
+			attr_vals = attribute_breakdown[1].split(',')
+
+			# exchanges can have multiple names, comma separated on the exchange attribute
+			if attr_name == 'exchange':
+				if len(attr_vals) > 1:
+					for alias in attr_vals[1:]:
+						alias = alias.strip()
+						path_exists = os.path.exists(alias)
+						print 'path exists for alias ' + alias + ' : ' + str(path_exists)
+						# case where a lot of aliases are required, where a file can just be supplied
+						if path_exists and True:
+							print 'found exchange file, opening ...'
+							alias_file = open(alias,'r').read()
+
+							# alias file should have form of altName1,altName2,altname3
+							for fileAlias in alias_file.split(','):
+								op_aliases.append(fileAlias.strip())
+						else:
+							op_aliases.append(alias)
+
 		properties = {
 			"name": op_name,
+			"alias": op_aliases,
 			"maketake": maketake,
 			"add_fee": add_fee,
 			"take_fee": take_fee,
@@ -272,7 +304,11 @@ def parse_maketake(data_file):
 	parser = MakeTakeParser()
 	return parser.parse_maketake(data_file)
 
-# trigger parsing a datafile
+###
+# Read in a data file and maketake file, and output a list of transactions
+#
+# The exchange parameter is no longer necessary
+##
 def parse_transactions(data_filetext, maketake_filetext, exchange):
 	unparsed_transactions = data_filetext.split('\n')
 
@@ -296,17 +332,21 @@ def parse_transactions(data_filetext, maketake_filetext, exchange):
 	maketake_parser = MakeTakeParser()
 	maketake_fee_searcher = maketake_parser.parse_maketake(maketake_filetext)
 
+	# perform lookup on each transaction's exchange to obtain the maketake_fee
 	for valid_transaction in valid_parsed_transactions:
 		properties = valid_transaction.properties
 		side = properties['Side']
+		exchange = properties['ExDestination']
 
 		# liquidity is being added if true, else it is taking liquidity
 		liquidity_bool = bool(side == '2')
+
 		found_maketake_fee = maketake_fee_searcher.lookup(exchange, liquidity_bool)
 
 		# set the transaction's maketake fee
 		valid_transaction.properties['maketake_fee'] = found_maketake_fee
 
+	# return the list of valid transactions parsed from the data file
 	return valid_parsed_transactions
 
 def main(exec_args):
@@ -336,7 +376,7 @@ def main(exec_args):
 
 	parsed_results = parse_transactions(data_filetext, maketake_filetext, exchange)
 
-	print_results_nicely(parsed_results)
+	# print_results_nicely(parsed_results)
 	return parsed_results
 
 def print_results_nicely(results):
