@@ -1,4 +1,5 @@
 # regular expressions
+import os
 import re
 import sys
 from reference.fix_tables import fix_fields_table, fix_msg_types_table, sidevalues_table
@@ -22,15 +23,16 @@ class OptionRowHolder(object):
 	def get_first(self):
 		return self.all_tabs[0]
 
+	# determines the correct fee for a given exchange and liquidity boolean
 	def lookup(self, exchange, isAddingLiquidity):
 		for tab in self.all_tabs:
 			if tab.properties["name"] == exchange:
 				fee = "add_fee" if isAddingLiquidity else "take_fee"
-				
 				return tab.properties[fee]
 
 		return False
 
+	# each tab acts as a container to those beneath it
 	def add(self, stock_row):
 		last_added_tab = self.all_tabs[len(self.all_tabs) - 1]
 		last_added_tabval = last_added_tab.get_tabval()
@@ -43,7 +45,7 @@ class OptionRowHolder(object):
 
 		# if the last added tab was nested less deeply than the incoming one
 		indent_back = next_added_tabval < last_added_tabval
-		
+
 		# if the last added tab was nested equally as deep as the incoming one
 		indent_same = next_added_tabval == last_added_tabval
 
@@ -90,6 +92,8 @@ class StockRow(object):
 		return self.properties["tabval"]
 
 	def parse(self, line_parts):
+		# each of these corresponds to a part of the line
+		# where lines go [characters, space, characters, space, ....]
 		make_take = 0
 		option_name = 2
 		add_liquidity_fee = 4
@@ -97,14 +101,17 @@ class StockRow(object):
 		tabbed_space = 7
 		attributes_pos = 8
 
+		# tabval lets us know how deeply nested our row is
 		tabbing = line_parts[tabbed_space]
 		tabval = len(tabbing) / 4
 
+		# retrieve the predetermined parts of the line
 		maketake = line_parts[make_take]
 		op_name = line_parts[option_name]
 		add_fee = line_parts[add_liquidity_fee]
 		take_fee = line_parts[take_liquidity_fee]
 
+		# these are the base properties of a row / line in maketake
 		properties = {
 			"name": op_name,
 			"maketake": maketake,
@@ -125,6 +132,7 @@ class StockRow(object):
 		return str(self)
 
 
+# process the fee file so that we can easily look up relevant fees
 class MakeTakeParser(object):
 
 	def __init__(self):
@@ -136,16 +144,19 @@ class MakeTakeParser(object):
 	def __repr__(self):
 		return str(self)
 
-	def parse_maketake(self, file):
-		base_string = file.read()
-		lines = base_string.split('\n')
+	def parse_maketake(self, maketake_filetext):
+		lines = maketake_filetext.split('\n')
 
 		properties = {}
 		count = 0
 
+		# word map holds the parts of the line
+		# like add_fee, take_fee, and the spaces between
 		word_map = []
 
+		# build the word map for each of the lines
 		for line in lines:
+			# remove commented or irrelevant lines
 			if '#' in line or not line.strip():
 				continue
 
@@ -169,7 +180,7 @@ class MakeTakeParser(object):
 						build_word = char
 						index = index + 1
 						continue
-					
+
 				index = index + 1
 				build_word = build_word + char
 
@@ -177,6 +188,8 @@ class MakeTakeParser(object):
 
 		holder = OptionRowHolder()
 
+		# make a stock row object to hold each line's information,
+		# and hold all the rows inside an OptionRowHolder
 		for line in word_map:
 			tab = StockRow(line)
 			holder.add(tab)
@@ -200,91 +213,136 @@ class Transaction(object):
 
 	def parse_fix_pairs(self):
 		parsed_string = self.base_string
-		
+
+		# each transaction always begins with this prefix
 		pairs_start = parsed_string.find('8=FIX')
 		pairs_string = parsed_string[pairs_start:]
 
+		# all transaction attributes are split by this delimiter
 		pairs = pairs_string.split('')
 
+		# grab all the attribute pairs in the data file
+		# numbers will come in the form of a tag number and a corresponding value
 		pair_dict = {}
 		for entry in pairs:
 			if entry == ' ' or entry == '':
 				continue
 
 			split_pair = entry.split('=')
-			
+
 			if len(split_pair) != 2:
 				continue
 
 			try:
+				# key is the left value, the tag number
 				key = split_pair[0]
+				# vlalue is the right value and can be anything
 				value = split_pair[1]
+				# store the information away and move to the next attribute
 				pair_dict[key] = value
 			except Exception as e:
 				print 'could not add key value pair to transaction data'
 				print e
 
+		# add all the properties to the Transaction object, translating as we go
+		# from our reference conversion tables
 		for key in pair_dict:
-
+			# only add attributes that we know about
 			if key in fix_fields_table:
+				# grab the key's translation and its value in the pairs list
 				key_label = fix_fields_table[key]
 				value = pair_dict[key]
+				# set the transaction's property
 				self.properties[key_label] = value
 
-		# look up the message type and set it on the transaction
+		# look up the message type, which will be a string value
 		msg_type_val = self.properties['MsgType']
+
+		# use the message val to translate it to a meaningful string,
+		# using the message types table
 		self.transaction_type = fix_msg_types_table[msg_type_val]
-		# self.properties['MsgType'] = fix_msg_types_table[msg_type_val]
 
-	def ternary_dict_select(self, pair_dict, item_number):
-		return pair_dict[item_number] if item_number in pair_dict else None
-
+	# return the relevant property from the transaction
 	def get(self, key):
 		return str(self.properties[key])
 
 
+# trigger parsing the maketake file
 def parse_maketake(data_file):
-	data = open(data_file, 'r')
 	parser = MakeTakeParser()
-	return parser.parse_maketake(data)
+	return parser.parse_maketake(data_file)
 
-def parse_transactions(transaction_file, maketake_file, exchange):
-	transaction_data = open(transaction_file, 'r').read()
-	transaction_lines = transaction_data.split('\n')
-	maketake = parse_maketake(maketake_file)
+# trigger parsing a datafile
+def parse_transactions(data_filetext, maketake_filetext, exchange):
+	unparsed_transactions = data_filetext.split('\n')
 
-	results = []
-	for line in transaction_lines:
-		if '#' in line or not line.strip() or ('SetStatus' in line):
+	# parse all transactions for all valid lines in the data file
+	parsed_transactions = []
+	for unparsed in unparsed_transactions:
+		# avoid lines with comments, irrelevant information, or empty lines
+		if '#' in unparsed or not unparsed.strip() or ('SetStatus' in unparsed):
 			continue
 
-		next_transaction = Transaction(line)
-		results.append(next_transaction)
+		# build a transaction object with the line as the input
+		# this is the where the majority of the data parsing is done
+		parsed = Transaction(unparsed)
+		parsed_transactions.append(parsed)
 
-	# maketake_data = open(maketake_file, 'r').read()
-
+	# only allow single order transactions, at least for now
 	allowed_transactions = ['D']
-	transactions_found = [item for item in results if item.properties['MsgType'] in allowed_transactions]
+	valid_parsed_transactions = [item for item in parsed_transactions if item.properties['MsgType'] in allowed_transactions]
 
-	for t in transactions_found:
-		tside = t.properties['Side']
-		isAddingLiquidity = tside == 2
-		t.properties['maketake_fee'] = maketake.lookup(exchange, isAddingLiquidity)
+	# add relevant information from the maketake file to all the valid transactions
+	maketake_parser = MakeTakeParser()
+	maketake_fee_searcher = maketake_parser.parse_maketake(maketake_filetext)
 
-	return transactions_found
+	for valid_transaction in valid_parsed_transactions:
+		properties = valid_transaction.properties
+		side = properties['Side']
 
-def main(fName):
-	arg_filename = sys.argv[1]
+		# liquidity is being added if true, else it is taking liquidity
+		liquidity_bool = bool(side == '2')
+		found_maketake_fee = maketake_fee_searcher.lookup(exchange, liquidity_bool)
 
-	all_transactions = parse_transactions(arg_filename, 'maketake_rules.txt', "Box")
-	
-	for line in all_transactions:
-		# pass
-		print line
+		# set the transaction's maketake fee
+		valid_transaction.properties['maketake_fee'] = found_maketake_fee
+
+	return valid_parsed_transactions
+
+def main(exec_args):
+	data_filetext = exec_args[1] if len(exec_args) > 1 else None
+	maketake_filetext = exec_args[2] if len(exec_args) > 2 else None
+	exchange = exec_args[3] if len(exec_args) > 3 else None
+
+	# these three things are absolutely necessary to parse the input
+	if not data_filetext:
+		print "No data file received as parameter to transaction parser."
+	if not maketake_filetext:
+		print "No maketake file received as parameter to maketake parser."
+	if not exchange:
+		print "No exchange received as parameter to maketake parser"
+
+	if not data_filetext or not maketake_filetext or not exchange:
+		return
+
+	# allow for both filepaths and input strings to be parsed
+	if os.path.exists(data_filetext):
+		data_filetext = open(data_filetext, 'r').read()
+		print "Converting data file to string"
+
+	if os.path.exists(maketake_filetext):
+		maketake_filetext = open(maketake_filetext, 'r').read()
+		print "Converting data file to string"
+
+	parsed_results = parse_transactions(data_filetext, maketake_filetext, exchange)
+
+	print_results_nicely(parsed_results)
+	return parsed_results
+
+def print_results_nicely(results):
+	for transaction in results:
+		print transaction
 		print '\n'
 
-	# tab_holder = parse_maketake('maketake_rules.txt')
-	# print tab_holder.lookup('IseProEtfSpecials', True)
-
 if __name__ == '__main__':
-	main(sys.argv[1])
+	main(sys.argv)

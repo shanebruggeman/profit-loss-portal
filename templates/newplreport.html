@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block content %}
+<script src="{{ url_for('static', filename='scripts/bootstrap-table-expandable.js') }}"></script>
+<link href="{{ url_for('static', filename='styles/bootstrap-table-expandable.css') }}" rel="stylesheet">
+
+<h1>Profit and Loss Report</h1>
+
+<div class="container-fluid">
+	
+	<table class="table table-expandable">
+		<thead>
+			<tr>
+				<th class='symbol-cell'>Symbol</th>
+				<th>Strike</th>
+				<th>Unreal</th>
+				<th>Real</th>
+				<th>Net</th>
+			</tr>
+		</thead>
+		<tbody>
+			<!-- loop over all stocks traded -->
+			{% for stocksymbol in stockdict %}
+			<tr class="expandable top-level">
+				<td class="arrow-cell"></td>
+				<td class='symbol-cell'> {% if stocksymbol %}{{ stocksymbol }}{% endif %}</td>
+				<td> </td>
+				<td>$300.00</td>
+				<td>$485.20</td>
+				<td>$785.20</td>
+			</tr>
+			<!-- loop over all options -->
+			{% for option in stockdict[stocksymbol] %}
+			<tr class="expandable">
+				<td></td>
+				<td class="arrow-cell"></td>
+				<td class='symbol-cell'>{{ option }}</td>
+				<td>$Unreal</td>
+				<td>$Real</td>
+				<td>$Net</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td></td>
+				<td colspan="5">
+					<table class="table">
+						<thead>
+							<th>Trade Date</th>
+							<th>Ex Quan</th>
+							<th>Ex Price</th>
+							<th>Exch</th>
+							<th>Mark</th>
+							<th>Real</th>
+							<th>Net Fees</th>
+						</thead>
+						<tbody>
+							<!-- Another forloop here for individual trades on each option -->
+							{% for transaction in stockdict[stocksymbol][option] %}
+							{% if transaction.transaction_id in bolddict[option] %}
+							<tr class="boldtext">
+								{% if transaction.isPosition and not (transaction.price == 0) %}
+								<td>CLOSING</td>
+								<td>{{ transaction.units }}</td>
+								<td>{{ transaction.price }}</td>
+								<td></td>
+								<td>mark</td>
+								<td>real</td>
+								<td></td>
+								{% elif not (transaction.price == 0) %}
+								<td>{{transaction.settle.day|string + "-" +transaction.settle.month|string + "-" + transaction.settle.year|string}}</td>
+								<td>{% if transaction.buy_sell == "Sell" %}
+									-{{ transaction.units }}
+									{% else %}
+									{{ transaction.units }}
+									{% endif %}
+								</td>
+								<td>{{ transaction.price }}</td>
+								<td>{{ transaction.exchange }}</td>
+								<td></td>
+								<td>real</td>
+								<td>{{ transaction.commission }}</td>
+								{% endif %}
+							</tr>
+							{% else %}
+							<tr class="graytext">
+								{% if transaction.isPosition and not (transaction.price == 0) %}
+								<td>CLOSING</td>
+								<td>{{ transaction.units }}</td>
+								<td>{{ transaction.price }}</td>
+								<td>{{ transaction.exchange_id }}</td>
+								<td>mark</td>
+								<td>real</td>
+								<td>fees</td>
+								{% elif not (transaction.price == 0) %}
+								<td>{{transaction.settle.day|string + "-" +transaction.settle.month|string + "-" + transaction.settle.year|string}}</td>
+								<td>{% if transaction.buy_sell == "Sell" %}
+									-{{ transaction.units }}
+									{% else %}
+									{{ transaction.units }}
+									{% endif %}
+								</td>
+								<td>{{ transaction.price }}</td>
+								<td>{{ transaction.exchange_id }}</td>
+								<td>mark</td>
+								<td>real</td>
+								<td>fees</td>
+								{% endif %}
+							</tr>
+							{% endif %}
+							{% endfor %}
+						</tbody>
+					</table>
+				</td>
+			</tr>
+			{% endfor %}
+			<!-- <tr class="table-options">
+				<td colspan="6">
+					<table class="table table-expandable">
+						<tbody>
+							
+						</tbody>
+					</table>
+				</td>
+			</tr> -->
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+{% endblock %}

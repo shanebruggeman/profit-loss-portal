@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Edit Accounts</h1>
+
+<div class="container-fluid">
+	<div class="col-sm-12 col-lg-6">
+		<h2>Create Accounts</h2>
+		<form action="" method="post">
+			<label>Account Name: <br><input type="text" name="new_account_name"></label>
+			<label>Account Initials: <br><input type="text" name="new_account_initials"></label>
+			<label>Account Commission: <br><input type="text" name="new_account_commission"></label>
+			<br>
+			<input name="button" class="btn btn-default pull-right" type="submit" value="Create Account">
+		</form>
+	</div>
+	<div class="col-sm-12 col-lg-6">
+		<h2>Edit Account Commission</h2>
+		<form action="" method="post">
+			<div class="row">
+				<div class="col-sm-6">
+					<label for="#account_commission_box">Account:</label>
+					<div  id="account_commission_box" class="row scrollable">
+						{% for account in accounts %}
+						<div class="col-xs-12" style="margin:0px !important;">
+							<div class="col-xs-6 pull-left" style="padding: 0px">
+								<input type="radio" name="account_commission_id" value="{{ account.account_id }}">{{ account.initials }}
+							</div>
+							<div class="col-xs-6" style="padding:0px">
+								<p class="pull-right">{{ account.commission }}</p>
+							</div>
+						</div>
+						{% endfor %}
+					</div>
+				</div>
+				<div class="col-sm-6">
+					<label>Commission: <br><input type="text" name="account_commission_value"></label>
+				</div>
+				<br>
+				<input name="button" class="pull-right btn btn-default" type="submit" value="Change Commission">					
+			</div>
+		</form>
+	</div>
+</div>
+{% endblock %}

@@ -21,6 +21,14 @@ body {
   font-size: 30px;
 }
 
+.boldtext {
+  font-weight: bold;
+}
+
+.graytext {
+  color: #808080;
+}
+
 .flash {
   background-color: #ffffff;
   color: #696969;
@@ -91,4 +99,36 @@ thead tr th {
   padding: 10px;
   height: 400px;
   background: #E6E6E6;
+}
+
+table.fixed {
+  table-layout:fixed;
+}
+
+/*.arrow-cell {
+  width: 35px;
+}
+
+.symbol-cell {
+  width: 90px;
+}*/
+
+/*table.fixed td:nth-of-type(1) {
+  width:10px;
+}
+
+table.fixed td:nth-of-type(2) {
+  width:30px;
+}
+
+table.fixed td:nth-of-type(3) {
+  width:40px;
+}*/
+
+/*table.fixed tr:nth-child(odd) {
+  background-color: #DDDDDD
+}*/
+
+.table-options {
+  padding: 0px;
 }
