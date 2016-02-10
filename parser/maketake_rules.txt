@@ -42,7 +42,7 @@ maketake  PhsProIdxOptSingle   0.35  0.35             listType=single
 maketake  Cc2                 -0.10  0.40     exchange=CC2
 maketake  Cc2Premium          -0.10  0.34         instType=equityOpt symbol=C,BAC,XLF,F,SPY
 maketake  Smt                  1.00  1.00     exchange=SMT
-maketake  Tbo                  0.50  0.50     exchange=TBO       
+maketake  Tbo                  0.50  0.50     exchange=TBO
 maketake  Mia                  0.50  0.50     exchange=MIA
 maketake  GEMCustNonPennies   -0.82  0.82     exchange=GEM accType=cust incrType=nickel
 maketake  GEMCustPennies      -0.48  0.45     exchange=GEM accType=cust  incrType=penny

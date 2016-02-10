@@ -3,6 +3,13 @@ venv
 *.db
 .sublime-*
 .DS_Store
+*dump.txt
 Design Documents/BriansMocks/~$Copy of Report_mockup_final.xlsx
 Design Documents/BriansMocks/~$port_mockup_summary (2).docx
+<<<<<<< HEAD
 parser/dump.txt
+Design Documents/BriansMocks/~$Report_mockup_final.xlsx
+file_uploads/testdata2.txt
+=======
+parser/dump.txt
+>>>>>>> 8a72e482c771bff735185634f7746fabb07af1c5
