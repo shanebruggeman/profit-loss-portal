@@ -57,7 +57,7 @@
 							{% for transaction in stockdict[stocksymbol][option] %}
 							{% if transaction.transaction_id in bolddict[option] %}
 							<tr class="boldtext">
-								{% if transaction.isPosition and not (transaction.price == 0) %}
+								{% if not (transaction.isPosition == "regular") and not (transaction.price == 0) %}
 								<td>CLOSING</td>
 								<td>{{ transaction.units }}</td>
 								<td>{{ transaction.price }}</td>

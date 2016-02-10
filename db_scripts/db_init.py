@@ -1,7 +1,7 @@
 import sys
 sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/")
-sys.path.append("/Users/shanebruggeman/Documents/CodingProjects/profit-loss-portal/")
-sys.path.append("../")
+# sys.path.append("/Users/shanebruggeman/Documents/CodingProjects/profit-loss-portal/")
+# sys.path.append("../")
 from app import db
 from models import *
 import datetime
@@ -64,7 +64,7 @@ db.session.commit()
 
 
 print "Creating exchanges"
-example_exchange = Exchange("default-exchange")
+example_exchange = Exchange("CBOE")
 db.session.add(example_exchange)
 db.session.commit()
 

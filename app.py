@@ -9,9 +9,9 @@ from db_create import db, application
 from models import *
 from viewmethods import *
 import sys
-# sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/db_scripts")
-sys.path.append("db_scripts")
-import db_insert
+sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/db_scripts")
+# sys.path.append("db_scripts")
+# import db_insert
 
 # UPLOAD_FOLDER = 'C:\\Users\\hullzr\\Documents\\GitHub\\profit-loss-portal\\file_uploads'
 UPLOAD_FOLDER = 'C:/Users/watersdr/Documents/GitHub/profit-loss-portal/file_uploads'
@@ -241,7 +241,7 @@ def upload():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(UPLOAD_FOLDER + "/" + filename)
-            db_insert.main([UPLOAD_FOLDER + "/" + filename, acct])
+            # db_insert.main([UPLOAD_FOLDER + "/" + filename, acct])
             return render_template('upload.html', filename=filename)
         else:
         	return render_template('upload.html', )

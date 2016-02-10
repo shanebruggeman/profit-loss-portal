@@ -1,17 +1,21 @@
 import sys
 import time
 sys.path.append('../')
-sys.path.append("/Users/shanebruggeman/Documents/CodingProjects/profit-loss-portal/")
-sys.path.append("/Users/shanebruggeman/Documents/CodingProjects/profit-loss-portal/parser")
+# sys.path.append("/Users/shanebruggeman/Documents/CodingProjects/profit-loss-portal/")
+# sys.path.append("/Users/shanebruggeman/Documents/CodingProjects/profit-loss-portal/parser")
+sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/")
+sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/parser")
 from app import db
 from models import *
 import datetime
 from sqlalchemy.sql import extract
 
-sys.path.append('../parser')
+# sys.path.append('../parser')
 import parse
 from datetime import datetime
 import re
+
+SEC_FEE_RATE = .0000184 # per dollar of sale as of 2015
 
 def main(exec_args):
 	# Arguments:
@@ -19,15 +23,14 @@ def main(exec_args):
 	# 	2) Transaction data file. This contains all the transactions to parse and insert in this run of the script
 	# 	3) Maketake file. This holds all of the relevant fees for the given exchange
 	# 	4) Exchange. Right now it's hard coded, but some time it will automatically be added to the parsed result
-	res = parse.main(["", (open(exec_args[0],'r')).read(), (open ("example_maketake.txt", 'r')).read(), "Box"])
+	# res = parse.main(["", (open(exec_args[0],'r')).read(), (open ("example_maketake.txt", 'r')).read(), "Box"])
 	
-	SEC_FEE_RATE = .0000184 # per dollar of sale as of 2015
-	# dataFile = open("db_scripts/example_parse_data.txt","r").read()
-	# maketakeFile = open("example_maketake.txt","r").read()
+	dataFile = open("db_scripts/example_parse_data.txt","r").read()
+	maketakeFile = open("example_maketake.txt","r").read()
 	# chosen exchange no longer matters
-	# chosenExchange = "Box"
+	chosenExchange = "Box"
 
-	# res = parse.main(["", dataFile, maketakeFile, chosenExchange])
+	res = parse.main(["", dataFile, maketakeFile, chosenExchange])
 
 	#Add to this list for creating transactions, (CURRENTLY ONLY SEND ORDERS)
 	allowedMessages = 'D'
@@ -39,7 +42,7 @@ def main(exec_args):
 			try:
 				db.session.commit()
 				# build the database transaction from the parsed result
-				parsed_transaction = build_db_transaction(trans, exec_args[1])
+				parsed_transaction = build_db_transaction(trans, 1)
 				print parsed_transaction
 				print '\n'
 
@@ -67,8 +70,7 @@ def main(exec_args):
 					print "Adding to an established position"
 					add_to_day_position(parsed_transaction, today_position)
 
-				
-			db.session.commit()
+				db.session.commit()
 
 			except Exception as e:
 				print e
@@ -86,7 +88,7 @@ def build_db_transaction(trans, acct):
 
 	ttime=re.split("-", date)[1]
 	date_str=year+'/'+month+'/'+day+' '+ttime
-	bs=trans.get('PutOrCall')
+	bs=trans.get('Side')
 
 	account_id = acct
 	exchange_id = 1
@@ -312,17 +314,17 @@ def sumPosition(old_position):
 		else:
 			total_price += transaction.price * -1 * transaction.units
 
-		total_commision += transaction.units * transaction.commission
+		total_commission += transaction.units * transaction.commission
 
 	sum_price = total_price / total_units
 	sum_units = total_units
-	sum_commision = total_commision / total_units
+	sum_commission = total_commission / total_units
 
 	# we need to hook the exchanges up to actual data
 	sum_exchange_id = 1
 
 	isPosition = "close"
-	summed_transaction = Transaction(old_position.account_id, sum_exchange_id, sum_price, sum_units, sum_sec_sym, sum_settle, sum_entry, sum_trade, sum_ticket_number, sum_buy_sell, sum_commision, isPosition)
+	summed_transaction = Transaction(old_position.account_id, sum_exchange_id, sum_price, sum_units, sum_sec_sym, sum_settle, sum_entry, sum_trade, sum_ticket_number, sum_buy_sell, sum_commission, isPosition)
 	return summed_transaction
 
 if __name__ == '__main__':
