@@ -125,15 +125,13 @@ def newplreport(account, date):
 			bold_dict[option] = []
 			trans_to_bold = []
 			for trans in stock_dict[symbol][option]:
-				if trans.isPosition == False:
+				if trans.isPosition == "regular" or trans.isPosition == "closing":
 					current_quantity = current_quantity + trans.units
 					if current_quantity == 0:
 						del trans_to_bold[:]
 					else:
 						trans_to_bold.append(trans.transaction_id)
-				else:
-					trans_to_bold.append(trans.transaction_id)
-
+				
 			if current_quantity != 0:
 
 				################################
