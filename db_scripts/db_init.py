@@ -23,9 +23,9 @@ user_for_testing = User("test@test.com", "password", "test", False)
 db.session.add(user_for_testing)
 db.session.commit()
 
-example_account =  Account("Windy City Ventures", "WVC", 2.5)
-example_account2 = Account("Donnie Waters LLC", "DWLLC", 1.0)
-example_account3 = Account("Chicago Options Trading", "COT", 3.75)
+example_account =  Account("Windy City Ventures", "WVC", .01)
+example_account2 = Account("Donnie Waters LLC", "DWLLC", .01)
+example_account3 = Account("Chicago Options Trading", "COT", .01)
 
 
 db.session.add(example_account)
@@ -41,7 +41,7 @@ db.session.commit()
 example_user.accounts.append(example_account)
 db.session.commit()
 
-example_exchange = Exchange("ex_exchange")
+example_exchange = Exchange("CBOE")
 db.session.add(example_exchange)
 db.session.commit()
 

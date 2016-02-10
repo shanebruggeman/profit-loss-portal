@@ -22,7 +22,9 @@ def main(exec_args):
 	# 	3) Maketake file. This holds all of the relevant fees for the given exchange
 	# 	4) Exchange. Right now it's hard coded, but some time it will automatically be added to the parsed result
 	res = parse.main(["", (open(exec_args[0],'r')).read(), (open ("example_maketake.txt", 'r')).read(), "Box"])
-
+	
+	SEC_FEE_RATE = .0000184 # per dollar of sale as of 2015
+	
 	#Add to this list for creating transactions, (CURRENTLY ONLY SEND ORDERS)
 	allowedMessages = 'D'
 	for trans in res:
@@ -54,11 +56,17 @@ def main(exec_args):
 				else:
 					buy_sell='Sell'
 
-				commission = float(trans.get('Commission'))
+				account_adding = Account.query.filter(Account.account_id == account_id).first()
 				# Add all of this to get commission:
 				# units * account commission
 				# exchange fee
 				# (Sell-Order) Units * SEC rate
+				sec_fee = units * SEC_FEE_RATE * price * 100
+				if buy_sell == 'Sell':
+					commission = (account_adding.commission * units) + sec_fee # plus exchange fee
+				else:
+					commission = account_adding.commission * units # plus exchange fee
+				
 
 				# if we parsed it the transaction is not an opening position
 				parsed_transaction = Transaction(account_id, exchange_id, price, units, sec_sym, settle, entry, trade, ticket_number, buy_sell, commission, False)
@@ -74,7 +82,7 @@ def main(exec_args):
 					if priorPosition == None:
 						print 'NO PRIOR POSITION'
 						# make a 0 value trade to start a net position, mark it as "True", this is an opening position
-						baseStartPosition = Transaction(account_id, exchange_id, 0, 0, sec_sym, settle, entry, trade, ticket_number, buy_sell, commission, True)
+						baseStartPosition = Transaction(account_id, exchange_id, 0, 0, sec_sym, settle, entry, trade, ticket_number, 'POSITION', commission, True)
 						firstStockPosition = StockPosition(sec_sym, entry, account_id)
 
 						# add the starting position and the first day trade to the new position
@@ -143,9 +151,9 @@ def sumPosition(old_position):
 	summed_units = 0
 	total_price = 0
 	total_units = 0
-	total_commision = 0
+	total_commission = 0
 
-	# find the net units, commision, and price
+	# find the net units, commission, and price
 	for transaction in old_transactions:
 
 		total_units += transaction.units
@@ -155,16 +163,17 @@ def sumPosition(old_position):
 		else:
 			summed_units -= transaction.units
 
-		total_commision += transaction.units * transaction.commission
+		total_commission += transaction.units * transaction.commission
 		print transaction.units
 		print transaction.price
 
-	# average the commision and price
+	# average the commission and price
+	print 'Total units: ' + str(total_units)
 	sum_price = round((total_price / total_units), 2)
-	sum_commision = total_commision / total_units
+	sum_commission = total_commission / total_units
 
 	# return the transaction representing everything that has happened before this date
-	return Transaction(old_position.account_id, old_position.all_transactions[0].exchange_id, sum_price, summed_units, sum_sec_sym, sum_settle, sum_entry, sum_trade, sum_ticket_number, sum_buy_sell, sum_commision, True)
+	return Transaction(old_position.account_id, old_position.all_transactions[0].exchange_id, sum_price, summed_units, sum_sec_sym, sum_settle, sum_entry, sum_trade, sum_ticket_number, 'POSITION', sum_commission, True)
 
 if __name__ == '__main__':
 	main(sys.argv)
