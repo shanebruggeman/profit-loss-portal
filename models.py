@@ -103,7 +103,7 @@ class Transaction(db.Model):
 		return self.sec_sym
 
 	def __repr__(self):
-		return '<Transaction id="{}" symbol="{}" isPosition={} units="{}" price="{}" commission="{}" date="{}">'.format(self.transaction_id, self.sec_sym, self.isPosition, self.units, self.price, self.commission, self.settle.date())
+		return '<Transaction id="{}" symbol="{}" buy_sell={} isPosition={} units="{}" price="{}" commission="{}" date="{}">'.format(self.transaction_id, self.sec_sym, self.buy_sell, self.isPosition, self.units, self.price, self.commission, self.settle.date())
 
 	def __str__(self):
 		return repr(self)

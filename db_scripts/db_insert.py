@@ -1,16 +1,16 @@
 import sys
 import time
-sys.path.append('../')
+# sys.path.append('../')
 # sys.path.append("/Users/shanebruggeman/Documents/CodingProjects/profit-loss-portal/")
 # sys.path.append("/Users/shanebruggeman/Documents/CodingProjects/profit-loss-portal/parser")
-sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/")
-sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/parser")
-from app import db
+# sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/")
+# sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/parser")
+from db_create import db
 from models import *
 import datetime
 from sqlalchemy.sql import extract
 
-# sys.path.append('../parser')
+sys.path.append('parser')
 import parse
 from datetime import datetime
 import re
@@ -23,14 +23,14 @@ def main(exec_args):
 	# 	2) Transaction data file. This contains all the transactions to parse and insert in this run of the script
 	# 	3) Maketake file. This holds all of the relevant fees for the given exchange
 	# 	4) Exchange. Right now it's hard coded, but some time it will automatically be added to the parsed result
-	# res = parse.main(["", (open(exec_args[0],'r')).read(), (open ("example_maketake.txt", 'r')).read(), "Box"])
+	res = parse.main(["", (open(exec_args[0],'r')).read(), (open ("example_maketake.txt", 'r')).read(), "Box"])
 	
-	dataFile = open("db_scripts/example_parse_data.txt","r").read()
-	maketakeFile = open("example_maketake.txt","r").read()
+	# dataFile = open("db_scripts/example_parse_data.txt","r").read()
+	# maketakeFile = open("example_maketake.txt","r").read()
 	# chosen exchange no longer matters
-	chosenExchange = "Box"
+	# chosenExchange = "Box"
 
-	res = parse.main(["", dataFile, maketakeFile, chosenExchange])
+	# res = parse.main(["", dataFile, maketakeFile, chosenExchange])
 
 	#Add to this list for creating transactions, (CURRENTLY ONLY SEND ORDERS)
 	allowedMessages = 'D'
@@ -42,7 +42,7 @@ def main(exec_args):
 			try:
 				db.session.commit()
 				# build the database transaction from the parsed result
-				parsed_transaction = build_db_transaction(trans, 1)
+				parsed_transaction = build_db_transaction(trans, exec_args[1])
 				print parsed_transaction
 				print '\n'
 
@@ -89,6 +89,7 @@ def build_db_transaction(trans, acct):
 	ttime=re.split("-", date)[1]
 	date_str=year+'/'+month+'/'+day+' '+ttime
 	bs=trans.get('Side')
+	print 'bs = ' + str(bs)
 
 	account_id = acct
 	exchange_id = 1
@@ -100,7 +101,7 @@ def build_db_transaction(trans, acct):
 	entry = settle
 	trade = settle
 	ticket_number = "UNKNOWN TICKET NUMBER"
-	if bs == 1:
+	if bs == '1':
 		buy_sell='Buy'
 	else:
 		buy_sell='Sell'
@@ -302,22 +303,23 @@ def sumPosition(old_position):
 	total_price = 0
 	total_units = 0
 	total_commission = 0
+	sum_units = 0
 
 
 	sum_sec_sym = old_position.symbol
 
 	for transaction in old_transactions:
 		total_units += transaction.units
+		total_price += transaction.price * transaction.units
 
-		if transaction.buy_sell == 'buy':
-			total_price += transaction.price * transaction.units
+		if transaction.buy_sell == 'Buy':
+			sum_units += transaction.units
 		else:
-			total_price += transaction.price * -1 * transaction.units
+			sum_units -= transaction.units
 
 		total_commission += transaction.units * transaction.commission
 
 	sum_price = total_price / total_units
-	sum_units = total_units
 	sum_commission = total_commission / total_units
 
 	# we need to hook the exchanges up to actual data

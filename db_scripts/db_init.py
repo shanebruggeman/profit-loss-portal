@@ -1,8 +1,8 @@
 import sys
-sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/")
+# sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/")
 # sys.path.append("/Users/shanebruggeman/Documents/CodingProjects/profit-loss-portal/")
-# sys.path.append("../")
-from app import db
+sys.path.append("../")
+from db_create import db
 from models import *
 import datetime
 
@@ -29,17 +29,17 @@ accountConfig = [
     {
         "name": "Windy City Ventures",
         "initials": "WCV",
-        "commission": 2.5
+        "commission": .03
     },
     {
         "name": "Donnie Waters LLC",
         "initials": "DWLLC",
-        "commission": 1.0
+        "commission": .05
     },
     {
         "name": "Chicago Options Trading",
         "initials": "COT",
-        "commission": 3.75
+        "commission": .07
     }
 ]
 

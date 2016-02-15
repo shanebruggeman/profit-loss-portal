@@ -9,9 +9,9 @@ from db_create import db, application
 from models import *
 from viewmethods import *
 import sys
-sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/db_scripts")
-# sys.path.append("db_scripts")
-# import db_insert
+# sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/db_scripts")
+sys.path.append("db_scripts")
+import db_insert
 
 # UPLOAD_FOLDER = 'C:\\Users\\hullzr\\Documents\\GitHub\\profit-loss-portal\\file_uploads'
 UPLOAD_FOLDER = 'C:/Users/watersdr/Documents/GitHub/profit-loss-portal/file_uploads'
@@ -125,8 +125,11 @@ def newplreport(account, date):
 			bold_dict[option] = []
 			trans_to_bold = []
 			for trans in stock_dict[symbol][option]:
-				if trans.isPosition == "regular" or trans.isPosition == "closing":
-					current_quantity = current_quantity + trans.units
+				if trans.isPosition == "regular" or trans.isPosition == "close":
+					if (trans.buy_sell == "Buy"):
+						current_quantity = current_quantity + trans.units
+					else:
+						current_quantity = current_quantity - trans.units
 					if current_quantity == 0:
 						del trans_to_bold[:]
 					else:
@@ -241,7 +244,7 @@ def upload():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(UPLOAD_FOLDER + "/" + filename)
-            # db_insert.main([UPLOAD_FOLDER + "/" + filename, acct])
+            db_insert.main([UPLOAD_FOLDER + "/" + filename, acct])
             return render_template('upload.html', filename=filename)
         else:
         	return render_template('upload.html', )
