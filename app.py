@@ -1,5 +1,8 @@
 import os
 import sys
+sys.path.append('./')
+sys.path.append('./parser')
+sys.path.append('./db_scripts')
 from flask import Flask, render_template, jsonify, redirect, url_for, request, session, flash, g
 from flask.ext.sqlalchemy import SQLAlchemy
 from werkzeug import secure_filename
@@ -10,7 +13,6 @@ from models import *
 from viewmethods import *
 import sys
 # sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/db_scripts")
-sys.path.append("db_scripts")
 import db_insert
 
 # UPLOAD_FOLDER = 'C:\\Users\\hullzr\\Documents\\GitHub\\profit-loss-portal\\file_uploads'
@@ -72,7 +74,7 @@ def about():
 @application.route('/newplreport/<account>/<date>')
 @login_required
 def newplreport(account, date):
-	
+
 	trans_and_time_period = get_transactions_for_date(account, date)
 	transactionList = trans_and_time_period['trans']
 	time_period = trans_and_time_period['period']
@@ -97,7 +99,7 @@ def newplreport(account, date):
 				stock_dict[initSymb][item.sec_sym] = []
 				exch = db.session.query(Exchange).filter(Exchange.exchange_id == item.exchange_id).first()
 				item.exchange = exch.symbol
-				stock_dict[initSymb][item.sec_sym].append(item)				
+				stock_dict[initSymb][item.sec_sym].append(item)
 		else:
 			stock_dict[initSymb] = {}
 			stock_dict[initSymb][item.sec_sym] = []
@@ -117,7 +119,7 @@ def newplreport(account, date):
 			# 			SEC_fee = units*itemz.price
 			# 		# print symb +" and "+ initSymb
 			# 		itemTotal += SEC_fee + broker_fee; ##Need to add exchange fee
-			# grand_total +=itemTotal		
+			# grand_total +=itemTotal
 			# stock_dict[initSymb] = itemTotal
 	# create dictionary of transactions in a closing position
 	for symbol in stock_dict:
@@ -135,7 +137,7 @@ def newplreport(account, date):
 					del trans_to_bold[:]
 				else:
 					trans_to_bold.append(trans.transaction_id)
-				
+
 			# if current_quantity != 0:
 
 				################################
@@ -145,7 +147,7 @@ def newplreport(account, date):
 
 			bold_dict[option] = trans_to_bold
 			# if current_quantity != 0:
-				# 
+				#
 				# closing_position = StockPosition(last_trans.sec_sym, last_trans.settle ,last_trans.account_id)
 				# closing_position.all_transactions.append(stock_dict[symbol][option])
 
@@ -214,7 +216,7 @@ def adminpage():
 		accountsList = db.session.query(Account).all()
 		allUsers = db.session.query(User).filter(User.name != 'test').all()
 		nonAdmins = db.session.query(User).filter(User.admin == False, User.name != 'test').all()
-		return render_template("adminpage.html", accounts=accountsList, 
+		return render_template("adminpage.html", accounts=accountsList,
 			allUsers=allUsers, nonAdmins=nonAdmins)
 	else:
 		if request.form['button'] == "Set as Admins":

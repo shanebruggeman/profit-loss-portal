@@ -287,6 +287,8 @@ class Transaction(object):
 				# set the transaction's property
 				self.properties[key_label] = value
 
+		print self.properties;
+
 		# look up the message type, which will be a string value
 		msg_type_val = self.properties['MsgType']
 
