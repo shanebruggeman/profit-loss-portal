@@ -85,8 +85,8 @@ def get_transactions_for_date(account, date):
 	for position in positionList:
 		transactionList.extend(position.all_transactions)
 
-	print positionList
-	print transactionList
+	# print positionList
+	# print transactionList
 
 	return_dict['trans'] = transactionList
 	return_dict['period'] = time_period

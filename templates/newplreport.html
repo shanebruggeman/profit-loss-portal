@@ -25,7 +25,7 @@
 				<td class='symbol-cell'> {% if stocksymbol %}{{ stocksymbol }}{% endif %}</td>
 				<td> </td>
 				<td>$300.00</td>
-				<td>$485.20</td>
+				<td>${{ symbolprofitdict[stocksymbol] }}</td>
 				<td>$785.20</td>
 			</tr>
 			<!-- loop over all options -->
@@ -35,7 +35,7 @@
 				<td class="arrow-cell"></td>
 				<td class='symbol-cell'>{{ option }}</td>
 				<td>$Unreal</td>
-				<td>$Real</td>
+				<td>${{ optionprofitdict[option] }}</td>
 				<td>$Net</td>
 			</tr>
 			<tr>
@@ -57,13 +57,13 @@
 							{% for transaction in stockdict[stocksymbol][option] %}
 							{% if transaction.transaction_id in bolddict[option] %}
 							<tr class="boldtext">
-								{% if transaction.isPosition == "close" %}
+								{% if (transaction.isPosition == "close") and not (transaction.units == 0) %}
 								<td>CLOSING</td>
 								<td>{{ transaction.units }}</td>
 								<td>{{ transaction.price }}</td>
 								<td></td>
 								<td>mark</td>
-								<td>real</td>
+								<td></td>
 								<td></td>
 								{% elif transaction.isPosition == "regular" %}
 								<td>{{transaction.settle.day|string + "-" +transaction.settle.month|string + "-" + transaction.settle.year|string}}</td>
@@ -76,7 +76,7 @@
 								<td>{{ transaction.price }}</td>
 								<td>{{ transaction.exchange }}</td>
 								<td></td>
-								<td>real</td>
+								<td>{{ transaction.real }}</td>
 								<td>{{ transaction.commission }}</td>
 								{% endif %}
 							</tr>
@@ -88,7 +88,7 @@
 								<td>{{ transaction.price }}</td>
 								<td>{{ transaction.exchange_id }}</td>
 								<td>mark</td>
-								<td>real</td>
+								<td></td>
 								<td></td>
 								{% elif transaction.isPosition == "regular" %}
 								<td>{{transaction.settle.day|string + "-" +transaction.settle.month|string + "-" + transaction.settle.year|string}}</td>
@@ -101,7 +101,7 @@
 								<td>{{ transaction.price }}</td>
 								<td>{{ transaction.exchange }}</td>
 								<td></td>
-								<td></td>
+								<td>{{ transaction.real }}</td>
 								<td>{{ transaction.commission }}</td>
 								{% endif %}
 							</tr>

@@ -120,22 +120,30 @@ def newplreport(account, date):
 			# grand_total +=itemTotal		
 			# stock_dict[initSymb] = itemTotal
 	# create dictionary of transactions in a closing position
+	option_profit_dict = {}
+	symbol_profit_dict = {}
 	for symbol in stock_dict:
+		symbol_profit_dict[symbol] = 0
 		for option in stock_dict[symbol]:
 			current_quantity = 0
 			bold_dict[option] = []
 			trans_to_bold = []
+			option_profit_dict[option] = 0
 			for trans in stock_dict[symbol][option]:
 				if trans.isPosition == "regular":
 					if (trans.buy_sell == "Buy"):
+						recent_buy_price = trans.price
 						current_quantity = current_quantity + trans.units
 					else:
+						real_profits = (trans.price - recent_buy_price) * trans.units
+						option_profit_dict[option] += real_profits
+						trans.real = real_profits
 						current_quantity = current_quantity - trans.units
 				if current_quantity == 0:
 					del trans_to_bold[:]
 				else:
 					trans_to_bold.append(trans.transaction_id)
-				
+			symbol_profit_dict[symbol] += option_profit_dict[option]
 			# if current_quantity != 0:
 
 				################################
@@ -150,7 +158,7 @@ def newplreport(account, date):
 				# closing_position.all_transactions.append(stock_dict[symbol][option])
 
 	# return render_template('plreport.html', transList = transactionList, totalProfit=grand_total, numTrades= num_trades, list=stock_names, dict=stock_dict, period = time_period)
-	return render_template('newplreport.html', stockdict=stock_dict, period=time_period, bolddict=bold_dict)
+	return render_template('newplreport.html', stockdict=stock_dict, period=time_period, bolddict=bold_dict, optionprofitdict=option_profit_dict, symbolprofitdict=symbol_profit_dict)
 
 
 @application.route('/trconfreport/<account>/<date>')
