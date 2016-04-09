@@ -26,14 +26,14 @@ class OptionRowHolder(object):
 	# determines the correct fee for a given exchange and liquidity boolean
 	def lookup(self, exchange, isAddingLiquidity):
 		print "Looking up the exchange " + exchange
-		print self.all_tabs[3]
+		# print self.all_tabs[3]
 		for tab in self.all_tabs:
 			if tab.properties["name"] == exchange or exchange in tab.properties["alias"]:
 				fee = "add_fee" if isAddingLiquidity else "take_fee"
-				print "Found exchange " + exchange + "\n"
+				# print "Found exchange " + exchange + "\n"
 				return tab.properties[fee]
 
-		print "Exchange " + exchange + " was not found!\n"
+		# print "Exchange " + exchange + " was not found!\n"
 		return False
 
 	# each tab acts as a container to those beneath it
@@ -287,7 +287,7 @@ class Transaction(object):
 				# set the transaction's property
 				self.properties[key_label] = value
 
-		print self.properties;
+		# print self.properties;
 
 		# look up the message type, which will be a string value
 		msg_type_val = self.properties['MsgType']
@@ -347,6 +347,7 @@ def parse_transactions(data_filetext, maketake_filetext, exchange):
 
 		# set the transaction's maketake fee
 		valid_transaction.properties['maketake_fee'] = found_maketake_fee
+		print found_maketake_fee
 
 	# return the list of valid transactions parsed from the data file
 	return valid_parsed_transactions
@@ -383,8 +384,9 @@ def main(exec_args):
 
 def print_results_nicely(results):
 	for transaction in results:
-		print transaction
-		print '\n'
+		# print transaction
+		# print '\n'
+		pass
 
 if __name__ == '__main__':
 	main(sys.argv)
