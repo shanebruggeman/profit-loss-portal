@@ -72,7 +72,10 @@ def about():
 @application.route('/newplreport/<account>/<date>')
 @login_required
 def newplreport(account, date):
-	
+
+	current_account = db.session.query(Account).filter(Account.account_id == account).first()
+	current_account_name = current_account.name
+
 	trans_and_time_period = get_transactions_for_date(account, date)
 	transactionList = trans_and_time_period['trans']
 	time_period = trans_and_time_period['period']
@@ -158,7 +161,7 @@ def newplreport(account, date):
 				# closing_position.all_transactions.append(stock_dict[symbol][option])
 
 	# return render_template('plreport.html', transList = transactionList, totalProfit=grand_total, numTrades= num_trades, list=stock_names, dict=stock_dict, period = time_period)
-	return render_template('newplreport.html', stockdict=stock_dict, period=time_period, bolddict=bold_dict, optionprofitdict=option_profit_dict, symbolprofitdict=symbol_profit_dict)
+	return render_template('newplreport.html',accountname = current_account_name, stockdict=stock_dict, period=time_period, bolddict=bold_dict, optionprofitdict=option_profit_dict, symbolprofitdict=symbol_profit_dict)
 
 
 @application.route('/trconfreport/<account>/<date>')
