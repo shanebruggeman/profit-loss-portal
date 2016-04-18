@@ -1,5 +1,7 @@
+from __future__ import division
 import os
 import sys
+import random
 from flask import Flask, render_template, jsonify, redirect, url_for, request, session, flash, g
 from flask.ext.sqlalchemy import SQLAlchemy
 from werkzeug import secure_filename
@@ -124,44 +126,51 @@ def newplreport(account, date):
 			# stock_dict[initSymb] = itemTotal
 	# create dictionary of transactions in a closing position
 	option_profit_dict = {}
+	option_unreal_dict = {}
+	option_fees_dict = {}
 	symbol_profit_dict = {}
+	symbol_unreal_dict = {}
+	symbol_fees_dict = {}
 	for symbol in stock_dict:
 		symbol_profit_dict[symbol] = 0
+		symbol_unreal_dict[symbol] = 0
+		symbol_fees_dict[symbol] = 0
 		for option in stock_dict[symbol]:
 			current_quantity = 0
 			bold_dict[option] = []
 			trans_to_bold = []
 			option_profit_dict[option] = 0
+			option_unreal_dict[option] = 0
+			option_fees_dict[option] = 0
 			for trans in stock_dict[symbol][option]:
 				if trans.isPosition == "regular":
+					option_fees_dict[option] += trans.commission
 					if (trans.buy_sell == "Buy"):
 						recent_buy_price = trans.price
 						current_quantity = current_quantity + trans.units
 					else:
-						real_profits = (trans.price - recent_buy_price) * trans.units
+						real_profits = 100 * (trans.price - recent_buy_price) * trans.units
 						option_profit_dict[option] += real_profits
 						trans.real = real_profits
 						current_quantity = current_quantity - trans.units
+				elif trans.isPosition == 'close':
+					rand_multiplier = (random.randint(80,120))/100 #random multiplier from 8-120 percent
+					print rand_multiplier
+					market_price = recent_buy_price * rand_multiplier
+					trans.mark = market_price 
+					trans.unreal = 100 * (recent_buy_price - market_price) * trans.units
+					option_unreal_dict[option] += trans.unreal
 				if current_quantity == 0:
 					del trans_to_bold[:]
 				else:
 					trans_to_bold.append(trans.transaction_id)
 			symbol_profit_dict[symbol] += option_profit_dict[option]
-			# if current_quantity != 0:
-
-				################################
-				#CALCULATE UNREALIZED PROFIT HERE
-				################################
+			symbol_unreal_dict[symbol] += option_unreal_dict[option]
+			symbol_fees_dict[symbol] += option_fees_dict[option]
 
 
 			bold_dict[option] = trans_to_bold
-			# if current_quantity != 0:
-				# 
-				# closing_position = StockPosition(last_trans.sec_sym, last_trans.settle ,last_trans.account_id)
-				# closing_position.all_transactions.append(stock_dict[symbol][option])
-
-	# return render_template('plreport.html', transList = transactionList, totalProfit=grand_total, numTrades= num_trades, list=stock_names, dict=stock_dict, period = time_period)
-	return render_template('newplreport.html',accountname = current_account_name, stockdict=stock_dict, period=time_period, bolddict=bold_dict, optionprofitdict=option_profit_dict, symbolprofitdict=symbol_profit_dict)
+	return render_template('newplreport.html',accountname = current_account_name, stockdict=stock_dict, period=time_period, bolddict=bold_dict, optionprofitdict=option_profit_dict, symbolprofitdict=symbol_profit_dict, optionfeesdict=option_fees_dict, symbolfeesdict=symbol_fees_dict, optionunrealdict=option_unreal_dict, symbolunrealdict=symbol_unreal_dict)
 
 
 @application.route('/trconfreport/<account>/<date>')
