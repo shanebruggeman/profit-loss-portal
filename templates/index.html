@@ -5,17 +5,17 @@
 <form action="" method="post">
 	<div class="col-sm-4">
 		<input type="radio" name="report_type" value="trader_conf">Trader Confirmation Report<br>
-		<input type="radio" name="report_type" value="profit_loss">Profit and Loss Report<br><br>
+		<input type="radio" name="report_type" value="profit_loss" checked="checked">Profit and Loss Report<br><br>
 		<select class="borderless-select" name="account" style="overflow: auto" size=10>
 			<optgroup label="Select an Account">
 				{% for account in accounts %}
-				<option name="account" value="{{ account.account_id }}">{{ account.initials }}</option>
+				<option name="account" value="{{ account.account_id }}" selected="selected">{{ account.initials }}</option>
 				{% endfor %}
 			</optgroup>
 		</select>
 	</div>
 	<div class="col-sm-4">
-		<input class="date_radio" type="radio" name="date_type" value="today">Today<br>
+		<input class="date_radio" type="radio" name="date_type" value="today" checked="checked">Today<br>
 		<input class="date_radio" type="radio" name="date_type" value="yesterday">Yesterday<br>
 		<input class="date_radio" type="radio" name="date_type" value="this_month">Month-to-Date<br>
 		<input class="date_radio" type="radio" name="date_type" value="prev_month">Previous Month<br>

@@ -4,9 +4,7 @@ python:
 # command to install dependencies
 install: "pip install -r requirements.txt"
 # command to run tests
-script:
-  - cd parser/test
-  - python -m unittest discover
+script: nosetests
 # notifications for profit-loss-portal on slack
 notifications:
   slack: profitlossportal:0zTwalLVxCxIqPbUp8fCA3Nn

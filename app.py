@@ -11,12 +11,9 @@ from db_create import db, application
 from models import *
 from viewmethods import *
 import sys
-# sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/db_scripts")
 sys.path.append("db_scripts")
 import db_insert
 
-# UPLOAD_FOLDER = 'C:\\Users\\hullzr\\Documents\\GitHub\\profit-loss-portal\\file_uploads'
-#UPLOAD_FOLDER = 'C:/Users/hullzr/Documents/GitHub/profit-loss-portal/file_uploads'
 UPLOAD_FOLDER = os.getcwd() + '/file_uploads'
 
 ALLOWED_EXTENSIONS = set(['txt'])
@@ -102,7 +99,7 @@ def newplreport(account, date):
 				stock_dict[initSymb][item.sec_sym] = []
 				exch = db.session.query(Exchange).filter(Exchange.exchange_id == item.exchange_id).first()
 				item.exchange = exch.symbol
-				stock_dict[initSymb][item.sec_sym].append(item)				
+				stock_dict[initSymb][item.sec_sym].append(item)
 		else:
 			stock_dict[initSymb] = {}
 			stock_dict[initSymb][item.sec_sym] = []
@@ -122,7 +119,7 @@ def newplreport(account, date):
 			# 			SEC_fee = units*itemz.price
 			# 		# print symb +" and "+ initSymb
 			# 		itemTotal += SEC_fee + broker_fee; ##Need to add exchange fee
-			# grand_total +=itemTotal		
+			# grand_total +=itemTotal
 			# stock_dict[initSymb] = itemTotal
 	# create dictionary of transactions in a closing position
 	option_profit_dict = {}
@@ -164,6 +161,7 @@ def newplreport(account, date):
 					del trans_to_bold[:]
 				else:
 					trans_to_bold.append(trans.transaction_id)
+
 			symbol_profit_dict[symbol] += option_profit_dict[option]
 			symbol_unreal_dict[symbol] += option_unreal_dict[option]
 			symbol_fees_dict[symbol] += option_fees_dict[option]
@@ -171,6 +169,7 @@ def newplreport(account, date):
 
 			bold_dict[option] = trans_to_bold
 	return render_template('newplreport.html',accountname = current_account_name, stockdict=stock_dict, period=time_period, bolddict=bold_dict, optionprofitdict=option_profit_dict, symbolprofitdict=symbol_profit_dict, optionfeesdict=option_fees_dict, symbolfeesdict=symbol_fees_dict, optionunrealdict=option_unreal_dict, symbolunrealdict=symbol_unreal_dict)
+
 
 
 @application.route('/trconfreport/<account>/<date>')
@@ -234,7 +233,7 @@ def adminpage():
 		accountsList = db.session.query(Account).all()
 		allUsers = db.session.query(User).filter(User.name != 'test').all()
 		nonAdmins = db.session.query(User).filter(User.admin == False, User.name != 'test').all()
-		return render_template("adminpage.html", accounts=accountsList, 
+		return render_template("adminpage.html", accounts=accountsList,
 			allUsers=allUsers, nonAdmins=nonAdmins)
 	else:
 		if request.form['button'] == "Set as Admins":
@@ -291,9 +290,6 @@ def editaccount():
 			print "we got here"
 			return redirect(url_for('editaccount'))
 
-# @application.route('/newplreport')
-# def newplreport():
-# 	return render_template('newplreport.html')
 
 @application.errorhandler(404)
 def page_not_found(e):

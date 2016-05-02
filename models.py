@@ -127,6 +127,7 @@ class Exchange(db.Model):
 	__tablename__ = "exchanges"
 
 	exchange_id = db.Column(db.Integer, primary_key=True)
+	#exchanges need fees for each transaction
 	symbol = db.Column(db.String, nullable=False)
 
 	def __repr__(self):

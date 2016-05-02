@@ -22,7 +22,7 @@
 		<tbody>
 			<!-- loop over all stocks traded -->
 			{% for stocksymbol in stockdict %}
-			<tr class="expandable top-level">
+			<tr id='{{stocksymbol}}' class="expandable top-level">
 				<td class="arrow-cell"></td>
 				<td class='symbol-cell'> {% if stocksymbol %}{{ stocksymbol }}{% endif %}</td>
 				<td> </td>
@@ -32,15 +32,15 @@
 			</tr>
 			<!-- loop over all options -->
 			{% for option in stockdict[stocksymbol] %}
-			<tr class="expandable">
+			<tr class="expandable {{stocksymbol}}">
 				<td></td>
 				<td class="arrow-cell"></td>
 				<td class='symbol-cell'>{{ option }}</td>
 				<td>${{ optionunrealdict[option] }}</td>
 				<td>${{ optionprofitdict[option] }}</td>
-				<td>${{ optionfeesdict[option] - optionfeesdict[option] }}</td>
+				<td>${{ optionprofitdict[option] - optionfeesdict[option] }}</td>
 			</tr>
-			<tr>
+			<tr class="{{stocksymbol}}">
 				<td></td>
 				<td></td>
 				<td colspan="5">

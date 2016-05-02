@@ -1,7 +1,7 @@
 from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
 
-application = Flask(__name__)
+application = Flask(__name__, template_folder='../templates', static_folder='../static')
 
 class Creator:
 	def makeDB(self):

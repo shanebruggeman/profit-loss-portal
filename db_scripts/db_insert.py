@@ -5,6 +5,7 @@ import time
 # sys.path.append("/Users/shanebruggeman/Documents/CodingProjects/profit-loss-portal/parser")
 # sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/")
 # sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/parser")
+sys.path.append('./')
 from db_create import db
 from models import *
 import datetime
