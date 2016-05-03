@@ -5,4 +5,12 @@ venv
 .DS_Store
 *dump.txt
 Design Documents/BriansMocks/~*
-file_uploads/testdata2.txt
+
+.Python
+.idea
+bin
+file_uploads
+include
+lib
+man
+pip-selfcheck.json
