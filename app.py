@@ -289,10 +289,23 @@ def maketake_upload():
         print 'To date: ' + toDate
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        rename_maketakes(acct, fromDate, toDate)
+
         print 'Uploading Maketake File'
-        # file.save(MAKETAKE_UPLOAD_FOLDER + "/" + filename)
-        # db_insert.main([MAKETAKE_UPLOAD_FOLDER + "/" + filename, acct])
+
+        # rename any conflicting maketakes
+        rename_maketakes(acct, fromDate, toDate)
+
+        # match the maketake name scheme
+        from_date_obj = make_date("".join(str(fromDate).split('-')))
+        to_date_obj = make_date("".join(str(toDate).split('-')))
+
+        filename = encode_file_date(acct, from_date_obj, to_date_obj if to_date_obj != '' else None)
+        print 'added filename (route level) is ' + filename
+
+        # save uploaded maketake
+        file.save(MAKETAKE_UPLOAD_FOLDER + "/" + filename + '.txt')
+
+        # redirect back to original page
         return render_template('maketake-upload.html', filename=filename)
     else:
         return render_template('maketake-upload.html', )

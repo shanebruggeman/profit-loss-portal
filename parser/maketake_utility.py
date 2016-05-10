@@ -1,6 +1,7 @@
 import os
 from datetime import date
 from datetime import timedelta
+from shutil import copyfile
 
 maketake_upload_location = "maketake_uploads/"
 
@@ -82,28 +83,38 @@ def find_maketake(account_name, transaction):
 # files are formatted as: <USER>_<FROM_DATE>-<TO_DATE>.txt, where from & to dates are not necessary,
 #   but the punctuation is
 def parse_file_date(date_string):
+    print 'File date: ' + date_string
     user_half = date_string.split('_')[0]
     date_half = date_string.split('_')[1]
 
     date_parts = date_half.split('-')
     fromPart = date_parts[0]
-    toPart = date_parts[1][:-4]
+    toPart = date_parts[1]
+
+    print 'from part: ' + str(fromPart)
+    print 'to part: ' + str(toPart)
 
     fromDate = make_date(fromPart)
     toDate = make_date(toPart)
+
+    print 'Returning [' + str(fromDate) + ',' + str(toDate) + ']'
 
     return [fromDate, toDate]
 
 
 # takes a YYYYMMDD string and converts it to a date object
 def make_date(date_string):
+    print 'Make date: ' + date_string
     # nothing passed in
     if date_string == '':
         return ''
 
-    yearParsed = int(date_string[:4])
-    monthParsed = int(date_string[4:6])
-    dayParsed = int(date_string[6:])
+    print date_string[:4]
+    print date_string[4:6]
+    print date_string[6:]
+    yearParsed = int(float(date_string[:4]))
+    monthParsed = int(float(date_string[4:6]))
+    dayParsed = int(float(date_string[6:]))
     date_obj = date(yearParsed, monthParsed, dayParsed)
     return date_obj
 
@@ -123,39 +134,64 @@ def rename_maketakes(account_id, from_date, to_date):
     to_month = None
     to_day = None
 
+    print 'Has To Date: ' + str(has_to_date)
+
     if has_to_date:
-        to_parts = to_date.split('-')
-        to_year = int(str(to_parts[0]))
-        to_month = int(str(to_parts[1]))
-        to_day = int(str(to_parts[2]))
+        to_parts = map(str, to_date.split('-'))
+        print to_parts
+
+        to_year = int(float(to_parts[0]))
+        to_month = int(float(to_parts[1]))
+        to_day = int(float(to_parts[2]))
 
     f_date = date(from_year, from_month, from_day)
     t_date = date(to_year, to_month, to_day) if has_to_date else None
 
     added_filename = encode_file_date(account_id, f_date, t_date)
-    resolve_conflicts(added_filename)
+    resolve_conflicts(account_id, added_filename)
 
 
-def resolve_conflicts(addedFilename):
+def resolve_conflicts(account_id, addedFilename):
+    print 'resolving conflicts for ' + addedFilename
     addFileDate = parse_file_date(addedFilename)
     add_from = addFileDate[0]
     add_to = addFileDate[1] if addFileDate[1] != '' else None
 
+    print 'added from: ' + str(add_from)
+    print 'added to: ' + str(add_to)
+
     uploaded_maketakes = os.listdir(maketake_upload_location)
 
     for maketake in uploaded_maketakes:
+        print 'maketake: ' + str(maketake)
 
-        # separate the maketake filename into its parts
-        established = parse_file_date(maketake)
-        established_to_date = established[0]
-        established_from_date = established[1] if established[1] != '' else None
+        # separate the maketake filename into its parts (minus the .txt extension)
+        established = parse_file_date(maketake[:-4])
+        established_from_date = established[0]
+        established_to_date = established[1] if established[1] != '' else None
+
+        print 'established from: ' + str(established_from_date)
+        print 'established to: ' + str(established_to_date)
 
         # find differences
         oldRange = [established_from_date, established_to_date]
         newRange = [add_from, add_to]
         date_set_difference(oldRange, newRange);
 
-        print date_set_difference(oldRange, newRange)
+        changes = date_set_difference(oldRange, newRange)
+
+        # there was no overlap, so don't worry about this maketake
+        if changes is None:
+            print 'No changes for maketake'
+            print maketake
+        else:
+            # break original filename into its parts if the uploaded maketake changed its effective dates
+            for change in changes:
+                fname = encode_file_date(account_id, change[0], change[1])
+                copyfile(maketake_upload_location + maketake, maketake_upload_location + fname + '.txt')
+                print fname
+
+            os.remove(maketake_upload_location + maketake)
 
 
 # return date ranges that are in the old range that are not in the new range
@@ -176,13 +212,14 @@ def date_set_difference(old_range, new_range):
     same_start = start_delta.total_seconds() == 0
     new_is_first = start_delta.total_seconds() > 0
 
+    is_changed = True
     changes = []
 
     if old_is_first:
         if old_ends and new_ends:
             # keep things the same if there is no overlap
             if e1 < s2:
-                pass
+                is_changed = False
 
             # old date completely holds new date
             # old date is broken into left and right halves
@@ -210,12 +247,12 @@ def date_set_difference(old_range, new_range):
 
             # there is no overlap, change nothing about the old transaction
             if e1 < s2:
-                pass
+                is_changed = False
 
             # old date is overlapped to the right by the new date
             # old date is changed to be only the left portion before the right overlap
             elif e1 >= s2:
-                leftStart = e1
+                leftStart = s1
                 leftEnd = s2 - timedelta(1)
                 changes.append([leftStart, leftEnd])
 
@@ -238,7 +275,7 @@ def date_set_difference(old_range, new_range):
 
             # do nothing if there is no overlap
             if e2 < s1:
-                pass
+                is_changed = False
 
             # new date overlaps to the left of the new date
             # old date is broken into its right portion
@@ -252,7 +289,7 @@ def date_set_difference(old_range, new_range):
             # the new date completely overlaps the old date
             # the old date is invalid and no longer applies, so no parts to break it into
             elif e2 >= e1:
-                # note that no changes are pushed
+                # note that is_changed remains true, so the date is replaced
                 pass
 
         # if the new transaction comes first and doesn't end, the old transaction is obliterated
@@ -263,7 +300,7 @@ def date_set_difference(old_range, new_range):
 
             # discard cases where there is no overlap
             if e2 < s1:
-                pass
+                is_changed = False
 
             # make the not-stopping old transaction a little shorter on the left
             elif e2 >= s1:
@@ -281,7 +318,7 @@ def date_set_difference(old_range, new_range):
 
             # discard cases where there is no overlap
             if e2 < s1:
-                pass
+                is_changed = False
 
             # new date overlaps the old date to the left
             # old date is broken into its right portion
@@ -305,7 +342,7 @@ def date_set_difference(old_range, new_range):
 
             # ignore the case of no overlap
             if e2 < s1:
-                pass
+                is_changed = False
 
             if e2 >= s1:
                 rightStart = e2 + timedelta(1)
@@ -316,30 +353,39 @@ def date_set_difference(old_range, new_range):
         elif not old_ends and not new_ends:
             pass
 
-    print changes
+    return changes if is_changed else None
+
 
 # takes account name, from & to date objects and makes the correct filename for them
 def encode_file_date(name, from_date, to_date):
+    print 'Encoding filename'
+    print 'name: ' + str(name)
+    print 'from: ' + str(from_date)
+    print 'to: ' + str(to_date)
+
     validFrom = (from_date != None)
     validTo = (to_date != None)
+
+    print 'validFrom: ' + str(validFrom)
+    print 'validTo: ' + str(validTo)
 
     if not validFrom and not validTo:
         raise "Cannot encode filenames missing both from and to dates"
 
-    fromPart = ''
+    from_part = ''
 
     if validFrom:
         y = '{0:04d}'.format(from_date.year)
         m = '{0:02d}'.format(from_date.month)
         d = '{0:02d}'.format(from_date.day)
-        fromPart = y + m + d
+        from_part = y + m + d
 
-    toPart = ''
+    to_part = ''
 
     if validTo:
         y = '{0:04d}'.format(to_date.year)
         m = '{0:02d}'.format(to_date.month)
         d = '{0:02d}'.format(to_date.day)
-        toPart = y + m + d
+        to_part = y + m + d
 
-    return name + "_" + fromPart + '-' + toPart
+    return name + "_" + from_part + '-' + to_part
