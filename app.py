@@ -1,17 +1,14 @@
 import os
 import sys
 
+from parser.maketake_utility import *
+
 sys.path.append('./')
 sys.path.append('./parser')
 sys.path.append('./db_scripts')
-from flask import Flask, render_template, jsonify, redirect, url_for, request, session, flash, g
-from flask.ext.sqlalchemy import SQLAlchemy
+from flask import render_template, redirect, url_for, request, flash
 from werkzeug.utils import secure_filename
-from datetime import datetime, date, timedelta
 from functools import wraps
-from db_scripts.db_create import db, application
-# from db_scripts.db_create import db, application
-from models import *
 from viewmethods import *
 import sys
 
@@ -25,9 +22,6 @@ ALLOWED_EXTENSIONS = set(['txt'])
 application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 application.config['MAKETAKE_UPLOAD_FOLDER'] = MAKETAKE_UPLOAD_FOLDER
 
-# sys.path.append("/Applications/PyCharm.app/Contents/debug-eggs")
-# import pydevd
-# pydevd.settrace('localhost', port=5000, stdoutToServer=True, stderrToServer=True)
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -65,7 +59,7 @@ def home():
         report_type = request.form['report_type']
         acct = request.form['account']
         dt = request.form['date_type']
-        if (report_type == 'trader_conf'):
+        if report_type == 'trader_conf':
             return redirect(url_for('trconfreport', account=acct, date=dt))
         else:
             return redirect(url_for('newplreport', account=acct, date=dt))
@@ -208,14 +202,15 @@ def logout():
 @application.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        if request.form['name'] != None and request.form['email'] != None and request.form['password'] != None and \
-                        request.form['password'] == request.form['confirm_password']:
+        if request.form['name'] is not None and request.form['email'] is not None and \
+                request.form['password'] is not None and request.form['password'] == request.form['confirm_password']:
 
             req_name = request.form['name']
             req_email = request.form['email']
             req_password = request.form['password']
 
             new_user = User(req_email, req_password, req_name, False)
+
             db.session.add(new_user)
             db.session.commit()
 
@@ -287,11 +282,17 @@ def maketake_upload():
     else:
         file = request.files['file']
         acct = request.form['account']
+        fromDate = request.form['fromDate']
+        toDate = request.form['toDate']
         print 'Account ID uploading to: ' + acct
+        print 'From date: ' + fromDate
+        print 'To date: ' + toDate
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        file.save(MAKETAKE_UPLOAD_FOLDER + "/" + filename)
-        db_insert.main([MAKETAKE_UPLOAD_FOLDER + "/" + filename, acct])
+        rename_maketakes(acct, fromDate, toDate)
+        print 'Uploading Maketake File'
+        # file.save(MAKETAKE_UPLOAD_FOLDER + "/" + filename)
+        # db_insert.main([MAKETAKE_UPLOAD_FOLDER + "/" + filename, acct])
         return render_template('maketake-upload.html', filename=filename)
     else:
         return render_template('maketake-upload.html', )
@@ -318,10 +319,6 @@ def editaccount():
             print "we got here"
             return redirect(url_for('editaccount'))
 
-
-# @application.route('/newplreport')
-# def newplreport():
-# 	return render_template('newplreport.html')
 
 @application.errorhandler(404)
 def page_not_found(e):

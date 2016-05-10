@@ -84,9 +84,8 @@ def parse_maketake(data_file):
 
 
 ###
-# Read in a data file and maketake file, and output a list of transactions
-#
-# The exchange parameter is no longer necessary
+# Take in the account name (number) and the text to parse for valid transactions.
+# Output a set of valid transactions
 ##
 def parse_transactions(account_name, data_filetext):
     unparsed_transactions = data_filetext.split('\n')
@@ -108,7 +107,7 @@ def parse_transactions(account_name, data_filetext):
     valid_parsed_transactions = [item for item in parsed_transactions if
                                  item.properties['MsgType'] in allowed_transactions]
 
-    # perform lookup on each transaction's exchange to obtain the maketake_fee
+    # Maketake fee lookup
     for valid_transaction in valid_parsed_transactions:
         properties = valid_transaction.properties
         side = properties['Side']
@@ -117,33 +116,30 @@ def parse_transactions(account_name, data_filetext):
         # liquidity is being added if true, else it is taking liquidity
         liquidity_bool = bool(side == '2')
 
-        # look up the correct maketake to use
+        # Manage the maketake portion. Maketake fees are initially set by the parser, and are updated when a new
+        # maketake is uploaded. This could be handled by the front-end, but that would slow down the creation of
+        # reports. Instead we opted to handle the semi-rare event of changes to the maketakes at upload-time.
         maketake_filetext = maketake_utility.find_maketake(account_name, valid_transaction)
 
+        # At least a start-up maketake should exist, so don't forget to have at least one available at the start
         if not maketake_filetext:
-            raise "Failed to find maketake for account " + account_name
+            print "No valid maketake was found for the transaction's transaction time"
+            print valid_transaction
+            return []
 
+        # Parse the maketake file, search for the appropriate fee, and set the fee on the transaction
         maketake_fee_searcher = MakeTakeParser().parse_maketake(maketake_filetext)
         found_maketake_fee = maketake_fee_searcher.lookup(exchange, liquidity_bool)
-
-        # set the transaction's maketake fee
         valid_transaction.properties['maketake_fee'] = found_maketake_fee
-        # print found_maketake_fee
 
     # return the list of valid transactions parsed from the data file
     return valid_parsed_transactions
 
-# def main(exec_args):
-#     parsedata = open("../testdata/long-parse_data.txt", 'r').read()
-#     # maketakedata = open("../testdata/example_maketake.txt", 'r').read()
-#
-#     account = "testuser"
-#
-#     exe([exec_args[0], account, parsedata])
 
-
+# start here
 def main(exec_args):
-    print 'Lenth of passed args ' + str(len(exec_args))
+
+    # account name is the number on the account & data_location is a valid path from the project root
     account_name = exec_args[1] if len(exec_args) > 0 else None
     data_location = exec_args[2] if len(exec_args) > 1 else None
 
@@ -168,6 +164,7 @@ def main(exec_args):
     return parsed_results
 
 
+# something to show the results nicely
 def print_results_nicely(results):
     print str(len(results)) + ' results'
     for transaction in results:

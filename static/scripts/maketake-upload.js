@@ -18,20 +18,33 @@ var myDropzone = new Dropzone(document.body, { // Make the whole body a dropzone
 });
 
 myDropzone.on("addedfile", function(file) {
+  console.log('addedFile event ' + file);
   // Hookup the start button
   file.previewElement.querySelector(".start").onclick = function() { myDropzone.enqueueFile(file); };
 });
 
 myDropzone.on("success", function(file) {
+  console.log('success event' + file)
   // Hookup the start button
   file.previewElement.querySelector("#progress-message").innerHTML = "Success";
 });
 
 myDropzone.on("sending", function(file, xhr, formData) {
-  // And disable the start button
+  console.log('sending event ' + file);
+
+  // disable the start button
   file.previewElement.querySelector(".start").setAttribute("disabled", "disabled");
-  acctid = $("option[name='account']:checked").val()
-  formData.append("account", acctid);
+
+  var effectiveFromDate = $('#effective-from-date').val();
+  var effectiveToDate = $('#effective-to-date').val();
+  var accountId = $("option[name='account']:checked").val();
+
+  console.log(effectiveFromDate, effectiveToDate, accountId);
+
+  // set the form values
+  formData.append("account", accountId);
+  formData.append("fromDate", effectiveFromDate);
+  formData.append("toDate", effectiveToDate);
 });
 
 });

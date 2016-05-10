@@ -11,7 +11,6 @@ from datetime import datetime
 SEC_FEE_RATE = .0000184  # per dollar of sale as of 2015
 
 def main(account, file_location):
-    # first param is just the executing program, so no need to include it here
     res = parse.main(['', account, file_location])
 
     # Add to this list for creating transactions, (CURRENTLY ONLY SEND ORDERS)
@@ -43,7 +42,6 @@ def main(account, file_location):
 
                 print '\nToday position'
                 print today_position
-                print today_position.all_transactions
 
                 # if there is no position today yet
                 if today_position == None:
