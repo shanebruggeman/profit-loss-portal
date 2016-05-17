@@ -1,85 +1,79 @@
 import sys
-import time
-# sys.path.append('../')
-# sys.path.append("/Users/shanebruggeman/Documents/CodingProjects/profit-loss-portal/")
-# sys.path.append("/Users/shanebruggeman/Documents/CodingProjects/profit-loss-portal/parser")
-# sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/")
-# sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/parser")
-sys.path.append('./')
-from db_create import db
-from models import *
 import datetime
-from sqlalchemy.sql import extract
-
-sys.path.append('parser')
-import parse
-from datetime import datetime
 import re
 
-SEC_FEE_RATE = .0000184 # per dollar of sale as of 2015
+from db_create import db
+from models import *
+from sqlalchemy.sql import extract
+from parser import parse_transactions as parse
+from datetime import datetime
 
-def main(exec_args):
-	# Arguments:
-	# 	1) Name of the invoked python file. Does not apply here as we're not running this from the terminal
-	# 	2) Transaction data file. This contains all the transactions to parse and insert in this run of the script
-	# 	3) Maketake file. This holds all of the relevant fees for the given exchange
-	# 	4) Exchange. Right now it's hard coded, but some time it will automatically be added to the parsed result
-	res = parse.main(["", (open(exec_args[0],'r')).read(), (open ("example_maketake.txt", 'r')).read(), "Box"])
-	
-	# dataFile = open("db_scripts/example_parse_data.txt","r").read()
-	# maketakeFile = open("example_maketake.txt","r").read()
-	# chosen exchange no longer matters
-	# chosenExchange = "Box"
+SEC_FEE_RATE = .0000184  # per dollar of sale as of 2015
 
-	# res = parse.main(["", dataFile, maketakeFile, chosenExchange])
+def main(account, file_location):
+    res = parse.main(['', account, file_location])
 
-	#Add to this list for creating transactions, (CURRENTLY ONLY SEND ORDERS)
-	allowedMessages = 'D'
-	for trans in res:
-		if trans.get('MsgType') in allowedMessages:
-			print '\n######## Adding transaction to database! ########'
+    # Add to this list for creating transactions, (CURRENTLY ONLY SEND ORDERS)
+    allowedMessages = 'D'
+    for trans in res:
+        print '\nTrans is '
+        print trans
 
-			# convert all the parsed transactions into database transactions
-			try:
-				db.session.commit()
-				# build the database transaction from the parsed result
-				parsed_transaction = build_db_transaction(trans, exec_args[1])
-				print parsed_transaction
-				print '\n'
+        if trans.get('MsgType') in allowedMessages:
+            print '\n######## Adding transaction to database! ########'
 
-				transaction_date = parsed_transaction.settle
+            # convert all the parsed transactions into database transactions
+            try:
+                db.session.commit()
 
-				today_position = get_date_position(parsed_transaction.account_id, parsed_transaction.sec_sym, transaction_date.month, transaction_date.day, transaction_date.year)
+                # build the database transaction from the parsed result
+                parsed_transaction = build_db_transaction(trans, account)
 
-				# if there is no position today yet
-				if today_position == None:
+                print '\nParsed transaction'
+                print parsed_transaction
 
-					# get the most recent position on the account
-					most_recent_position = get_most_recent_position(parsed_transaction.account_id, parsed_transaction.sec_sym)
-					last_position = get_most_recent_position(parsed_transaction.account_id, parsed_transaction.sec_sym)
+                transaction_date = parsed_transaction.settle
 
-					# the user has never traded this stock
-					if last_position == None:
-						print 'User has never traded this option before. Building first position ...'
-						establish_first_position(parsed_transaction)
+                today_position = get_date_position(parsed_transaction.account_id, parsed_transaction.sec_sym,
+                                                   transaction_date.month, transaction_date.day, transaction_date.year)
 
-					# this stock has been traded before this day, but not on this day (yet)
-					else:
-						print 'User has traded this option in the past, but not today. Adding a new day position'
-						establish_new_position(parsed_transaction, last_position)
-				else:
-					print "Adding to an established position"
-					add_to_day_position(parsed_transaction, today_position)
+                print '\nAll positions'
+                print get_all_positions(account)
 
-				db.session.commit()
+                print '\nToday position'
+                print today_position
 
-			except Exception as e:
-				print e
-				print 'Rolling back session ...'
-				db.session.rollback()
-				raise
+                # if there is no position today yet
+                if today_position == None:
 
-	# db.session.commit()
+                    # get the most recent position on the account
+                    most_recent_position = get_most_recent_position(parsed_transaction.account_id,
+                                                                    parsed_transaction.sec_sym)
+                    last_position = get_most_recent_position(parsed_transaction.account_id, parsed_transaction.sec_sym)
+
+                    # the user has never traded this stock
+                    if last_position == None:
+                        print 'User has never traded this option before. Building first position ...'
+                        establish_first_position(parsed_transaction)
+
+                    # this stock has been traded before this day, but not on this day (yet)
+                    else:
+                        print 'User has traded this option in the past, but not today. Adding a new day position'
+                        establish_new_position(parsed_transaction, last_position)
+                else:
+                    print "Adding to an established position"
+                    add_to_day_position(parsed_transaction, today_position)
+
+                db.session.commit()
+
+            except Exception as e:
+                print e
+                print 'Rolling back session ...'
+                db.session.rollback()
+                raise
+
+                # db.session.commit()
+
 
 def build_db_transaction(trans, acct):
 	date=trans.get('TransactTime')
@@ -124,156 +118,172 @@ def build_db_transaction(trans, acct):
 	return parsed_transaction
 
 def get_date_position(account_id, sec_sym, month, day, year):
-	# limit possible existing positions to the ones with the same stock and date
-	today_position = StockPosition.query.filter(StockPosition.account_id==account_id).filter(StockPosition.symbol == sec_sym).filter(extract('year', StockPosition.date) == year).filter(extract('month', StockPosition.date) == month).filter(extract('day', StockPosition.date) == day).first()
-	return today_position
+    # limit possible existing positions to the ones with the same stock and date
+    today_position = StockPosition.query.filter(StockPosition.account_id == account_id).filter(
+        StockPosition.symbol == sec_sym).filter(extract('year', StockPosition.date) == year).filter(
+        extract('month', StockPosition.date) == month).filter(extract('day', StockPosition.date) == day).first()
+    return today_position
+
 
 def get_most_recent_position(account_id, sec_sym):
-	most_recent_position = StockPosition.query.filter(StockPosition.account_id == account_id).filter(StockPosition.symbol == sec_sym).order_by(StockPosition.date.desc()).first()
-	return most_recent_position
+    most_recent_position = StockPosition.query.filter(StockPosition.account_id == account_id).filter(
+        StockPosition.symbol == sec_sym).order_by(StockPosition.date.desc()).first()
+    return most_recent_position
+
 
 def get_all_positions(account_id):
-	all_positions = StockPosition.query.filter(StockPosition.account_id==account_id).all()
-	return all_positions
+    all_positions = StockPosition.query.filter(StockPosition.account_id == account_id).all()
+    return all_positions
+
 
 def get_positions_after(position):
-	account_id = position.account_id
-	sec_sym = position.symbol
+    account_id = position.account_id
+    sec_sym = position.symbol
 
+    positions_impacted = StockPosition.query.filter(StockPosition.account_id == account_id) \
+        .filter(StockPosition.symbol == sec_sym) \
+        .filter(extract('year', StockPosition.date) >= position.date.year) \
+        .filter(extract('month', StockPosition.date) >= position.date.month) \
+        .filter(extract('day', StockPosition.date) >= position.date.day) \
+        .order_by(StockPosition.date.asc()).all()
 
-	positions_impacted = StockPosition.query.filter(StockPosition.account_id==account_id)\
-														.filter(StockPosition.symbol==sec_sym)\
-														.filter(extract('year',StockPosition.date) >= position.date.year)\
-														.filter(extract('month', StockPosition.date) >= position.date.month)\
-														.filter(extract('day', StockPosition.date) > position.date.day)\
-														.order_by(StockPosition.date.asc()).all()\
+    return positions_impacted
 
-	return positions_impacted
 
 # for if the user has never traded this stock before
 def establish_first_position(parsed_transaction):
-	# make an empty '0' position for our first start position and flag it as 'isPosition'
-	startIsPosition = "open"
-	baseStartPosition = Transaction(parsed_transaction.account_id, parsed_transaction.exchange_id, 0, 0, parsed_transaction.sec_sym, parsed_transaction.settle, parsed_transaction.entry, parsed_transaction.trade, parsed_transaction.ticket_number, parsed_transaction.buy_sell, parsed_transaction.commission, startIsPosition)
+    # make an empty '0' position for our first start position and flag it as 'isPosition'
+    startIsPosition = "open"
+    baseStartPosition = Transaction(parsed_transaction.account_id, parsed_transaction.exchange_id, 0, 0,
+                                    parsed_transaction.sec_sym, parsed_transaction.settle, parsed_transaction.entry,
+                                    parsed_transaction.trade, parsed_transaction.ticket_number,
+                                    parsed_transaction.buy_sell, parsed_transaction.commission, startIsPosition)
 
-	# create the position itself
-	firstStockPosition = StockPosition(parsed_transaction.sec_sym, parsed_transaction.entry, parsed_transaction.account_id)
-	db.session.add(firstStockPosition)
-	db.session.commit()
+    # create the position itself
+    firstStockPosition = StockPosition(parsed_transaction.sec_sym, parsed_transaction.entry,
+                                       parsed_transaction.account_id)
+    db.session.add(firstStockPosition)
+    db.session.commit()
 
-	# add the starting position and the first day trade to the new position
-	firstStockPosition.all_transactions.append(baseStartPosition)
-	firstStockPosition.all_transactions.append(parsed_transaction)
+    # add the starting position and the first day trade to the new position
+    firstStockPosition.all_transactions.append(baseStartPosition)
+    firstStockPosition.all_transactions.append(parsed_transaction)
 
-	# add the closing position
-	first_close_transaction = sumPosition(firstStockPosition)
-	firstStockPosition.all_transactions.append(first_close_transaction)
+    # add the closing position
+    first_close_transaction = sumPosition(firstStockPosition)
+    firstStockPosition.all_transactions.append(first_close_transaction)
 
-	print '-- Established position: --'
-	print firstStockPosition
+    print '-- Established position: --'
+    print firstStockPosition
 
-	check_impacted(firstStockPosition)
-	db.session.commit()
+    check_impacted(firstStockPosition)
+    db.session.commit()
+
 
 # for if the user has traded the stock before, but not on this day yet
 def establish_new_position(parsed_transaction, last_position):
-	last_close = last_position.get_close().clone()
-	last_close.entry = parsed_transaction.entry
-	last_close.settle = parsed_transaction.settle
-	last_close.trade = parsed_transaction.trade
-	last_close.isPosition = 'open'
+    last_close = last_position.get_close().clone()
+    last_close.entry = parsed_transaction.entry
+    last_close.settle = parsed_transaction.settle
+    last_close.trade = parsed_transaction.trade
+    last_close.isPosition = 'open'
 
-	# the new day has the net value of the old position and the newly parsed entry
-	newDayPosition = StockPosition(parsed_transaction.sec_sym, parsed_transaction.entry, parsed_transaction.account_id)
+    # the new day has the net value of the old position and the newly parsed entry
+    newDayPosition = StockPosition(parsed_transaction.sec_sym, parsed_transaction.entry, parsed_transaction.account_id)
 
-	# add in the actual position for the day and stock
-	db.session.add(newDayPosition)
+    # add in the actual position for the day and stock
+    db.session.add(newDayPosition)
 
-	newDayPosition.all_transactions.append(last_close)
-	newDayPosition.all_transactions.append(parsed_transaction)
+    newDayPosition.all_transactions.append(last_close)
+    newDayPosition.all_transactions.append(parsed_transaction)
 
-	# find the net after adding in the start position and the parsed transaction
-	new_closing_position_as_transaction = sumPosition(newDayPosition)
+    # find the net after adding in the start position and the parsed transaction
+    new_closing_position_as_transaction = sumPosition(newDayPosition)
 
-	# add a transaction that shows the net position after the parsed transaction has been added
-	newDayPosition.all_transactions.append(new_closing_position_as_transaction)
+    # add a transaction that shows the net position after the parsed transaction has been added
+    newDayPosition.all_transactions.append(new_closing_position_as_transaction)
 
-	check_impacted(newDayPosition)
-	db.session.commit()
+    check_impacted(newDayPosition)
+    db.session.commit()
+
 
 # for if the user is already involved in trading the stock today
 def add_to_day_position(parsed_transaction, today_position):
+    print '\nAdding this transaction to this position'
+    print parsed_transaction
+    print today_position
 
-	# remove the current closing position
-	today_position.remove(today_position.get_close())
-	db.session.commit()
+    # remove the current closing position
+    today_position.remove(today_position.get_close())
+    db.session.commit()
 
-	# add on the new transaction
-	today_position.all_transactions.append(parsed_transaction)
-	db.session.commit()
+    # add on the new transaction
+    today_position.all_transactions.append(parsed_transaction)
+    db.session.commit()
 
-	# recalculate the closing values, then add to the position
-	new_closing_transaction = sumPosition(today_position)
-	today_position.all_transactions.append(new_closing_transaction)
-	db.session.commit()
+    # recalculate the closing values, then add to the position
+    new_closing_transaction = sumPosition(today_position)
+    today_position.all_transactions.append(new_closing_transaction)
+    db.session.commit()
 
-	print '--- Changed today position to be: ---'
-	print today_position
+    print '--- Changed today position to be: ---'
+    print today_position
 
-	check_impacted(today_position)
+    check_impacted(today_position)
 
 
 def check_impacted(changed_position):
-	# update positions that occurred after the changed position
-	impacted_positions = get_positions_after(changed_position)
+    # update positions that occurred after the changed position
+    impacted_positions = get_positions_after(changed_position)
 
-	print 'These positions are impacted: '
-	print impacted_positions
+    print 'These positions are impacted: '
+    print impacted_positions
 
-	cause_index = None
-	impacted_index = 0
-	update_impacted_positions(changed_position, impacted_positions, cause_index, impacted_index)
+    cause_index = None
+    impacted_index = 0
+    update_impacted_positions(changed_position, impacted_positions, cause_index, impacted_index)
 
-	print 'Updated positions are:'
-	for pos in get_all_positions(changed_position.account_id):
-		print pos
+    print 'Updated positions are:'
+    for pos in get_all_positions(changed_position.account_id):
+        print pos
 
-	print '---------------------------\n'
+    print '---------------------------\n'
+
 
 def update_impacted_positions(cause_position, impacted_list, cause_index, impacted_index):
-	db.session.commit()
+    db.session.commit()
 
-	if not impacted_list or len(impacted_list) is 0 or len(impacted_list) <= impacted_index:
-		return
+    if not impacted_list or len(impacted_list) is 0 or len(impacted_list) <= impacted_index:
+        return
 
-	causer = cause_position if cause_index is None else cause_index
-	victim = impacted_list[impacted_index]
+    causer = cause_position if cause_index is None else cause_index
+    victim = impacted_list[impacted_index]
 
-	# grab the closing position from the causer and the opening position on the victim
-	last_close = next((pos for pos in causer.all_transactions if pos.isPosition == 'close'), None).clone()
-	current_open = next((pos for pos in victim.all_transactions if pos.isPosition == 'open'), None)
+    # grab the closing position from the causer and the opening position on the victim
+    last_close = next((pos for pos in causer.all_transactions if pos.isPosition == 'close'), None).clone()
+    current_open = next((pos for pos in victim.all_transactions if pos.isPosition == 'open'), None)
 
-	# reset the open on the victim
-	current_open.mimic_except_date(last_close)
-	current_open.isPosition = 'open'
+    # reset the open on the victim
+    current_open.mimic_except_date(last_close)
+    current_open.isPosition = 'open'
 
-	# save the changes to the opening position
-	db.session.commit()
+    # save the changes to the opening position
+    db.session.commit()
 
-	# recalculate the closing position based on the changed opening
-	updated_victim = impacted_list[impacted_index]
-	# updated_victim.all_transactions.pop()
-	updated_victim.remove(updated_victim.get_close())
-	updated_victim_close = sumPosition(updated_victim)
+    # recalculate the closing position based on the changed opening
+    updated_victim = impacted_list[impacted_index]
+    # updated_victim.all_transactions.pop()
+    updated_victim.remove(updated_victim.get_close())
+    updated_victim_close = sumPosition(updated_victim)
 
-	# save the changes to the closing position
-	updated_victim.all_transactions.append(updated_victim_close)
-	db.session.commit()
+    # save the changes to the closing position
+    updated_victim.all_transactions.append(updated_victim_close)
+    db.session.commit()
 
-	cause_index = 0 if cause_index == None else cause_index + 1
+    cause_index = 0 if cause_index == None else cause_index + 1
 
-	# propogate our changes to later positions
-	update_impacted_positions(causer, impacted_list, cause_index, impacted_index + 1)
+    # propogate our changes to later positions
+    update_impacted_positions(causer, impacted_list, cause_index, impacted_index + 1)
 
 
 #
@@ -292,43 +302,45 @@ def update_impacted_positions(cause_position, impacted_list, cause_index, impact
 # remember to remove the old closing position before summing.
 ##
 def sumPosition(old_position):
-	old_transactions = old_position.all_transactions
+    old_transactions = old_position.all_transactions
 
-	sum_sec_sym = old_position.get_open().sec_sym
-	sum_settle = old_position.get_open().settle
-	sum_entry = sum_settle
-	sum_trade = sum_settle
-	sum_ticket_number = old_position.get_open().ticket_number
-	sum_buy_sell = 'buy'
+    sum_sec_sym = old_position.get_open().sec_sym
+    sum_settle = old_position.get_open().settle
+    sum_entry = sum_settle
+    sum_trade = sum_settle
+    sum_ticket_number = old_position.get_open().ticket_number
+    sum_buy_sell = 'buy'
 
-	total_price = 0
-	total_units = 0
-	total_commission = 0
-	sum_units = 0
+    total_price = 0
+    total_units = 0
+    total_commission = 0
+    sum_units = 0
 
+    sum_sec_sym = old_position.symbol
 
-	sum_sec_sym = old_position.symbol
+    for transaction in old_transactions:
+        total_units += transaction.units
+        total_price += transaction.price * transaction.units
 
-	for transaction in old_transactions:
-		total_units += transaction.units
-		total_price += transaction.price * transaction.units
+        if transaction.buy_sell == 'Buy':
+            sum_units += transaction.units
+        else:
+            sum_units -= transaction.units
 
-		if transaction.buy_sell == 'Buy':
-			sum_units += transaction.units
-		else:
-			sum_units -= transaction.units
+        total_commission += transaction.units * transaction.commission
 
-		total_commission += transaction.units * transaction.commission
+    sum_price = total_price / total_units
+    sum_commission = total_commission / total_units
 
-	sum_price = total_price / total_units
-	sum_commission = total_commission / total_units
+    # we need to hook the exchanges up to actual data
+    sum_exchange_id = 1
 
-	# we need to hook the exchanges up to actual data
-	sum_exchange_id = 1
+    isPosition = "close"
+    summed_transaction = Transaction(old_position.account_id, sum_exchange_id, sum_price, sum_units, sum_sec_sym,
+                                     sum_settle, sum_entry, sum_trade, sum_ticket_number, sum_buy_sell, sum_commission,
+                                     isPosition)
+    return summed_transaction
 
-	isPosition = "close"
-	summed_transaction = Transaction(old_position.account_id, sum_exchange_id, sum_price, sum_units, sum_sec_sym, sum_settle, sum_entry, sum_trade, sum_ticket_number, sum_buy_sell, sum_commission, isPosition)
-	return summed_transaction
 
 if __name__ == '__main__':
-	main(sys.argv)
+    main(sys.argv)

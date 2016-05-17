@@ -1,13 +1,15 @@
 from flask import Flask, jsonify, session, g
 from flask.ext.sqlalchemy import SQLAlchemy
 from datetime import datetime, date, timedelta
-from db_create import db, application
+from db_scripts.db_create import db, application
 from models import *
 import calendar
 
+
 def get_accounts_for_user(user_id):
-	logged_user = db.session.query(User).filter(User.user_id == user_id).first()
-	return logged_user.accounts
+    logged_user = db.session.query(User).filter(User.user_id == user_id).first()
+    return logged_user.accounts
+
 
 def get_transactions_for_date(account, date):
 	current_time = datetime.utcnow() - timedelta(hours=5)
@@ -106,37 +108,41 @@ def get_transactions_for_date(account, date):
 	return return_dict
 
 def make_admin(new_admins):
-	for new_id in new_admins:
-		db.session.query(User).filter(User.user_id == new_id).update({User.admin: True})
-		db.session.commit()
+    for new_id in new_admins:
+        db.session.query(User).filter(User.user_id == new_id).update({User.admin: True})
+        db.session.commit()
+
 
 def associate_accounts_to_user(user_assoc, accounts_adding):
-	for acct_id in accounts_adding:
-		acct_obj = db.session.query(Account).filter(Account.account_id == acct_id).first()
-		selected_user = db.session.query(User).filter(User.user_id == user_assoc).first()
-		if acct_obj not in selected_user.accounts:
-			selected_user.accounts.append(acct_obj)
-			db.session.commit()
+    for acct_id in accounts_adding:
+        acct_obj = db.session.query(Account).filter(Account.account_id == acct_id).first()
+        selected_user = db.session.query(User).filter(User.user_id == user_assoc).first()
+        if acct_obj not in selected_user.accounts:
+            selected_user.accounts.append(acct_obj)
+            db.session.commit()
+
 
 def get_transactions_for_chart(account, stock_sym):
-	transactionList = db.session.query(Transaction).filter(Transaction.account_id == account).order_by(Transaction.settle).all()
+    transactionList = db.session.query(Transaction).filter(Transaction.account_id == account).order_by(
+        Transaction.settle).all()
 
-	valueList = []
-	labelList = []
-	return_dict = {}
+    valueList = []
+    labelList = []
+    return_dict = {}
 
-	for item in transactionList:
-		initSymb = item.sec_sym.partition(' ')[0].lower()
-		if (initSymb == stock_sym):
-			price_x_unit = item.price * item.units
-			valueList.append(price_x_unit)
-			labelList.append(item.settle.strftime('%d %b %Y'))
+    for item in transactionList:
+        initSymb = item.sec_sym.partition(' ')[0].lower()
+        if (initSymb == stock_sym):
+            price_x_unit = item.price * item.units
+            valueList.append(price_x_unit)
+            labelList.append(item.settle.strftime('%d %b %Y'))
 
-	return_dict['values'] = valueList
-	return_dict['labels'] = labelList
+    return_dict['values'] = valueList
+    return_dict['labels'] = labelList
 
-	return return_dict
+    return return_dict
+
 
 def update_commission(acct_id, commission):
-	db.session.query(Account).filter(Account.account_id == acct_id).update({Account.commission: commission})
-	db.session.commit()
+    db.session.query(Account).filter(Account.account_id == acct_id).update({Account.commission: commission})
+    db.session.commit()

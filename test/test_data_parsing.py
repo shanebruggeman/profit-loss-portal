@@ -3,7 +3,7 @@ import sys
 import os
 #sys.path.append('../')
 # sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from parser import parse
+from parser import parse_transactions
 
 
 class TestDataParsing(unittest.TestCase):
@@ -118,7 +118,7 @@ class TestDataParsing(unittest.TestCase):
 		}
 
 		answers = [answer1, answer2, answer3, answer4, answer5, answer6, answer7]
-		parsed_result = parse.parse_transactions(testdata_file, test_maketake_file, test_exchange)
+		parsed_result = parse_transactions.parse_transactions(testdata_file, test_maketake_file, test_exchange)
 
 		# check to see all fields are in the answer
 		for valid_transaction in parsed_result:
@@ -188,7 +188,7 @@ class TestDataParsing(unittest.TestCase):
 			'PhsProIdxOpt':         ['0.20', '0.20']
 		}
 
-		tested_parser = parse.parse_maketake(test_maketake_file)
+		tested_parser = parse_transactions.parse_maketake(test_maketake_file)
 
 		# test each exchange in the test set
 		for exchange in maketake_tests:

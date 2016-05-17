@@ -4,10 +4,10 @@
 
 maketake  Stock                0.00  0.00 instType=stock
 maketake  NonStock             9.99  9.99 instType=equityOpt,indexOpt
-maketake  Ase                  1.00  2.00     exchange=ASE
+maketake  Ase                  1.00  2.00     exchange=ASE,amex-aliases.txt
 maketake  AseCust              0.00  0.00         accType=cust
 maketake  AsePro               0.20  0.20         accType=pro
-maketake  Bat                 -0.25  0.30     exchange=BAT
+maketake  Bat                 -0.25  0.30     exchange=BAT,SMARTO
 maketake  Box                 -0.25  0.30     exchange=BSE
 maketake  BoxNickel            0.65  0.45         incrType=nickel
 maketake  CboCust              0.00  0.00     exchange=CBO accType=cust
