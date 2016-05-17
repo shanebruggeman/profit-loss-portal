@@ -25,8 +25,11 @@ class OptionRowHolder(object):
         print "Looking up the exchange " + exchange
         # print self.all_tabs[3]
         for tab in self.all_tabs:
+            print tab
+            print tab.properties["name"]
             if tab.properties["name"] == exchange or exchange in tab.properties["alias"]:
                 fee = "add_fee" if isAddingLiquidity else "take_fee"
+                print fee
                 # print "Found exchange " + exchange + "\n"
                 return tab.properties[fee]
 

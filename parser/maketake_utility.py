@@ -8,11 +8,19 @@ maketake_upload_location = "maketake_uploads/"
 
 # look for the correct maketake file for the given transaction (determined from TransactTime)
 def find_maketake(account_name, transaction):
-    print 'Finding maketake for account name ' + account_name
-
-    # cut off the hours / minutes / seconds from the transact time
-    time = transaction.properties['TransactTime'].split('-')[0]
-
+    print 'Finding maketake for account name ' + str(account_name)
+    if hasattr(transaction, 'properties'):
+	print "not DB"
+        time = transaction.properties['TransactTime'].split('-')[0]
+        print time
+    else:
+        print "DB TRNA"
+	print transaction.settle
+	time1 = str(transaction.settle)
+	time2 = time1.split(' ')[0]
+	print time2
+        time = "".join(str(transaction.settle).split(' ')[0].split('-'))
+        print time
     parse_date = make_date(time)
 
     uploaded_maketakes = os.listdir(maketake_upload_location)
@@ -30,24 +38,27 @@ def find_maketake(account_name, transaction):
             break
 
         # check only uploads uploaded by the passed user
-        if account_name != maketake.split("_")[0]:
+        if str(account_name) != maketake.split("_")[0]:
             print 'Nonmatching maketake'
             continue
 
-        uploadDates = parse_file_date(maketake)
+        uploadDates = parse_file_date(maketake.split('.')[0])
         uploadFromDate = uploadDates[0]
         uploadToDate = uploadDates[1]
-
+        print "HERE"
         hasFrom = uploadFromDate != ''
         hasTo = uploadToDate != ''
 
         # something has gone wrong in the file storing name scheme
         if not hasFrom and not hasTo:
             raise "There is a file that doesn't follow the naming convention in maketake uploads"
-
+        print hasFrom
+        print hasTo
         # the stored maketake has a range in which it's valid
         if hasFrom and hasTo:
             between = (uploadFromDate <= parse_date) and (uploadToDate >= parse_date)
+            print "BETWEEN:"
+            print between
             if between:
                 print 'isBetween'
                 corresponding_maketake = maketake

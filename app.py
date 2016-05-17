@@ -2,7 +2,8 @@ from __future__ import division
 import os
 import sys
 import random
-from parser.maketake_utility import *
+from parser import maketake_utility
+from parser import parse_maketake
 
 sys.path.append('./')
 sys.path.append('./parser')
@@ -100,29 +101,44 @@ def newplreport(account, date):
 	num_trades = len(transactionList)
 
 	for item in transactionList:
+		print item
 		exch = db.session.query(Exchange).filter(Exchange.exchange_id == item.exchange_id).first()
-		maketake_text = find_maketake(current_account.account_id, item)
-		maketake_parser = MakeTakeParser()
+		print "1"
+		#print find_maketake
+		print current_account.account_id
+		maketake_text = maketake_utility.find_maketake(current_account.account_id, item)
+		print "2"
+		#print maketake_text
+		maketake_parser = parse_maketake.MakeTakeParser()
+		print "3"
 		optionrowholder = maketake_parser.parse_maketake(maketake_text)
+		print "4"
 		if item.buy_sell == 'Sell':
 			isAddingLiquidity = False
 		else:
 			isAddingLiquidity = True
 		exch_fee = optionrowholder.lookup(exch.symbol, isAddingLiquidity)
-
+		print exch_fee
 		sec_fee = item.units * SEC_FEE_RATE * item.price * 100
+		print sec_fee
 		if exch_fee != False:
 			if item.buy_sell == 'Sell':
-				item.commission = round((account_adding.commission * units) + sec_fee, 2) + exch_fee # plus exchange fee
+				print "sell"
+				print current_account.commission * item.units
+				comm =  current_account.commission * item.units
+				item.commission = round(comm + sec_fee, 2) + int(float(exch_fee)) # plus exchange fee
 			else:
-				item.commission = round(account_adding.commission * units, 2) + exch_fee # plus exchange fee
+				print "buy"
+				comm =  current_account.commission * item.units
+
+				item.commission = round(comm, 2) + int(float(exch_fee)) # plus exchange fee
 		else:
 			if item.buy_sell == 'Sell':
-				item.commission = round((account_adding.commission * units) + sec_fee, 2) # plus exchange fee
+				item.commission = round((current_account.commission * item.units) + sec_fee, 2) # plus exchange fee
 			else:
-				item.commission = round(account_adding.commission * units, 2) # plus exchange fee
+				item.commission = round(current_account.commission * item.units, 2) # plus exchange fee
 		# exchange fee calc ^^^^
-
+		print item.commission
 		initSymb = item.sec_sym.partition(' ')[0]
 		if initSymb in stock_dict:
 			if item.sec_sym in stock_dict[initSymb]:
@@ -324,13 +340,13 @@ def maketake_upload():
 		print 'Uploading Maketake File'
 
 		# rename any conflicting maketakes
-		rename_maketakes(acct, fromDate, toDate)
+		maketake_utility.rename_maketakes(acct, fromDate, toDate)
 
 		# match the maketake name scheme
-		from_date_obj = make_date("".join(str(fromDate).split('-')))
-		to_date_obj = make_date("".join(str(toDate).split('-')))
+		from_date_obj = maketake_utility.make_date("".join(str(fromDate).split('-')))
+		to_date_obj = maketake_utility.make_date("".join(str(toDate).split('-')))
 
-		filename = encode_file_date(acct, from_date_obj, to_date_obj if to_date_obj != '' else None)
+		filename = maketake_utility.encode_file_date(acct, from_date_obj, to_date_obj if to_date_obj != '' else None)
 		print 'added filename (route level) is ' + filename
 
 		# save uploaded maketake
