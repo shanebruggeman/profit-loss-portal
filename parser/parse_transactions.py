@@ -108,29 +108,29 @@ def parse_transactions(account_name, data_filetext):
                                  item.properties['MsgType'] in allowed_transactions]
 
     # Maketake fee lookup
-    for valid_transaction in valid_parsed_transactions:
-        properties = valid_transaction.properties
-        side = properties['Side']
-        exchange = properties['ExDestination']
+#    for valid_transaction in valid_parsed_transactions:
+#        properties = valid_transaction.properties
+#        side = properties['Side']
+#        exchange = properties['ExDestination']
 
         # liquidity is being added if true, else it is taking liquidity
-        liquidity_bool = bool(side == '2')
+#        liquidity_bool = bool(side == '2')
 
         # Manage the maketake portion. Maketake fees are initially set by the parser, and are updated when a new
         # maketake is uploaded. This could be handled by the front-end, but that would slow down the creation of
         # reports. Instead we opted to handle the semi-rare event of changes to the maketakes at upload-time.
-        maketake_filetext = maketake_utility.find_maketake(account_name, valid_transaction)
+#        maketake_filetext = maketake_utility.find_maketake(account_name, valid_transaction)
 
         # At least a start-up maketake should exist, so don't forget to have at least one available at the start
-        if not maketake_filetext:
-            print "No valid maketake was found for the transaction's transaction time"
-            print valid_transaction
-            return []
+#        if not maketake_filetext:
+#            print "No valid maketake was found for the transaction's transaction time"
+#            print valid_transaction
+#            return []
 
         # Parse the maketake file, search for the appropriate fee, and set the fee on the transaction
-        maketake_fee_searcher = MakeTakeParser().parse_maketake(maketake_filetext)
-        found_maketake_fee = maketake_fee_searcher.lookup(exchange, liquidity_bool)
-        valid_transaction.properties['maketake_fee'] = found_maketake_fee
+#        maketake_fee_searcher = MakeTakeParser().parse_maketake(maketake_filetext)
+#        found_maketake_fee = maketake_fee_searcher.lookup(exchange, liquidity_bool)
+#        valid_transaction.properties['maketake_fee'] = found_maketake_fee
 
     # return the list of valid transactions parsed from the data file
     return valid_parsed_transactions
