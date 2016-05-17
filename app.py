@@ -22,62 +22,65 @@ MAKETAKE_UPLOAD_FOLDER = os.getcwd() + '/maketake_uploads'
 ALLOWED_EXTENSIONS = set(['txt'])
 application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 application.config['MAKETAKE_UPLOAD_FOLDER'] = MAKETAKE_UPLOAD_FOLDER
+
+SEC_FEE_RATE = .0000184  # per dollar of sale as of 2015
+
 def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+	return '.' in filename and \
+		   filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
 def login_required(f):
-    @wraps(f)
-    def wrap(*args, **kwargs):
-        if 'logged_in' in session:
-            return f(*args, **kwargs)
-        else:
-            flash('You need to login first.')
-            return redirect(url_for('login'))
+	@wraps(f)
+	def wrap(*args, **kwargs):
+		if 'logged_in' in session:
+			return f(*args, **kwargs)
+		else:
+			flash('You need to login first.')
+			return redirect(url_for('login'))
 
-    return wrap
+	return wrap
 
 
 def admin_required(f):
-    @wraps(f)
-    def wrap(*args, **kwargs):
-        if 'admin' in session:
-            return f(*args, **kwargs)
-        else:
-            flash('You need to login first.')
-            return redirect(url_for('home'))
+	@wraps(f)
+	def wrap(*args, **kwargs):
+		if 'admin' in session:
+			return f(*args, **kwargs)
+		else:
+			flash('You need to login first.')
+			return redirect(url_for('home'))
 
-    return wrap
+	return wrap
 
 
 @application.route('/', methods=['GET', 'POST'])
 @login_required
 def home():
-    if request.method == 'POST':
-        report_type = request.form['report_type']
-        acct = request.form['account']
-        dt = request.form['date_type']
-        if report_type == 'trader_conf':
-            return redirect(url_for('trconfreport', account=acct, date=dt))
-        else:
-            return redirect(url_for('newplreport', account=acct, date=dt))
+	if request.method == 'POST':
+		report_type = request.form['report_type']
+		acct = request.form['account']
+		dt = request.form['date_type']
+		if report_type == 'trader_conf':
+			return redirect(url_for('trconfreport', account=acct, date=dt))
+		else:
+			return redirect(url_for('newplreport', account=acct, date=dt))
 
-    if 'logged_in' in session:
-        accountsList = get_accounts_for_user(session['user_id'])
-        return render_template("index.html", accounts=accountsList)
-    else:
-        return redirect(url_for('login'))
+	if 'logged_in' in session:
+		accountsList = get_accounts_for_user(session['user_id'])
+		return render_template("index.html", accounts=accountsList)
+	else:
+		return redirect(url_for('login'))
 
 
 @application.route('/index')
 def main_page():
-    return redirect(url_for('home'))
+	return redirect(url_for('home'))
 
 
 @application.route('/about')
 def about():
-    return render_template("about.html")
+	return render_template("about.html")
 
 
 @application.route('/newplreport/<account>/<date>')
@@ -95,9 +98,31 @@ def newplreport(account, date):
 	bold_dict = {}
 	stock_names = []
 	num_trades = len(transactionList)
-	# grand_total = 0
 
 	for item in transactionList:
+		exch = db.session.query(Exchange).filter(Exchange.exchange_id == item.exchange_id).first()
+		maketake_text = find_maketake(current_account.account_id, item)
+		maketake_parser = MakeTakeParser()
+		optionrowholder = maketake_parser.parse_maketake(maketake_text)
+		if item.buy_sell == 'Sell':
+			isAddingLiquidity = False
+		else:
+			isAddingLiquidity = True
+		exch_fee = optionrowholder.lookup(exch.symbol, isAddingLiquidity)
+
+		sec_fee = item.units * SEC_FEE_RATE * item.price * 100
+		if exch_fee != False:
+			if item.buy_sell == 'Sell':
+				item.commission = round((account_adding.commission * units) + sec_fee, 2) + exch_fee # plus exchange fee
+			else:
+				item.commission = round(account_adding.commission * units, 2) + exch_fee # plus exchange fee
+		else:
+			if item.buy_sell == 'Sell':
+				item.commission = round((account_adding.commission * units) + sec_fee, 2) # plus exchange fee
+			else:
+				item.commission = round(account_adding.commission * units, 2) # plus exchange fee
+		# exchange fee calc ^^^^
+
 		initSymb = item.sec_sym.partition(' ')[0]
 		if initSymb in stock_dict:
 			if item.sec_sym in stock_dict[initSymb]:
@@ -118,21 +143,7 @@ def newplreport(account, date):
 			exch = db.session.query(Exchange).filter(Exchange.exchange_id == item.exchange_id).first()
 			item.exchange = exch.symbol
 			stock_dict[initSymb][item.sec_sym].append(item)
-			# stock_names.append(initSymb)
-			# itemTotal = 0;
-			# for itemz in transactionList:
-			# 	symb = itemz.sec_sym.partition(' ')[0]
-			# 	if symb == initSymb:
-			# 		commish = itemz.commission
-			# 		units = itemz.units
-			# 		broker_fee = commish*units
-			# 		SEC_fee = 0
-			# 		if itemz.buy_sell == "s":
-			# 			SEC_fee = units*itemz.price
-			# 		# print symb +" and "+ initSymb
-			# 		itemTotal += SEC_fee + broker_fee; ##Need to add exchange fee
-			# grand_total +=itemTotal
-			# stock_dict[initSymb] = itemTotal
+
 	# create dictionary of transactions in a closing position
 	option_profit_dict = {}
 	option_unreal_dict = {}
@@ -186,149 +197,149 @@ def newplreport(account, date):
 @application.route('/trconfreport/<account>/<date>')
 @login_required
 def trconfreport(account, date):
-    print account
-    print date
-    transactionList = db.session.query(Transaction).filter(Transaction.account_id == account).all()
+	print account
+	print date
+	transactionList = db.session.query(Transaction).filter(Transaction.account_id == account).all()
 
-    return render_template("traderconfreport.html", list=transactionList, account_id=account)
+	return render_template("traderconfreport.html", list=transactionList, account_id=account)
 
 
 @application.route('/login', methods=['GET', 'POST'])
 def login():
-    error = None
-    if request.method == 'POST':
-        user = db.session.query(User).filter(User.email == request.form['email'],
-                                             User.password == request.form['password']).first()
-        if user:
-            session['logged_in'] = True
-            session['user_id'] = user.user_id
-            if user.admin:
-                session['admin'] = user.admin
-            return redirect(url_for('home'))
-        else:
-            error = 'Invalid Credentials. Please try again.'
-    return render_template("login.html", error=error)
+	error = None
+	if request.method == 'POST':
+		user = db.session.query(User).filter(User.email == request.form['email'],
+											 User.password == request.form['password']).first()
+		if user:
+			session['logged_in'] = True
+			session['user_id'] = user.user_id
+			if user.admin:
+				session['admin'] = user.admin
+			return redirect(url_for('home'))
+		else:
+			error = 'Invalid Credentials. Please try again.'
+	return render_template("login.html", error=error)
 
 
 @application.route('/logout')
 def logout():
-    session.pop('logged_in', None)
-    session.pop('user_id', None)
-    session.pop('admin', None)
-    flash('You were just logged out!')
-    return redirect(url_for('home'))
+	session.pop('logged_in', None)
+	session.pop('user_id', None)
+	session.pop('admin', None)
+	flash('You were just logged out!')
+	return redirect(url_for('home'))
 
 
 @application.route('/register', methods=['GET', 'POST'])
 def register():
-    if request.method == 'POST':
-        if request.form['name'] is not None and request.form['email'] is not None and \
-                request.form['password'] is not None and request.form['password'] == request.form['confirm_password']:
+	if request.method == 'POST':
+		if request.form['name'] is not None and request.form['email'] is not None and \
+				request.form['password'] is not None and request.form['password'] == request.form['confirm_password']:
 
-            req_name = request.form['name']
-            req_email = request.form['email']
-            req_password = request.form['password']
+			req_name = request.form['name']
+			req_email = request.form['email']
+			req_password = request.form['password']
 
-            new_user = User(req_email, req_password, req_name, False)
+			new_user = User(req_email, req_password, req_name, False)
 
-            db.session.add(new_user)
-            db.session.commit()
+			db.session.add(new_user)
+			db.session.commit()
 
-            return redirect(url_for('login'))
-        else:
-            session['logged_in'] = True
-            flash('You were just logged in!')
-            return redirect(url_for('home'))
+			return redirect(url_for('login'))
+		else:
+			session['logged_in'] = True
+			flash('You were just logged in!')
+			return redirect(url_for('home'))
 
-    return render_template("register.html")
+	return render_template("register.html")
 
 
 @application.route('/adminpage', methods=['GET', 'POST'])
 @admin_required
 @login_required
 def adminpage():
-    if request.method == 'GET':
-        accountsList = db.session.query(Account).all()
-        allUsers = db.session.query(User).filter(User.name != 'test').all()
-        nonAdmins = db.session.query(User).filter(User.admin == False, User.name != 'test').all()
-        return render_template("adminpage.html", accounts=accountsList,
-                               allUsers=allUsers, nonAdmins=nonAdmins)
-    else:
-        if request.form['button'] == "Set as Admins":
-            make_admin(request.form.getlist('new_admins'))
-            return redirect(url_for('home'))
-        elif request.form['button'] == "Associate Accounts":
-            user_assoc = request.form['user_adding_to']
-            accounts_adding = request.form.getlist('accounts_adding')
-            associate_accounts_to_user(user_assoc, accounts_adding)
-            return redirect(url_for('home'))
+	if request.method == 'GET':
+		accountsList = db.session.query(Account).all()
+		allUsers = db.session.query(User).filter(User.name != 'test').all()
+		nonAdmins = db.session.query(User).filter(User.admin == False, User.name != 'test').all()
+		return render_template("adminpage.html", accounts=accountsList,
+							   allUsers=allUsers, nonAdmins=nonAdmins)
+	else:
+		if request.form['button'] == "Set as Admins":
+			make_admin(request.form.getlist('new_admins'))
+			return redirect(url_for('home'))
+		elif request.form['button'] == "Associate Accounts":
+			user_assoc = request.form['user_adding_to']
+			accounts_adding = request.form.getlist('accounts_adding')
+			associate_accounts_to_user(user_assoc, accounts_adding)
+			return redirect(url_for('home'))
 
 
 @application.route('/_get_transactions')
 def get_transactions():
-    account = request.args.get('account', 0, type=int)
-    stock_sym = request.args.get('stock_sym', 0).lower()
+	account = request.args.get('account', 0, type=int)
+	stock_sym = request.args.get('stock_sym', 0).lower()
 
-    return jsonify(get_transactions_for_chart(account, stock_sym))
+	return jsonify(get_transactions_for_chart(account, stock_sym))
 
 
 @application.route('/upload', methods=['GET', 'POST'])
 def upload():
-    if request.method == 'GET':
-        accountsList = get_accounts_for_user(session['user_id'])
-        return render_template('upload.html', accounts=accountsList)
-    else:
-        file = request.files['file']
-        acct = request.form['account']
-        print 'Account ID uploading to: ' + acct
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
+	if request.method == 'GET':
+		accountsList = get_accounts_for_user(session['user_id'])
+		return render_template('upload.html', accounts=accountsList)
+	else:
+		file = request.files['file']
+		acct = request.form['account']
+		print 'Account ID uploading to: ' + acct
+	if file and allowed_file(file.filename):
+		filename = secure_filename(file.filename)
 
-        # save the file and then perform parsing on its stored data
-        file_location = UPLOAD_FOLDER + "/" + filename
-        file.save(file_location)
-        db_insert.main(acct, file_location)
+		# save the file and then perform parsing on its stored data
+		file_location = UPLOAD_FOLDER + "/" + filename
+		file.save(file_location)
+		db_insert.main(acct, file_location)
 
-        return render_template('upload.html', filename=filename)
-    else:
-        return render_template('upload.html', )
+		return render_template('upload.html', filename=filename)
+	else:
+		return render_template('upload.html', )
 
 
 @application.route('/maketake-upload', methods=['GET', 'POST'])
 def maketake_upload():
-    if request.method == 'GET':
-        accountsList = get_accounts_for_user(session['user_id'])
-        return render_template('maketake-upload.html', accounts=accountsList)
-    else:
-        file = request.files['file']
-        acct = request.form['account']
-        fromDate = request.form['fromDate']
-        toDate = request.form['toDate']
-        print 'Account ID uploading to: ' + acct
-        print 'From date: ' + fromDate
-        print 'To date: ' + toDate
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
+	if request.method == 'GET':
+		accountsList = get_accounts_for_user(session['user_id'])
+		return render_template('maketake-upload.html', accounts=accountsList)
+	else:
+		file = request.files['file']
+		acct = request.form['account']
+		fromDate = request.form['fromDate']
+		toDate = request.form['toDate']
+		print 'Account ID uploading to: ' + acct
+		print 'From date: ' + fromDate
+		print 'To date: ' + toDate
+	if file and allowed_file(file.filename):
+		filename = secure_filename(file.filename)
 
-        print 'Uploading Maketake File'
+		print 'Uploading Maketake File'
 
-        # rename any conflicting maketakes
-        rename_maketakes(acct, fromDate, toDate)
+		# rename any conflicting maketakes
+		rename_maketakes(acct, fromDate, toDate)
 
-        # match the maketake name scheme
-        from_date_obj = make_date("".join(str(fromDate).split('-')))
-        to_date_obj = make_date("".join(str(toDate).split('-')))
+		# match the maketake name scheme
+		from_date_obj = make_date("".join(str(fromDate).split('-')))
+		to_date_obj = make_date("".join(str(toDate).split('-')))
 
-        filename = encode_file_date(acct, from_date_obj, to_date_obj if to_date_obj != '' else None)
-        print 'added filename (route level) is ' + filename
+		filename = encode_file_date(acct, from_date_obj, to_date_obj if to_date_obj != '' else None)
+		print 'added filename (route level) is ' + filename
 
-        # save uploaded maketake
-        file.save(MAKETAKE_UPLOAD_FOLDER + "/" + filename + '.txt')
+		# save uploaded maketake
+		file.save(MAKETAKE_UPLOAD_FOLDER + "/" + filename + '.txt')
 
-        # redirect back to original page
-        return render_template('maketake-upload.html', filename=filename)
-    else:
-        return render_template('maketake-upload.html', )
+		# redirect back to original page
+		return render_template('maketake-upload.html', filename=filename)
+	else:
+		return render_template('maketake-upload.html', )
 
 
 @application.route('/editaccount', methods=['GET', 'POST'])
@@ -355,14 +366,14 @@ def editaccount():
 
 @application.errorhandler(404)
 def page_not_found(e):
-    return render_template('pagenotfound.html')
+	return render_template('pagenotfound.html')
 
 
 if __name__ == '__main__':
-    if len(sys.argv) > 1:
-        if sys.argv[1] == '-nonlocal':
-            application.run(host='0.0.0.0')
-        else:
-            application.run(debug=True)
-    else:
-        application.run(debug=True)
+	if len(sys.argv) > 1:
+		if sys.argv[1] == '-nonlocal':
+			application.run(host='0.0.0.0')
+		else:
+			application.run(debug=True)
+	else:
+		application.run(debug=True)
