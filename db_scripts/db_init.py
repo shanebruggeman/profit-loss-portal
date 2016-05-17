@@ -1,11 +1,8 @@
 import sys
-# sys.path.append("/Users/watersdr/Documents/Github/profit-loss-portal/")
-# sys.path.append("/Users/shanebruggeman/Documents/CodingProjects/profit-loss-portal/")
 sys.path.append("../")
 sys.path.append('./')
 from db_create import db
 from models import *
-import datetime
 
 # Stack Overflow said this fixes it and it worked so hooray
 print "Initializing tables ..."
@@ -77,8 +74,6 @@ data_account = Account("ProfitLossPortal LLC", "PLPLLC", 7.77)
 
 # link the data account to the data user
 data_user.accounts.append(data_account)
-
-# print "IMPLEMENT ADDING DATA VIA AN INIT DATA & MAKETAKE FILE"
 
 # save the user and everything associated with them
 db.session.add(data_user)

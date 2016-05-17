@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Upload a Maketake</h1>
+<div id="actions" class="row">
+	<div class="col-sm-2 account-selection-wrapper">
+		<select class="borderless-select" name="account" style="overflow: auto" size=10>
+			<optgroup label="Select an Account">
+				{% for account in accounts %}
+				<option name="account" value="{{ account.account_id }}">{{ account.initials }}</option>
+				{% endfor %}
+			</optgroup>
+		</select>
+	</div>
+
+    <div class="col-sm-4 maketake-datepicking">
+        <span class="maketake-upload-instructions">
+            To use the uploader, do the following:
+            <ol>
+                <li>Choose an account</li>
+                <li>Pick an effective start date</li>
+                <li>Pick an effective end date (optional)</li>
+                <li>Choose your maketake to upload and press start</li>
+            </ol>
+        </span>
+        <div class="from-date-picker-wrapper">
+            <label>Effective Start Date</label>
+            <input type="date" id="effective-from-date" />
+        </div>
+        <div class="to-date-picker-wrapper">
+            <label>Effective End Date</label>
+            <input type="date" id="effective-to-date" />
+        </div>
+        <span class="btn btn-success fileinput-button" id='submit-files'>
+			<i class="glyphicon glyphicon-plus"></i>
+			<span>Add files...</span>
+		</span>
+    </div>
+</div>
+<div class="table table-striped" class="files" id="previews">
+
+	<div id="template" class="file-row">
+		<!-- This is used as the file preview template -->
+		<div>
+			<span class="preview"><img data-dz-thumbnail /></span>
+		</div>
+		<div>
+			<p class="name" data-dz-name></p>
+			<strong class="error text-danger" data-dz-errormessage></strong>
+		</div>
+		<div>
+			<p class="size" data-dz-size></p>
+			<div class="progress progress-striped active" role="progressbar">
+				<div class="progress-bar progress-bar-success" style="width:0%; height:100%;" data-dz-uploadprogress><span id="progress-message"></span></div>
+			</div>
+		</div>
+		<div>
+			<button class="btn btn-primary start">
+				<i class="glyphicon glyphicon-upload"></i>
+				<span>Start</span>
+			</button>
+			<button data-dz-remove class="btn btn-danger delete">
+				<i class="glyphicon glyphicon-trash"></i>
+				<span>Remove</span>
+			</button>
+		</div>
+	</div>
+
+</div>
+<!-- <div id="preview-template" style="display:none"></div> -->
+<script src="{{ url_for('static', filename='scripts/dropzone.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/maketake-upload.js') }}"></script>
+{% endblock %}
