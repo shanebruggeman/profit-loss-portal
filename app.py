@@ -3,6 +3,7 @@ import os
 import sys
 import random
 from parser.maketake_utility import *
+
 sys.path.append('./')
 sys.path.append('./parser')
 sys.path.append('./db_scripts')
@@ -21,8 +22,6 @@ MAKETAKE_UPLOAD_FOLDER = os.getcwd() + '/maketake_uploads'
 ALLOWED_EXTENSIONS = set(['txt'])
 application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 application.config['MAKETAKE_UPLOAD_FOLDER'] = MAKETAKE_UPLOAD_FOLDER
-
-
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
