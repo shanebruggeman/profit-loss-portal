@@ -113,9 +113,9 @@ def build_db_transaction(trans, acct):
 	# (Sell-Order) Units * SEC rate
 	sec_fee = units * SEC_FEE_RATE * price * 100
 	if buy_sell == 'Sell':
-		commission = (account_adding.commission * units) + sec_fee # plus exchange fee
+		commission = round((account_adding.commission * units) + sec_fee, 2) # plus exchange fee
 	else:
-		commission = account_adding.commission * units # plus exchange fee
+		commission = round(account_adding.commission * units, 2) # plus exchange fee
 	
 
 	# all parsed transactions are not opening positions

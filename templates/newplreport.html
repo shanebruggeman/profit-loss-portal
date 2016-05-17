@@ -4,6 +4,8 @@
 <link href="{{ url_for('static', filename='styles/bootstrap-table-expandable.css') }}" rel="stylesheet">
 
 <h1>Profit and Loss Report</h1>
+<h2> {{ accountname }}</h2>
+<h3>{{ period }}<h3>
 
 <div class="container-fluid">
 	
@@ -20,25 +22,25 @@
 		<tbody>
 			<!-- loop over all stocks traded -->
 			{% for stocksymbol in stockdict %}
-			<tr class="expandable top-level">
+			<tr id='{{stocksymbol}}' class="expandable top-level">
 				<td class="arrow-cell"></td>
 				<td class='symbol-cell'> {% if stocksymbol %}{{ stocksymbol }}{% endif %}</td>
 				<td> </td>
-				<td>$300.00</td>
-				<td>$485.20</td>
-				<td>$785.20</td>
+				<td>${{ symbolunrealdict[stocksymbol] }}</td>
+				<td>${{ symbolprofitdict[stocksymbol] }}</td>
+				<td>${{ symbolprofitdict[stocksymbol] - symbolfeesdict[stocksymbol] }}</td>
 			</tr>
 			<!-- loop over all options -->
 			{% for option in stockdict[stocksymbol] %}
-			<tr class="expandable">
+			<tr class="expandable {{stocksymbol}}">
 				<td></td>
 				<td class="arrow-cell"></td>
 				<td class='symbol-cell'>{{ option }}</td>
-				<td>$Unreal</td>
-				<td>$Real</td>
-				<td>$Net</td>
+				<td>${{ optionunrealdict[option] }}</td>
+				<td>${{ optionprofitdict[option] }}</td>
+				<td>${{ optionprofitdict[option] - optionfeesdict[option] }}</td>
 			</tr>
-			<tr>
+			<tr class="{{stocksymbol}}">
 				<td></td>
 				<td></td>
 				<td colspan="5">
@@ -57,13 +59,13 @@
 							{% for transaction in stockdict[stocksymbol][option] %}
 							{% if transaction.transaction_id in bolddict[option] %}
 							<tr class="boldtext">
-								{% if transaction.isPosition == "close" %}
+								{% if (transaction.isPosition == "close") and not (transaction.units == 0) %}
 								<td>CLOSING</td>
 								<td>{{ transaction.units }}</td>
 								<td>{{ transaction.price }}</td>
 								<td></td>
-								<td>mark</td>
-								<td>real</td>
+								<td>{{ transaction.mark }}</td>
+								<td>*${{ transaction.unreal }}</td>
 								<td></td>
 								{% elif transaction.isPosition == "regular" %}
 								<td>{{transaction.settle.day|string + "-" +transaction.settle.month|string + "-" + transaction.settle.year|string}}</td>
@@ -76,7 +78,7 @@
 								<td>{{ transaction.price }}</td>
 								<td>{{ transaction.exchange }}</td>
 								<td></td>
-								<td>real</td>
+								<td>{{ transaction.real }}</td>
 								<td>{{ transaction.commission }}</td>
 								{% endif %}
 							</tr>
@@ -86,9 +88,9 @@
 								<td>CLOSING</td>
 								<td>{{ transaction.units }}</td>
 								<td>{{ transaction.price }}</td>
-								<td>{{ transaction.exchange_id }}</td>
-								<td>mark</td>
-								<td>real</td>
+								<td></td>
+								<td>{{ transaction.mark }}</td>
+								<td>${{ transaction.unreal }}</td>
 								<td></td>
 								{% elif transaction.isPosition == "regular" %}
 								<td>{{transaction.settle.day|string + "-" +transaction.settle.month|string + "-" + transaction.settle.year|string}}</td>
@@ -101,7 +103,7 @@
 								<td>{{ transaction.price }}</td>
 								<td>{{ transaction.exchange }}</td>
 								<td></td>
-								<td></td>
+								<td>{{ transaction.real }}</td>
 								<td>{{ transaction.commission }}</td>
 								{% endif %}
 							</tr>

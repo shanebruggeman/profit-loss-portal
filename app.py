@@ -1,8 +1,7 @@
+from __future__ import division
 import os
 import sys
-sys.path.append('./')
-sys.path.append('./parser')
-sys.path.append('./db_scripts')
+import random
 from flask import Flask, render_template, jsonify, redirect, url_for, request, session, flash, g
 from flask.ext.sqlalchemy import SQLAlchemy
 from werkzeug import secure_filename
@@ -73,6 +72,9 @@ def about():
 @login_required
 def newplreport(account, date):
 
+	current_account = db.session.query(Account).filter(Account.account_id == account).first()
+	current_account_name = current_account.name
+
 	trans_and_time_period = get_transactions_for_date(account, date)
 	transactionList = trans_and_time_period['trans']
 	time_period = trans_and_time_period['period']
@@ -120,37 +122,54 @@ def newplreport(account, date):
 			# grand_total +=itemTotal
 			# stock_dict[initSymb] = itemTotal
 	# create dictionary of transactions in a closing position
+	option_profit_dict = {}
+	option_unreal_dict = {}
+	option_fees_dict = {}
+	symbol_profit_dict = {}
+	symbol_unreal_dict = {}
+	symbol_fees_dict = {}
 	for symbol in stock_dict:
+		symbol_profit_dict[symbol] = 0
+		symbol_unreal_dict[symbol] = 0
+		symbol_fees_dict[symbol] = 0
 		for option in stock_dict[symbol]:
 			current_quantity = 0
 			bold_dict[option] = []
 			trans_to_bold = []
+			option_profit_dict[option] = 0
+			option_unreal_dict[option] = 0
+			option_fees_dict[option] = 0
 			for trans in stock_dict[symbol][option]:
 				if trans.isPosition == "regular":
+					option_fees_dict[option] += trans.commission
 					if (trans.buy_sell == "Buy"):
+						recent_buy_price = trans.price
 						current_quantity = current_quantity + trans.units
 					else:
+						real_profits = 100 * (trans.price - recent_buy_price) * trans.units
+						option_profit_dict[option] += real_profits
+						trans.real = real_profits
 						current_quantity = current_quantity - trans.units
+				elif trans.isPosition == 'close':
+					rand_multiplier = (random.randint(80,120))/100 #random multiplier from 8-120 percent
+					print rand_multiplier
+					market_price = recent_buy_price * rand_multiplier
+					trans.mark = market_price 
+					trans.unreal = 100 * (recent_buy_price - market_price) * trans.units
+					option_unreal_dict[option] += trans.unreal
 				if current_quantity == 0:
 					del trans_to_bold[:]
 				else:
 					trans_to_bold.append(trans.transaction_id)
 
-			# if current_quantity != 0:
-
-				################################
-				#CALCULATE UNREALIZED PROFIT HERE
-				################################
+			symbol_profit_dict[symbol] += option_profit_dict[option]
+			symbol_unreal_dict[symbol] += option_unreal_dict[option]
+			symbol_fees_dict[symbol] += option_fees_dict[option]
 
 
 			bold_dict[option] = trans_to_bold
-			# if current_quantity != 0:
-				#
-				# closing_position = StockPosition(last_trans.sec_sym, last_trans.settle ,last_trans.account_id)
-				# closing_position.all_transactions.append(stock_dict[symbol][option])
+	return render_template('newplreport.html',accountname = current_account_name, stockdict=stock_dict, period=time_period, bolddict=bold_dict, optionprofitdict=option_profit_dict, symbolprofitdict=symbol_profit_dict, optionfeesdict=option_fees_dict, symbolfeesdict=symbol_fees_dict, optionunrealdict=option_unreal_dict, symbolunrealdict=symbol_unreal_dict)
 
-	# return render_template('plreport.html', transList = transactionList, totalProfit=grand_total, numTrades= num_trades, list=stock_names, dict=stock_dict, period = time_period)
-	return render_template('newplreport.html', stockdict=stock_dict, period=time_period, bolddict=bold_dict)
 
 
 @application.route('/trconfreport/<account>/<date>')
@@ -271,9 +290,6 @@ def editaccount():
 			print "we got here"
 			return redirect(url_for('editaccount'))
 
-# @application.route('/newplreport')
-# def newplreport():
-# 	return render_template('newplreport.html')
 
 @application.errorhandler(404)
 def page_not_found(e):
