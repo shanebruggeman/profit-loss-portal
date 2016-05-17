@@ -22,6 +22,9 @@ MAKETAKE_UPLOAD_FOLDER = os.getcwd() + '/maketake_uploads'
 ALLOWED_EXTENSIONS = set(['txt'])
 application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 application.config['MAKETAKE_UPLOAD_FOLDER'] = MAKETAKE_UPLOAD_FOLDER
+
+SEC_FEE_RATE = .0000184  # per dollar of sale as of 2015
+
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
@@ -98,7 +101,31 @@ def newplreport(account, date):
 	# grand_total = 0
 
 	for item in transactionList:
-		initSymb = item.sec_sym.partition(' ')[0]
+        # exchange fee calc
+        exch = db.session.query(Exchange).filter(Exchange.exchange_id == item.exchange_id).first()
+        maketake_text = find_maketake(current_account.account_id, item)
+        maketake_parser = new MakeTakeParser()
+        optionrowholder = maketake_parser.parse_maketake(maketake_text)
+        if item.buy_sell == 'Sell':
+            isAddingLiquidity = False
+        else:
+            isAddingLiquidity = True
+        exch_fee = optionrowholder.lookup(exch.symbol, isAddingLiquidity)
+
+        sec_fee = item.units * SEC_FEE_RATE * item.price * 100
+        if exch_fee != False:
+            if item.buy_sell == 'Sell':
+                item.commission = round((account_adding.commission * units) + sec_fee, 2) + exch_fee # plus exchange fee
+            else:
+                item.commission = round(account_adding.commission * units, 2) + exch_fee # plus exchange fee
+		else:
+            if item.buy_sell == 'Sell':
+                item.commission = round((account_adding.commission * units) + sec_fee, 2) # plus exchange fee
+            else:
+                item.commission = round(account_adding.commission * units, 2) # plus exchange fee
+        # exchange fee calc ^^^^
+
+        initSymb = item.sec_sym.partition(' ')[0]
 		if initSymb in stock_dict:
 			if item.sec_sym in stock_dict[initSymb]:
 				# item.sec_sym might not be the correct field

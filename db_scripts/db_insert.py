@@ -8,8 +8,6 @@ from sqlalchemy.sql import extract
 from parser import parse_transactions as parse
 from datetime import datetime
 
-SEC_FEE_RATE = .0000184  # per dollar of sale as of 2015
-
 def main(account, file_location):
     res = parse.main(['', account, file_location])
 
@@ -100,21 +98,10 @@ def build_db_transaction(trans, acct):
 		buy_sell='Buy'
 	else:
 		buy_sell='Sell'
-	account_adding = Account.query.filter(Account.account_id == account_id).first()
-	# Add all of this to get commission:
-	# units * account commission
-	# exchange fee
-	# (Sell-Order) Units * SEC rate
-	sec_fee = units * SEC_FEE_RATE * price * 100
-	if buy_sell == 'Sell':
-		commission = round((account_adding.commission * units) + sec_fee, 2) # plus exchange fee
-	else:
-		commission = round(account_adding.commission * units, 2) # plus exchange fee
 	
-
 	# all parsed transactions are not opening positions
 	isPosition = 'regular'
-	parsed_transaction = Transaction(account_id, exchange_id, price, units, sec_sym, settle, entry, trade, ticket_number, buy_sell, commission, isPosition)
+	parsed_transaction = Transaction(account_id, exchange_id, price, units, sec_sym, settle, entry, trade, ticket_number, buy_sell, 0, isPosition)
 	return parsed_transaction
 
 def get_date_position(account_id, sec_sym, month, day, year):
