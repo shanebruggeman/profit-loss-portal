@@ -47,4 +47,5 @@ maketake  Mia                  0.50  0.50     exchange=MIA
 maketake  GEMCustNonPennies   -0.82  0.82     exchange=GEM accType=cust incrType=nickel
 maketake  GEMCustPennies      -0.48  0.45     exchange=GEM accType=cust  incrType=penny
 maketake  GEMProNonPennies    -0.10  0.87     exchange=GEM accType=pro incrType=nickel
+
 maketake  GEMProPennies       -0.25  0.48     exchange=GEM accType=pro  incrType=penny
