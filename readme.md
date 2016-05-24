@@ -1,5 +1,5 @@
 Profit and Loss Portal - Tour of Code
----
+___
 ### *App.py*
 > app.py is the starting point for the application
 
@@ -10,20 +10,20 @@ App.py holds all of the routing logic for the application. There are several thi
     def home():    
     ```    
     Adding the login annotation will force a user to log in before they reach a certain page.
----    
+___    
 2) @admin_required
     ```python    
     @application.route('/adminpage', methods=['GET', 'POST'])    
     @admin_required    
     ```
     Adding the admin annotation will only allow users that are admins to access the specified route.
----    
+___    
 3) @application.route
     ```python
     @application.route('/index')
     ```
     Creates a new route, as shown above. This helps modularize and break up the application.
----    
+___    
 4) Uploading files - /upload & /maketake-upload    
     ```python    
     @application.route('/upload', methods=['GET', 'POST'])    
@@ -38,14 +38,14 @@ App.py holds all of the routing logic for the application. There are several thi
        the same name as the upload name while maketake-uploads intelligently rename
        the files as described below under 'Maketake'    
 
----    
+___    
 5) Error Handling    
     ```python    
     @application.errorhandler(404)    
     ```    
     If a page / route is not found, the application serves a not-found page.
     This page can be modified under the 'templates' directory.
----    
+___    
 ### *Models.py*    
 ##### Account    
 * account_id - unique db identifier for the account
@@ -105,7 +105,7 @@ Transaction (Alphabet):
     3. Regular Transaction (2 units bought)
     4. Closing Transaction (5 units bought)
 ```
----
+___
 ### *Requirements.txt*
 This file holds all the python dependencies for the app.
 ```bash
@@ -123,7 +123,7 @@ ___
     * Takes transaction data and tries to place it under the appropriate StockPosition object in the database.
     If the transaction impacts others (its transaction date comes before some already
     in the database) the affected data should self-correct and recalculate.
----
+___
 ### *Parse Transactions*
 The parser's job is to take example input in FIX 4.2 format and extract relevant information for database insertion. To do this,
 it does a bunch of string processing and then sets attributes on its own 'Transaction' items. These objects are then
